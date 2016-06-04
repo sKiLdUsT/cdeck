@@ -29,4 +29,6 @@ class PasswordController extends Controller
     {
         $this->middleware('guest');
     }
+
+    public $subject = 'cDeck: Password zurücksetzen';
 }

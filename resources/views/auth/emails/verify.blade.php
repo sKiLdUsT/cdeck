@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 
@@ -70,7 +67,7 @@
                                         </tr>
                                         <tr>
                                             <td class="h1" style="padding: 5px 0 0 0; color: #FFFFFF">
-                                                Passwort zurücksetzten
+                                                Email bestätigen.
                                             </td>
                                         </tr>
                                     </table>
@@ -103,7 +100,7 @@
                                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                         <tr>
                                             <td class="bodycopy">
-                                                Bei uns ist eine Anfrage für ein zurücksetzten deines Passwortes eingegangen. Wenn diese von dir kam, klicke unten um deine Anfrage zu bestätigen. Ansonsten ignoriere diese Nachricht.
+                                                Jemand hat sich mit ihrer Email-Adresse bei cDeck angemeldet. Bitte bestätigen sie, dass sie der wahre Inhaber sind.
                                             </td>
                                         </tr>
                                         <tr>
@@ -111,7 +108,7 @@
                                                 <table class="buttonwrapper" bgcolor="#660000" border="0" cellspacing="0" cellpadding="0">
                                                     <tr>
                                                         <td class="button" height="45">
-                                                            <a href="{{ $link = url('password/reset', $token).'?email='.urlencode($user->getEmailForPasswordReset()) }}"> Zurücksetzen</a>
+                                                            <a href="{{ url("register/confirm/{$user->token}") }}">Bestätigen</a>
                                                         </td>
                                                     </tr>
                                                 </table>

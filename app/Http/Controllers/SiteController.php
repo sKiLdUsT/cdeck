@@ -8,17 +8,31 @@ use App\Http\Requests;
 class SiteController extends Controller
 {
     public function login(){
-        $title = 'Login';
+        $title = 'Login - ';
         $request = Request();
         $deliver = $request->input('deliver', 'null');
-        $login = true;
-        return view('app.login', compact('title', 'deliver', 'login'));
+        $hideNavbar = true;
+        return view('auth.login', compact('title', 'deliver', 'hideNavbar'));
     }
     public function register(){
-        $title = 'Register';
+        $title = 'Register - ';
         $request = Request();
         $deliver = $request->input('deliver', 'null');
-        $login = true;
-        return view('app.register', compact('title', 'deliver', 'login'));
+        $hideNavbar = true;
+        return view('auth.register', compact('title', 'deliver', 'hideNavbar'));
+    }
+    public function impressum(){
+        $title = 'Impressum - ';
+        $request = Request();
+        $deliver = $request->input('deliver', 'null');
+        $hideNavbar = true;
+        return view('app.impressum', compact('title', 'deliver', 'hideNavbar'));
+    }
+    public function datenschutz(){
+        $title = 'Datenschutz - ';
+        $request = Request();
+        $deliver = $request->input('deliver', 'null');
+        $hideNavbar = true;
+        return view('app.datenschutz', compact('title', 'deliver', 'hideNavbar'));
     }
 }

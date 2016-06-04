@@ -156,6 +156,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         'Thujohn\Twitter\TwitterServiceProvider',
+        'Laracasts\Flash\FlashServiceProvider'
 
     ],
 
@@ -203,7 +204,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Twitter' => 'Thujohn\Twitter\Facades\Twitter',
-
+        'Flash' => 'Laracasts\Flash\Flash'
     ],
 
 ];

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use Illuminate\Http\Request;
+use DB;
 
 class HomeController extends Controller
 {
@@ -22,8 +23,12 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        return view('app.home');
+    public function index(){
+        $title = 'Home - ';
+        $request = Request();
+        $deliver = $request->input('deliver', 'null');
+        $hash = DB::table('contents')->where('uid', session()->get('id'))->where('type', '1')->value('hash');
+        if($hash != null){$file = '1/'.$hash;}else{$file=null;}
+        return view('app.home', compact('title', 'deliver', 'file'));
     }
 }

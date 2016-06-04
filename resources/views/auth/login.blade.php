@@ -16,11 +16,11 @@
                                         <strong>{{ $errors->first('email') }}</strong>
                                     </span>
                             <div class="input-field col s6">
-                                <input name="user" type="email" class="validate" />
+                                <input name="email" type="email" class="validate" />
                                 <label for="email">Email</label>
                             </div>
                             <div class="input-field col s6">
-                                <input name="pass" type="password" class="validate" />
+                                <input name="password" type="password" class="validate" />
                                 <label for="password">Password</label>
                             </div>
                             <div class="col s4 offset-s3">

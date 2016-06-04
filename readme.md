@@ -1,4 +1,4 @@
-# Kontrollraum Twitter Board
+# cDeck Twitter Board
 
 
 ## How to use
@@ -16,3 +16,8 @@ Developing deployment:
 * put it in a new directory  and create a `www` directory inside. Unzip the files
 * now `git clone` into the `www`-directory
 * now do `vagrant up`. The box will configure itself. Afterwards, you can reach the site at [localhost](http://localhost)
+
+
+##User Content File Types
+* 0 Voice
+* 1 Profile Picture
