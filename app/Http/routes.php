@@ -13,13 +13,11 @@
 
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
-    Route::get('/', 'HomeController@home');
-    Route::get('/login', 'SiteController@login');
-    Route::get('/register', 'SiteController@register');
+    Route::get('/', 'HomeController@index');
 
-
-    Route::get('/test', function()
-    {
-        return Twitter::getUserTimeline(['screen_name' => 'therealskildust', 'count' => 20, 'format' => 'json']);
-    });
 });
+
+
+Route::auth();
+
+Route::get('/home', 'HomeController@index');

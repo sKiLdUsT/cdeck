@@ -22,10 +22,8 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function home(){
-        $title = 'Login';
-        $request = Request();
-        $deliver = $request->input('deliver', 'null');
-        return view('app.home', compact('title', 'deliver'));
+    public function index()
+    {
+        return view('app.home');
     }
 }
