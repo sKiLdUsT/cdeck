@@ -13,9 +13,13 @@
 
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
-    //Route::get('/', 'SiteController@home');
-    Route::get('/', function()
+    Route::get('/', 'HomeController@home');
+    Route::get('/login', 'SiteController@login');
+    Route::get('/register', 'SiteController@register');
+
+
+    Route::get('/test', function()
     {
-        return Twitter::getUserTimeline(['screen_name' => 'thujohn', 'count' => 20, 'format' => 'json']);
+        return Twitter::getUserTimeline(['screen_name' => 'therealskildust', 'count' => 20, 'format' => 'json']);
     });
 });
