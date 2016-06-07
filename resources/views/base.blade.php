@@ -9,12 +9,11 @@
     <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link type="text/css" rel="stylesheet" href="{{elixir('assets/css/app.css')}}" media="screen,projection"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- Twitter Stuff (Wenn fertig hier Card testen: https://cards-dev.twitter.com/validator) -->
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@cdeckapp"/>
     <meta name="twitter:title" content="cDeck"/>
     <meta name="twitter:description" content="Moderner und intelligenter Twitter-Client"/>
-    <meta name="twitter:image" content="HIER CONTENT BILD FÜR CARD"/>
+    <meta name="twitter:image" content="/assets/img/logo.png"/>
     <meta property="og:title" content="cDeck">
     <meta property="og:description" content="Moderner und intelligenter Twitter-Client">
 </head>

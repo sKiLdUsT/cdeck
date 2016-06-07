@@ -7,12 +7,20 @@ use App\Http\Requests;
 
 class SiteController extends Controller
 {
+
     public function login(){
         $title = 'Login - ';
         $request = Request();
         $deliver = $request->input('deliver', 'null');
         $hideNavbar = true;
         return view('auth.login', compact('title', 'deliver', 'hideNavbar'));
+    }
+    public function memo(){
+        $title = 'Memo - ';
+        $request = Request();
+        $deliver = $request->input('deliver', 'null');
+        $hideNavbar = true;
+        return ("Kommt noch.");
     }
     public function register(){
         $title = 'Register - ';

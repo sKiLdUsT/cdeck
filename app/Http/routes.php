@@ -21,6 +21,7 @@ Route::post('login', 'SessionsController@postLogin');
 Route::get('logout', 'SessionsController@logout');
 Route::get('/impressum', 'SiteController@impressum');
 Route::get('/datenschutz', 'SiteController@datenschutz');
+Route::get('/memo', 'SiteController@memo');
 
 Route::get('/usrcontent/{type}/{hash}', function($type = null, $hash = null){
     $file = DB::table('contents')->where('type', '1')->where('hash', $hash);
