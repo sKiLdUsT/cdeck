@@ -7,7 +7,6 @@ use App\Http\Requests;
 
 class SiteController extends Controller
 {
-
     public function login(){
         $title = 'Login - ';
         $request = Request();

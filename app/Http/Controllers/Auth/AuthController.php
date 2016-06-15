@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
-use Validator;
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\ThrottlesLogins;
-use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
+use Auth;
+use Twitter;
+use Session;
+use Redirect;
+use Illuminate\Support\Facades\Input;
 
 class AuthController extends Controller
 {
@@ -21,52 +23,109 @@ class AuthController extends Controller
     |
     */
 
-    use AuthenticatesAndRegistersUsers, ThrottlesLogins;
+    protected $redirectPath = '/';
 
     /**
-     * Where to redirect users after login / registration.
+     * Redirect the user to the Twitter authentication page.
      *
-     * @var string
+     * @return Response
      */
-    protected $redirectTo = '/';
-
-    /**
-     * Create a new authentication controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function redirectToProvider()
     {
-        $this->middleware('guest', ['except' => 'logout']);
+        $sign_in_twitter = true;
+        $force_login = false;
+
+        // Make sure we make this request w/o tokens, overwrite the default values in case of login.
+        Twitter::reconfig(['token' => '', 'secret' => '']);
+        $token = Twitter::getRequestToken(route('twitter.callback'));
+
+        if (isset($token['oauth_token_secret']))
+        {
+            $url = Twitter::getAuthorizeURL($token, $sign_in_twitter, $force_login);
+
+            Session::put('oauth_state', 'start');
+            Session::put('oauth_request_token', $token['oauth_token']);
+            Session::put('oauth_request_token_secret', $token['oauth_token_secret']);
+
+            return Redirect::to($url);
+        }
     }
 
     /**
-     * Get a validator for an incoming registration request.
+     * Obtain the user information from Twitter.
      *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
+     * @return Response
      */
-    protected function validator(array $data)
+    public function handleProviderCallback()
     {
-        return Validator::make($data, [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:6|confirmed',
-        ]);
+        if (Session::has('oauth_request_token'))
+        {
+            $request_token = [
+                'token'  => Session::get('oauth_request_token'),
+                'secret' => Session::get('oauth_request_token_secret'),
+            ];
+
+            Twitter::reconfig($request_token);
+
+            $oauth_verifier = false;
+
+            if (Input::has('oauth_verifier'))
+            {
+                $oauth_verifier = Input::get('oauth_verifier');
+            }
+
+            // getAccessToken() will reset the token for you
+            $token = Twitter::getAccessToken($oauth_verifier);
+
+            if (!isset($token['oauth_token_secret']))
+            {
+                return Redirect::route('twitter.login')->with('flash_error', 'We could not log you in on Twitter.');
+            }
+
+            $credentials = Twitter::getCredentials();
+
+            if (is_object($credentials) && !isset($credentials->error))
+            {
+                // $credentials contains the Twitter user object with all the info about the user.
+                // Add here your own user logic, store profiles, create new users on your tables...you name it!
+                // Typically you'll want to store at least, user id, name and access tokens
+                // if you want to be able to call the API on behalf of your users.
+
+                // This is also the moment to log in your users if you're using Laravel's Auth class
+                // Auth::login($user) should do the trick.
+
+                Session::put('access_token', $token);
+                $authUser = $this->findOrCreateUser($credentials, $token);
+                Auth::login($authUser, true);
+                return redirect()->route('index');
+            }
+
+            return Redirect::route('twitter.error')->with('flash_error', 'Crab! Something went wrong while signing you up!');
+        }
+
+
     }
 
     /**
-     * Create a new user instance after a valid registration.
+     * Return user if exists; create and return if doesn't
      *
-     * @param  array  $data
+     * @param $twitterUser
      * @return User
      */
-    protected function create(array $data)
+    private function findOrCreateUser($twitterUser, $token)
     {
+        $authUser = User::where('twitter_id', $twitterUser->id)->first();
+
+        if ($authUser){
+            return $authUser;
+        }
+
         return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'name' => $twitterUser->name,
+            'handle' => $twitterUser->screen_name,
+            'twitter_id' => $twitterUser->id,
+            'avatar' => $twitterUser->profile_image_url_https,
+            'token' => json_encode($token)
         ]);
     }
 }

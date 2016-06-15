@@ -27,8 +27,6 @@ class HomeController extends Controller
         $title = 'Home - ';
         $request = Request();
         $deliver = $request->input('deliver', 'null');
-        $hash = DB::table('contents')->where('uid', session()->get('id'))->where('type', '1')->value('hash');
-        if($hash != null){$file = '1/'.$hash;}else{$file=null;}
-        return view('app.home', compact('title', 'deliver', 'file'));
+        return view('app.home', compact('title', 'deliver'));
     }
 }

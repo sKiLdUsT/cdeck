@@ -50,5 +50,6 @@ function ajaxNav(ancor){
 
 $(document).ready(function () {
    ajaxNav($("a.ajax-link"));
-    login($("form.ajax-form"))
+    login($("form.ajax-form"));
+    setInterval(function(){Pace.ignore(function(){$.ajax({type:'GET',url:document.location,error:function(){location.reload()}})})}, 2000)
 });

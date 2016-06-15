@@ -156,7 +156,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         'Thujohn\Twitter\TwitterServiceProvider',
-        'Laracasts\Flash\FlashServiceProvider'
+        Laravel\Socialite\SocialiteServiceProvider::class
 
     ],
 
@@ -204,7 +204,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Twitter' => 'Thujohn\Twitter\Facades\Twitter',
-        'Flash' => 'Laracasts\Flash\Flash'
+        'Flash' => 'Laracasts\Flash\Flash',
+        'Socialite' => Laravel\Socialite\Facades\Socialite::class
     ],
 
 ];
