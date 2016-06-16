@@ -1,6 +1,6 @@
     <meta charset="UTF-8"/>
     <title>{{$title or ""}}cDeck</title>
-    <meta name="description" content="HIER TEXT">
+    <meta name="description" content="Moderner und intelligenter Twitter-Client">
     <meta name="language" content="de">
     <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>

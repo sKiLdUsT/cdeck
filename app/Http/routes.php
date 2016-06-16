@@ -19,9 +19,6 @@ Route::get('/memo', 'SiteController@memo');
 Route::get('/login', 'SiteController@login');
 Route::get('auth/twitter', ['as' => 'twitter.login', 'uses' => 'Auth\AuthController@redirectToProvider']);
 Route::get('auth/twitter/callback', ['as' => 'twitter.callback', 'uses' => 'Auth\AuthController@handleProviderCallback']);
-Route::get('/session', function(){
-    return session()->all();
-});
 
 
 Route::group(['prefix' => 'api'], function () {
