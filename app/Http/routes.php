@@ -22,3 +22,14 @@ Route::get('auth/twitter/callback', ['as' => 'twitter.callback', 'uses' => 'Auth
 Route::get('/session', function(){
     return session()->all();
 });
+
+
+Route::group(['prefix' => 'api'], function () {
+    Route::group(['prefix' => 'twitter'], function () {
+        Route::get('getToken', 'ApiController@getToken');
+    });
+    Route::group(['prefix' => 'debug'], function () {
+        Route::get('getSession', 'ApiController@getSession');
+        Route::get('ping', function(){return('{response: true}');});
+    });
+});

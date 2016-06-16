@@ -51,5 +51,12 @@ function ajaxNav(ancor){
 $(document).ready(function () {
    ajaxNav($("a.ajax-link"));
     login($("form.ajax-form"));
-    setInterval(function(){Pace.ignore(function(){$.ajax({type:'GET',url:document.location,error:function(){location.reload()}})})}, 2000)
+    setInterval(function(){Pace.ignore(function(){$.ajax({type:'GET',url: '/api/debug/ping',error:function(){location.reload()}})})}, 7000);
+    Pace.ignore(function() {
+        var client = new cDeck();
+        var upstream = client.connect();
+        $(window).on('beforeunload', function(){
+            upstream.close();
+        });
+    });
 });

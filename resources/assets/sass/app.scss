@@ -19,3 +19,11 @@ $link-color: color("light-blue", "darken-1") !default;
 nav ul li img{
   margin-top: 7px;
 }
+
+.card .timeline{
+  transition: all 0.4s ease-out;
+  opacity: 0;
+}
+.card .timeline.show {
+  opacity: 1;
+}

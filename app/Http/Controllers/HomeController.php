@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests;
 use Illuminate\Http\Request;
 use DB;
+use Twitter;
 
 class HomeController extends Controller
 {
@@ -27,6 +28,7 @@ class HomeController extends Controller
         $title = 'Home - ';
         $request = Request();
         $deliver = $request->input('deliver', 'null');
-        return view('app.home', compact('title', 'deliver'));
+        $timeline = json_decode(Twitter::getHomeTimeline(['count' => 50, 'format' => 'json']));
+        return view('app.home', compact('title', 'deliver', 'timeline'));
     }
 }
