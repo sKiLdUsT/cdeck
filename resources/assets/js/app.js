@@ -49,6 +49,9 @@ function ajaxNav(ancor){
 }
 
 $(document).ready(function () {
+    if(!navigator.cookieEnabled){
+        //Hier weiter machen danke :D
+    }
    ajaxNav($("a.ajax-link"));
     login($("form.ajax-form"));
     setInterval(function(){Pace.ignore(function(){$.ajax({type:'GET',url: '/api/debug/ping',error:function(){location.reload()}})})}, 7000);
