@@ -1,3 +1,4 @@
+@import "node_modules/bourbon/app/assets/stylesheets/_bourbon.scss";
 @import "node_modules/materialize-css/sass/materialize";
 
 
@@ -16,14 +17,30 @@ $error-color: color("red", "base") !default;
 
 $link-color: color("light-blue", "darken-1") !default;
 
-nav ul li img{
-  margin-top: 7px;
-}
-
 .card .timeline{
   transition: all 0.4s ease-out;
-  opacity: 0;
 }
-.card .timeline.show {
-  opacity: 1;
+
+#username{
+  font-size: 14px;
+}
+
+.card .card-image {
+  height: 250px;
+  overflow: hidden;
+  position: relative;
+  background-color: rgba(236,239,241, 0.2);
+}
+.materialboxed .initialized .active{
+  position: fixed;
+}
+.card .card-image img{
+  position: absolute;
+  object-fit: none;
+  @include transform( translateY(-10%) );
+
+}
+
+div .section{
+  transition: 1s ease-out;
 }

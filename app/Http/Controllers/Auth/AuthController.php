@@ -112,9 +112,9 @@ class AuthController extends Controller
      * @param $twitterUser
      * @return User
      */
-    private function findOrCreateUser($twitterUser, $token)
-    {
-        $authUser = User::where('twitter_id', $twitterUser->id)->first();
+    private function findOrCreateUser($twitterUser, $token){
+
+        $authUser = User::where('handle', $twitterUser->screen_name)->first();
 
         if ($authUser){
             return $authUser;

@@ -1,7 +1,7 @@
 @extends('base')
 
 @section('content')
-    <main class="hide-on-small-and-down">
+    <main class="hide-on-small-and-down ">
         <div class="row">
             <div class="col s3">
                 <div class="section center-align">
@@ -14,19 +14,47 @@
                 <div class="section center-align">
                     <h4>Home</h4>
                     <div id="timeline">
-                    @foreach($timeline as $tweet)
-                        <div class="divider"></div>
-                                <div class="card blue-grey darken-1">
-                                    <div class="card-content white-text">
-                                        <span class="card-title left-align"><img src="{{$tweet->user->profile_image_url_https}}" alt="Profilbild" class="circle responsive-img">{{$tweet->user->screen_name}}</span>
-                                        <p>{{$tweet->text}}</p>
-                                    </div>
-                                    <div class="card-action">
-                                        <a href="#">This is a link</a>
-                                        <a href="#">This is a link</a>
-                                    </div>
+                        <div class="preloader-wrapper big active">
+                            <div class="spinner-layer spinner-blue">
+                                <div class="circle-clipper left">
+                                    <div class="circle"></div>
+                                </div><div class="gap-patch">
+                                    <div class="circle"></div>
+                                </div><div class="circle-clipper right">
+                                    <div class="circle"></div>
                                 </div>
-                    @endforeach
+                            </div>
+
+                            <div class="spinner-layer spinner-red">
+                                <div class="circle-clipper left">
+                                    <div class="circle"></div>
+                                </div><div class="gap-patch">
+                                    <div class="circle"></div>
+                                </div><div class="circle-clipper right">
+                                    <div class="circle"></div>
+                                </div>
+                            </div>
+
+                            <div class="spinner-layer spinner-yellow">
+                                <div class="circle-clipper left">
+                                    <div class="circle"></div>
+                                </div><div class="gap-patch">
+                                    <div class="circle"></div>
+                                </div><div class="circle-clipper right">
+                                    <div class="circle"></div>
+                                </div>
+                            </div>
+
+                            <div class="spinner-layer spinner-green">
+                                <div class="circle-clipper left">
+                                    <div class="circle"></div>
+                                </div><div class="gap-patch">
+                                    <div class="circle"></div>
+                                </div><div class="circle-clipper right">
+                                    <div class="circle"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -43,10 +71,8 @@
                 <i class="large material-icons">mode_edit</i>
             </a>
             <ul>
-                <li><a class="btn-floating red"><i class="material-icons">insert_chart</i></a></li>
-                <li><a class="btn-floating yellow darken-1"><i class="material-icons">format_quote</i></a></li>
-                <li><a class="btn-floating green"><i class="material-icons">publish</i></a></li>
-                <li><a class="btn-floating blue"><i class="material-icons">attach_file</i></a></li>
+                <li><a class="btn-floating yellow darken-1" id="newTweet"><i class="material-icons">format_quote</i></a></li>
+                <li><a class="btn-floating blue" id="newMedia"><i class="material-icons">perm_media</i></a></li>
             </ul>
         </div>
     </main>

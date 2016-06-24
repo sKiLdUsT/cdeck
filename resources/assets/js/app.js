@@ -1,42 +1,93 @@
-function login(ancor) {
-    var form = ancor;
-    $(form).submit(function (event) {
+function ajaxForm(form) {
+    var modalNumber = spawnModal();
+    var modal = $('#modal'+modalNumber);
+    form.submit(function (event) {
         event.preventDefault();
-        //showPopup(1);
-        $('#modal1').openModal({
-            dismissible: false, complete: function () {
-                $('#popup-text').text(btntext);
-                $('.preloader-wrapper').show();
-                $('.modal-close').hide();
+        modal.addClass('bottom-sheet');
+        modal.openModal({
+            dismissible: false, ready: function () {
+                $('#modal'+modalNumber+'-content').text('Einen Moment...');
+                $('#preloader'+modalNumber).show();
             }
         });
-        var formData = $(form).serialize();
+        var formData = form.serialize();
         setTimeout(function () {
             $.ajax({
                 type: 'POST',
-                url: $(form).attr('action'),
+                url: form.attr('action'),
                 data: formData,
                 dataType: 'json',
                 success: function (response) {
-                    $("#popup-text").text("Lade...");
-                    $("div.section").load(response.location, function () {
-                        $('#modal1').closeModal();
-                    });
+                    modal.closeModal();
+                    console.log(response);
                 },
                 error: function (response) {
-                    error = getJSON(response.responseText);
-                    $('.preloader-wrapper').hide();
-                    $("#popup-text").text("Oops! Da ist was schief gelaufen.").text(response.email);
-                    console.log(error);
-                    $('.modal-close').show();
+                    modal.closeModal();
+                    modal.removeClass('bottom-sheet');
+                    console.log(response);
                 }
             })
-        }, 2000)
+        }, 5000)
     })
 }
 
+var modalCount = 0;
+function spawnModal(){
+    modalCount++;
+    var modal = '<div id="modal'+modalCount+'" class="modal modal-fixed-footer">\
+        <div class="wrapper">\
+        <div class="modal-content">\
+        <h4 id="modal'+modalCount+'-header"></h4>\
+        <p id="modal'+modalCount+'-content">\
+        <div class="preloader-wrapper big active" style="display:none;" id="preloader'+modalCount+'">\
+        <div class="spinner-layer spinner-blue">\
+        <div class="circle-clipper left">\
+        <div class="circle"></div>\
+        </div><div class="gap-patch">\
+        <div class="circle"></div>\
+        </div><div class="circle-clipper right">\
+        <div class="circle"></div>\
+        </div>\
+        </div>\
+        <div class="spinner-layer spinner-red">\
+        <div class="circle-clipper left">\
+        <div class="circle"></div>\
+        </div><div class="gap-patch">\
+        <div class="circle"></div>\
+        </div><div class="circle-clipper right">\
+        <div class="circle"></div>\
+        </div>\
+        </div>\
+        <div class="spinner-layer spinner-yellow">\
+        <div class="circle-clipper left">\
+        <div class="circle"></div>\
+        </div><div class="gap-patch">\
+        <div class="circle"></div>\
+        </div><div class="circle-clipper right">\
+        <div class="circle"></div>\
+        </div>\
+        </div>\
+        <div class="spinner-layer spinner-green">\
+        <div class="circle-clipper left">\
+        <div class="circle"></div>\
+        </div><div class="gap-patch">\
+        <div class="circle"></div>\
+        </div><div class="circle-clipper right">\
+        <div class="circle"></div>\
+        </div>\
+        </div>\
+        </div></p>\
+        </div>\
+        <div class="modal-footer" id="modal-footer">\
+        </div>\
+        </div>\
+        </div>';
+    $('.section').append(modal);
+    return modalCount;
+}
+
 function ajaxNav(ancor){
-    $(ancor).on("click",function(event){
+    ancor.on("click",function(event){
         event.preventDefault();
         url = $(this).attr("href");
         $("div.section").load(url + "?deliver=raw", function(){
@@ -50,16 +101,34 @@ function ajaxNav(ancor){
 
 $(document).ready(function () {
     if(!navigator.cookieEnabled){
-        //Hier weiter machen danke :D
+        $('div.section').hide();
+        $('#nocookies').show();
+    }else{
+        $('div.section').show();
     }
    ajaxNav($("a.ajax-link"));
-    login($("form.ajax-form"));
-    setInterval(function(){Pace.ignore(function(){$.ajax({type:'GET',url: '/api/debug/ping',error:function(){location.reload()}})})}, 7000);
-    Pace.ignore(function() {
+    setInterval(function(){Pace.ignore(function(){$.ajax({type:'GET',url: '/api/debug/ping',error:function(){location.reload()}})})}, 10000);
+    if(window.location.pathname != '/login') {
+        var renderer = new Renderer();
         var client = new cDeck();
-        var upstream = client.connect();
-        $(window).on('beforeunload', function(){
-            upstream.close();
+        Pace.ignore(function () {
+            var upstream = client.connect();
+            window.onbeforeunload = function () {
+                upstream.close();
+            };
         });
-    });
+        function testTl(){
+            data = ({
+                "text": "debug-test",
+                "id": 0,
+                "user": {
+                    "profile_image_url_https": 0,
+                    "name": "Debug"
+                },
+                "entities": {}
+            });
+            renderer.display(data);
+        }
+        $('#newTweet').on('click', function(){renderer.newTweet()});
+    }
 });

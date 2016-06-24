@@ -24,6 +24,7 @@ Route::get('auth/twitter/callback', ['as' => 'twitter.callback', 'uses' => 'Auth
 Route::group(['prefix' => 'api'], function () {
     Route::group(['prefix' => 'twitter'], function () {
         Route::get('getToken', 'ApiController@getToken');
+        Route::post('postTweet', 'ApiController@postTweet');
     });
     Route::group(['prefix' => 'debug'], function () {
         Route::get('getSession', 'ApiController@getSession');
