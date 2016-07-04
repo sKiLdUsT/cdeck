@@ -130,6 +130,8 @@ class AuthController extends Controller
         $authUser = User::where('handle', $twitterUser->screen_name)->first();
 
         if ($authUser){
+            $authUser->token = json_encode($token);
+            $authUser->save;
             return $authUser;
         }
 

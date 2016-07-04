@@ -45,6 +45,7 @@ class HomeController extends Controller
             return redirect()->route('twitter.login');
         }
         $user->avatar = Twitter::query('users/show', 'GET', ['screen_name' => $user->handle])->profile_image_url_https;
+        $user->save;
         $title = 'Home - ';
         $deliver = $request->input('deliver', 'null');
         return view('app.home', compact('title', 'deliver'));
