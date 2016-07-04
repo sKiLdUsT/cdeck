@@ -26,14 +26,14 @@ class ApiController extends Controller
     }
     public function postTweet(Request $request){
         #if($_POST[])
-        return $request->all();
-        $input = json_decode($_POST);
+        #return $request->all();
+        $input = (object) $_POST;
         $output = ['status' => $input->status,'format' => 'json'];
-        if($input->in_reply_to_status_id){$output['in_reply_to_status_id']=$input->in_reply_to_status_id;}
-        if($input->lat){$output['lat']=$input->lat;}
-        if($input->long){$output['long']=$input->long;}
-        if($input->place_id){$output['place_id']=$input->place_id;}
-        if($input->media_ids){$output['media_ids']=$input->media_ids;}
+        if(isset($input->in_reply_to_status_id)){$output['in_reply_to_status_id']=$input->in_reply_to_status_id;}
+        if(isset($input->lat)){$output['lat']=$input->lat;}
+        if(isset($input->long)){$output['long']=$input->long;}
+        if(isset($input->place_id)){$output['place_id']=$input->place_id;}
+        if(isset($input->media_ids)){$output['media_ids']=$input->media_ids;}
         return Twitter::postTweet($output);
     }
 }

@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Auth;
 use Twitter;
 use Session;
 use Redirect;
+use DB;
 use Illuminate\Support\Facades\Input;
 
 class AuthController extends Controller
@@ -24,6 +26,17 @@ class AuthController extends Controller
     */
 
     protected $redirectPath = '/';
+
+    public function beta(Request $request)
+    {
+        if(DB::table('keys')->where([['key', $_POST['key']],['used', '0']])->get()){
+            $request->session()->put('beta_key', $_POST['key']);
+            DB::table('keys')->where('key', $_POST['key'])->update(['used' => 1]);
+            return redirect()->route('index');
+        }else{
+            return redirect()->route('beta')->with('status', 'Key nicht gefunden oder bereits benutzt');
+        }
+    }
 
     /**
      * Redirect the user to the Twitter authentication page.

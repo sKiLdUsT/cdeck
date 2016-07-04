@@ -35,6 +35,7 @@ try {
         });
         this.socket = socket;
         this.socket.on('timeline', function (data) {
+            console.log(data);
             data.forEach(function (item) {
                 renderer.display(item)
             })
@@ -48,11 +49,15 @@ try {
                 url: 'https://www.google.de/?gws_rd=ssl',
                 async: false,
                 timeout: 5000,
-                success: Materialize.toast('Es scheint an uns zu liegen. Wir kümmern uns darum!', 5000),
-                error: Materialize.toast('Du scheinst Verbindungsprobleme zu haben.', 5000)
+                success: function(){Materialize.toast('Es scheint an uns zu liegen. Wir kümmern uns darum!', 5000)},
+                error: function(){Materialize.toast('Du scheinst Verbindungsprobleme zu haben.', 5000)}
             });
         });
         return this
+    };
+
+    cDeck.prototype.preLive = function () {
+
     };
 
     cDeck.prototype.close = function () {
@@ -128,7 +133,7 @@ try {
         var modalNumber = spawnModal();
         var modal = $('#modal' + modalNumber);
         $('#modal' + modalNumber + '-header').text('Neuer Tweet');
-        $('#modal' + modalNumber + '-content').html(' <div class="row"> <form class="col s12 ajax-form" method="post" action="api/twitter/postTweet"> <div class="row"> <div class="input-field col s12"> <textarea id="text" class="materialize-textarea" length="140"></textarea> <label for="text">Tweete etwas...</label> </div><button class="btn waves-effect waves-light blue" type="submit">Tweeten<i class="material-icons right">send</i> </button> </div> </form> </div>');
+        $('#modal' + modalNumber + '-content').html(' <div class="row"> <form class="col s12 ajax-form" method="post" action="/api/twitter/postTweet"> <div class="row"> <div class="input-field col s12"> <textarea id="text" class="materialize-textarea" length="140" name="status"></textarea> <label for="text">Tweete etwas...</label> </div><button class="btn waves-effect waves-light blue" type="submit">Tweeten<i class="material-icons right">send</i> </button> </div> </form> </div>');
         $('textarea#textarea-' + modalNumber).characterCounter();
         ajaxForm($('.ajax-form'));
         modal.openModal({

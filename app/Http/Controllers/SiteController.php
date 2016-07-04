@@ -4,15 +4,31 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
+use Session;
 
 class SiteController extends Controller
 {
-    public function login(){
+    public function login(Request $request){
+        if (env('APP_ENV') == 'beta') {
+            if (!$request->session()->has('beta_key')) {
+                return redirect()->route('beta');
+            }
+        }
         $title = 'Login - ';
-        $request = Request();
         $deliver = $request->input('deliver', 'null');
         $hideNavbar = true;
         return view('auth.login', compact('title', 'deliver', 'hideNavbar'));
+    }
+    public function beta(Request $request){
+        if (env('APP_ENV') == 'beta') {
+            if ($request->session()->has('beta_token')) {
+                return redirect()->route('index');
+            }
+        }
+        $title = 'Beta Token - ';
+        $deliver = $request->input('deliver', 'null');
+        $hideNavbar = true;
+        return view('auth.beta', compact('title', 'deliver', 'hideNavbar'));
     }
     public function memo(){
         $title = 'Memo - ';

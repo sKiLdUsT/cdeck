@@ -16,7 +16,9 @@ Route::get('/', ['as' => 'index', 'uses' => 'HomeController@index']);
 Route::get('/impressum', 'SiteController@impressum');
 Route::get('/datenschutz', 'SiteController@datenschutz');
 Route::get('/memo', 'SiteController@memo');
-Route::get('/login', 'SiteController@login');
+Route::get('/login', ['as' => 'login', 'uses' =>'SiteController@login']);
+Route::get('/beta', ['as' => 'beta', 'uses' =>'SiteController@beta']);
+Route::post('/auth/beta', ['as' => 'beta.login', 'uses' =>'Auth\AuthController@beta']);
 Route::get('auth/twitter', ['as' => 'twitter.login', 'uses' => 'Auth\AuthController@redirectToProvider']);
 Route::get('auth/twitter/callback', ['as' => 'twitter.callback', 'uses' => 'Auth\AuthController@handleProviderCallback']);
 
