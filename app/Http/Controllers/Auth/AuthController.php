@@ -131,7 +131,7 @@ class AuthController extends Controller
 
         if ($authUser){
             $authUser->token = json_encode($token);
-            $authUser->save;
+            $authUser->save();
             return $authUser;
         }
 
