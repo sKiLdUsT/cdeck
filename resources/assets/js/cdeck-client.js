@@ -14,7 +14,7 @@ try {
         var data = Object;
         var renderer = this.renderer;
         $.ajax({
-            url: 'http://dev.cdeck.net/api/twitter/getToken',
+            url: 'http://'+window.location.hostname+'/api/twitter/getToken',
             async: false,
             dataType: 'json',
             success: function (response) {

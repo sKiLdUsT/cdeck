@@ -29,7 +29,7 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        if (env('APP_ENV') == 'beta') {
+        if (env('APP_BETA') == 'true') {
             if (!$request->session()->has('beta_key')) {
                 return redirect()->route('beta');
             }

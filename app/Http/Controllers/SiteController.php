@@ -9,7 +9,7 @@ use Session;
 class SiteController extends Controller
 {
     public function login(Request $request){
-        if (env('APP_ENV') == 'beta') {
+        if (env('APP_BETA') == 'true') {
             if (!$request->session()->has('beta_key')) {
                 return redirect()->route('beta');
             }
@@ -20,7 +20,7 @@ class SiteController extends Controller
         return view('auth.login', compact('title', 'deliver', 'hideNavbar'));
     }
     public function beta(Request $request){
-        if (env('APP_ENV') == 'beta') {
+        if (env('APP_BETA') == 'beta') {
             if ($request->session()->has('beta_token')) {
                 return redirect()->route('index');
             }
