@@ -37,6 +37,7 @@ try {
         this.socket.on('timeline', function (data) {
             console.log(data);
             data.forEach(function (item) {
+                $('#timeline .preloader-wrapper').hide();
                 renderer.display(item)
             })
         });
@@ -105,14 +106,14 @@ try {
             }
             var tweetid = '0';
             if (data.retweeted_status === undefined && data.quoted_status === undefined){
-                $('<div class="divider"></div><div class="card blue-grey darken-1 white-text" id="tweet-' + data.id_str + '" style="display: none">' + medialink + '<div class="card-content"><span class="card-title left-align"><img src="' + data.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.user.screen_name + '"> @' + data.user.screen_name + '</a></span><p>' + tweet + '</p> </div> <div class="card-action"> <a href="#">This is a link</a> <a href="#">This is a link</a></div></div>').prependTo($('#timeline')).slideDown(200);
+                $('<div class="divider"></div><div class="card blue-grey darken-1 white-text" id="tweet-' + data.id_str + '" style="display: none">' + medialink + '<div class="card-content"><span class="card-title left-align"><img src="' + data.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.user.screen_name + '"> @' + data.user.screen_name + '</a></span><p>' + tweet + '</p> </div> <div class="card-action"> <a href="#">This is a link</a> <a href="#">This is a link</a></div></div>').prependTo($('#timeline')).slideDown(400);
                 $('#tweet-'+data.id_str+' .materialboxed').materialbox();
                 console.log("New Tweet added");
                 console.log(tweet);
                 tweetid = data.id_str
             } else if (data.quoted_status === undefined){
                 console.log(data);
-                $('<div class="divider"></div><div class="card blue-grey darken-1 white-text" id="tweet-' + data.retweeted_status.id_str + '" style="display: none"><div class="card-content"><span class="card-title left-align"><img src="' + data.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.user.screen_name + '"> @' + data.user.screen_name + '</a></span><blockquote><div class="card blue-grey darken-1 white-text z-depth-3" id="tweet-' + data.retweeted_status.id + '">' + medialink + '<div class="card-content"><span class="card-title left-align"><img src="' + data.retweeted_status.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.retweeted_status.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.retweeted_status.user.screen_name + '"> @' + data.retweeted_status.user.screen_name + '</a></span><p>' + tweet + '</p> </div></blockquote> </div> <div class="card-action"> <a href="#">This is a link</a> <a href="#">This is a link</a></div></div>').prependTo($('#timeline')).slideDown(200);
+                $('<div class="divider"></div><div class="card blue-grey darken-1 white-text" id="tweet-' + data.retweeted_status.id_str + '" style="display: none"><div class="card-content"><span class="card-title left-align"><img src="' + data.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.user.screen_name + '"> @' + data.user.screen_name + '</a></span><blockquote><div class="card blue-grey darken-1 white-text z-depth-3" id="tweet-' + data.retweeted_status.id + '">' + medialink + '<div class="card-content"><span class="card-title left-align"><img src="' + data.retweeted_status.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.retweeted_status.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.retweeted_status.user.screen_name + '"> @' + data.retweeted_status.user.screen_name + '</a></span><p>' + tweet + '</p> </div></blockquote> </div> <div class="card-action"> <a href="#">This is a link</a> <a href="#">This is a link</a></div></div>').prependTo($('#timeline')).slideDown(400);
                 $('#tweet-'+data.retweeted_status.id_str+' .materialboxed').materialbox();
                 console.log("New Retweet added");
                 console.log(tweet);

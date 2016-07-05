@@ -128,9 +128,11 @@ class AuthController extends Controller
     private function findOrCreateUser($twitterUser, $token){
 
         $authUser = User::where('handle', $twitterUser->screen_name)->first();
+        $request = Request();
 
         if ($authUser){
             $authUser->token = json_encode($token);
+            if((env('APP_BETA') == 'true')){$authUser->beta_key = $request->session()->get('beta_key');}
             $authUser->save();
             return $authUser;
         }

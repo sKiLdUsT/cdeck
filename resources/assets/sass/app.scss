@@ -17,12 +17,42 @@ $error-color: color("red", "base") !default;
 
 $link-color: color("light-blue", "darken-1") !default;
 
-.card .timeline{
-  transition: all 0.4s ease-out;
-}
-
 #username{
   font-size: 14px;
+}
+
+body > .section{
+  position: fixed;
+}
+
+.section{
+  height: 100%;
+  padding-bottom: 5rem;
+}
+
+main{
+  height: 100%;
+}
+
+main .row{
+  height: 100%;
+}
+
+main .row .col{
+  height: 100%;
+}
+
+.section .row .col .section > div{
+  overflow-y: hidden;
+  height: 100%;
+}
+
+.section .row .col .section > div:hover {
+  overflow-y: scroll;
+}
+
+.section .row .col .section .preload-wrapper{
+  overflow-y: hidden;
 }
 
 .card .card-image {

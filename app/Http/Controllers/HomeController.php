@@ -31,7 +31,7 @@ class HomeController extends Controller
         $user = Auth::user();
         if (env('APP_BETA') == 'true') {
             if (!$request->session()->has('beta_key')) {
-                return redirect()->route('beta');
+                $request->session()->put('beta_key', json_decode($user)->beta_key);
             }
         }
         if (!$request->session()->get('access_token')['oauth_token'] OR !$request->session()->get('access_token')['oauth_token_secret'] AND $user->token) {
@@ -39,12 +39,11 @@ class HomeController extends Controller
                 'oauth_token_secret' => json_decode($user->token)->oauth_token_secret);
             $request->session()->put('access_token', $access_token);
         }
-        try {
-            $twitter = Twitter::getUserTimeline(['count' => 1, 'format' => 'array']);
-        } catch (\Exception $e) {
-            return redirect()->route('twitter.login');
-        }
-        $user->avatar = Twitter::query('users/show', 'GET', ['screen_name' => $user->handle])->profile_image_url_https;
+        #try {
+            $user->avatar = Twitter::query('users/show', 'GET', ['screen_name' => $user->handle])->profile_image_url_https;
+        #} catch (\Exception $e) {
+        #    return redirect()->route('twitter.login');
+        #}
         $user->save();
         $title = 'Home - ';
         $deliver = $request->input('deliver', 'null');
