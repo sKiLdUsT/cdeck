@@ -20,9 +20,9 @@ $link-color: color("light-blue", "darken-1") !default;
 #username{
   font-size: 14px;
 }
-
 body > .section{
-  position: fixed;
+  position: relative;
+  overflow-y: auto;
 }
 
 .section{

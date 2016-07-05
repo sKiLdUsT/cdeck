@@ -109,6 +109,7 @@ $(document).ready(function () {
    ajaxNav($("a.ajax-link"));
     setInterval(function(){Pace.ignore(function(){$.ajax({type:'GET',url: '/api/debug/ping',error:function(){location.reload()}})})}, 10000);
     if(window.location.pathname == '/') {
+        $('body > .section').css('position', 'fixed');
         var renderer = new Renderer();
         var client = new cDeck();
         Pace.ignore(function () {

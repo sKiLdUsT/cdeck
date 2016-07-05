@@ -21,7 +21,7 @@ class SiteController extends Controller
     }
     public function beta(Request $request){
         if (env('APP_BETA') == 'beta') {
-            if ($request->session()->has('beta_token')) {
+            if ($request->session()->has('beta_key')) {
                 return redirect()->route('index');
             }
         }
