@@ -132,19 +132,17 @@ try {
     };
     Renderer.prototype.newTweet = function () {
         var modalNumber = spawnModal();
-        var modal = $('#modal' + modalNumber);
         $('#modal' + modalNumber + '-header').text('Neuer Tweet');
         $('#modal' + modalNumber + '-content').html(' <div class="row"> <form class="col s12 ajax-form" method="post" action="/api/twitter/postTweet"> <div class="row"> <div class="input-field col s12"> <textarea id="text" class="materialize-textarea" length="140" name="status"></textarea> <label for="text">Tweete etwas...</label> </div><button class="btn waves-effect waves-light blue" type="submit">Tweeten<i class="material-icons right">send</i> </button> </div> </form> </div>');
         $('textarea#textarea-' + modalNumber).characterCounter();
-        ajaxForm($('.ajax-form'));
-        modal.openModal({
+        ajaxForm($('#modal' + modalNumber + ' .ajax-form'), modalNumber);
+        $('#modal' + modalNumber).openModal({
             dismissible: true,
             opacity: .5,
             complete: function () {
-                modal.remove()
+                $(this).remove()
             }
         });
-
         return this
     };
 } catch (e) {

@@ -1,25 +1,18 @@
 @import "node_modules/bourbon/app/assets/stylesheets/_bourbon.scss";
 @import "node_modules/materialize-css/sass/materialize";
 
-
-$primary-color: color("materialize-red", "darken-3") !default;
-$primary-color-light: false !default;
-$primary-color-dark: true !default;
-@if not $primary-color-light {
-  $primary-color-light: lighten($primary-color, 15%);
-}
-@if not $primary-color-dark {
-  $primary-color-dark: darken($primary-color, 15%);
-}
-$secondary-color: color("red", "lighten-3") !default;
-$success-color: color("green", "base") !default;
-$error-color: color("red", "base") !default;
-
-$link-color: color("light-blue", "darken-1") !default;
-
 #username{
   font-size: 14px;
 }
+
+nav > .nav-wrapper > ul > li > a > img {
+  margin-top: 8px;
+}
+
+nav > .nav-wrapper > ul > li{
+  margin-top: -3px;
+}
+
 body > .section{
   position: relative;
   overflow-y: auto;
@@ -60,15 +53,22 @@ main .row .col{
   overflow: hidden;
   position: relative;
   background-color: rgba(236,239,241, 0.2);
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 .materialboxed .initialized .active{
   position: fixed;
 }
 .card .card-image img{
-  position: absolute;
   object-fit: none;
-  @include transform( translateY(-10%) );
+  flex-shrink:0;
+  min-width:100%;
+  min-height:100%
+}
 
+.card-content p{
+  white-space: pre-wrap;
 }
 
 div .section{

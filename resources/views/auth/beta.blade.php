@@ -1,6 +1,6 @@
 @extends('base')
 @section('content')
-    <main class="hide-on-small-and-down">
+    <main>
         <div class="row">
             <div class="parallax-container">
                 <div class="parallax"><img src="images/parallax1.jpg"></div>
