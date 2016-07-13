@@ -35,7 +35,7 @@ function spawnModal() {
     modalCount++;
     var modal = '<div id="modal' + modalCount + '" class="modal">\
         <div class="wrapper">\
-        <div class="modal-content">\
+        <div class="modal-content center-align">\
         <h4 id="modal' + modalCount + '-header"></h4>\
         <p id="modal' + modalCount + '-content">\
         <div class="preloader-wrapper big active" style="display:none;" id="preloader' + modalCount + '">\
@@ -106,40 +106,62 @@ $(document).ready(function () {
         $('div.section').show();
     }
     ajaxNav($("a.ajax-link"));
+    var errorModal = '';
     setInterval(function () {
         Pace.ignore(function () {
             $.ajax({
                 type: 'GET', url: '/api/debug/ping', error: function () {
-                    location.reload()
+                    if(errorModal === ''){
+                        errorModal = spawnModal();
+                        var modal = $('#modal' + errorModal);
+                        modal.addClass('bottom-sheet');
+                        modal.openModal({
+                            dismissible: false, ready: function () {
+                                $('#modal' + errorModal + '-content').text('Wir räumen etwas auf, einen Moment bitte...');
+                                $('#preloader' + errorModal).show();
+                            }
+                        });
+                        throw new CDeckError('Application in maintenance mode')
+                    }
+                }, success: function(){
+                    if(errorModal !== '') {
+                        $('#modal' + errorModal + '-content').text('Einen Moment...');
+                        location.reload();
+                    }
                 }
             })
         })
-    }, 10000);
+    }, 5000);
     if (window.location.pathname == '/') {
         $('body > .section > main').css('position', 'fixed');
-        var renderer = new Renderer();
         var client = new cDeck();
+        var upstream = Object;
         Pace.ignore(function () {
-            var upstream = client.connect();
-            $(window).bind("beforeunload", function () {
+            upstream = client.connect();
+            $(window).on("beforeunload", function () {
                 upstream.close();
             });
         });
-        function testTl() {
-            data = ({
-                "text": "debug-test",
-                "id": 0,
-                "user": {
-                    "profile_image_url_https": 0,
-                    "name": "Debug"
-                },
-                "entities": {}
-            });
-            renderer.display(data);
-        }
-
+        var renderer = new Renderer(upstream);
         $('#newTweet').on('click', function () {
-            renderer.newTweet()
+            renderer.newTweet();
+        });
+        if($(window).width() < 601 ) {
+            $('ul.tabs').tabs();
+            $('ul.tabs').tabs('select_tab', 'tab2');
+        }else{
+            $('ul.tabs').undelegate();
+            $('main > .row > .col').show();
+        }
+        $(window).resize(function() {
+            if( $(this).width() > 601 ) {
+                $('ul.tabs').undelegate();
+                $('main > .row > .col').show();
+            }else{
+                $('.col ~ ul.tabs').show();
+                $('ul.tabs').tabs();
+                $('ul.tabs').tabs('select_tab', 'tab2');
+            }
         });
     }
 });

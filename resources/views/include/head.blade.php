@@ -2,8 +2,8 @@
     <title>{{$title or ""}}cDeck</title>
     <meta name="description" content="Moderner und intelligenter Twitter-Client">
     <meta name="language" content="de">
-    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:title" content="cDeck">
     <meta property="og:description" content="Moderner und intelligenter Twitter-Client">
     <meta name="twitter:card" content="photo" />
@@ -26,5 +26,5 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/icon/favicon-16x16.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="msapplication-TileImage" content="/assets/img/icon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">

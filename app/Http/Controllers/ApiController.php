@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Auth;
 use App\Http\Requests;
+use URL;
 use Twitter;
+use Cache;
 
 class ApiController extends Controller
 {
@@ -13,7 +15,8 @@ class ApiController extends Controller
         if(session()->get('access_token')['oauth_token'] AND session()->get('access_token')['oauth_token']){
             return(json_encode(array(
                     'oauth_token' => session()->get('access_token')['oauth_token'],
-                    'oauth_token_secret' => session()->get('access_token')['oauth_token_secret']
+                    'oauth_token_secret' => session()->get('access_token')['oauth_token_secret'],
+                    'screen_name' => Auth::user()->handle
                 )));
         }else{
             return(json_encode(array('error' => 'unauthorized')));
@@ -24,16 +27,15 @@ class ApiController extends Controller
         //$user = Auth::user();
         //return($user);
     }
-    public function postTweet(Request $request){
-        #if($_POST[])
-        #return $request->all();
-        $input = (object) $_POST;
-        $output = ['status' => $input->status,'format' => 'json'];
-        if(isset($input->in_reply_to_status_id)){$output['in_reply_to_status_id']=$input->in_reply_to_status_id;}
-        if(isset($input->lat)){$output['lat']=$input->lat;}
-        if(isset($input->long)){$output['long']=$input->long;}
-        if(isset($input->place_id)){$output['place_id']=$input->place_id;}
-        if(isset($input->media_ids)){$output['media_ids']=$input->media_ids;}
-        return Twitter::postTweet($output);
+    public function assets(){
+        return json_encode(array("css" => URL::to(elixir('assets/css/app.css')), "js" => URL::to(elixir('assets/js/app.js'))));
+    }
+    public function tconfig(){
+        return json_encode(Cache::get('twitter_config'));
+    }
+    public function setTconfig(){
+        $config = Twitter::get('help/configuration');
+        Cache::put('twitter_config', $config, 1440);
+        return json_encode(array("response" => true));
     }
 }

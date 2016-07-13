@@ -5,7 +5,7 @@
     @include('include.head')
     <link type="text/css" rel="stylesheet" href="{{elixir('assets/css/app.css')}}" media="screen,projection"/>
 </head>
-<body class="blue-grey lighten-5">
+<body class="grey lighten-2">
 <div class="navbar-fixed">
     <nav role="navigation" class="red darken-4">
         <div class="nav-wrapper">

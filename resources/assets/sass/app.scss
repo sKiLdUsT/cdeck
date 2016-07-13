@@ -20,11 +20,11 @@ body > .section{
 
 .section{
   height: 100%;
-  padding-bottom: 5rem;
 }
 
 main{
   height: 100%;
+  padding-bottom: 10rem;
 }
 
 main .row{
@@ -42,6 +42,7 @@ main .row .col{
 
 .section .row .col .section > div:hover {
   overflow-y: scroll;
+  margin-right: -15px;
 }
 
 .section .row .col .section .preload-wrapper{
@@ -57,9 +58,7 @@ main .row .col{
   justify-content:center;
   align-items:center;
 }
-.materialboxed .initialized .active{
-  position: fixed;
-}
+
 .card .card-image img{
   object-fit: none;
   flex-shrink:0;

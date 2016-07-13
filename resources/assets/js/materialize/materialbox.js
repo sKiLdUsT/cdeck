@@ -75,7 +75,7 @@
         }
 
         // Set css on origin
-        origin.css({position: 'absolute', 'z-index': 1000})
+        origin.css({position: 'fixed', 'z-index': 1000})
         .data('width', originalWidth)
         .data('height', originalHeight);
 
@@ -129,9 +129,9 @@
               .velocity(
                 {
                   height: newHeight,
-                  width: newWidth,
-                  left: $(document).scrollLeft() + windowWidth/2 - origin.parent('.material-placeholder').offset().left - newWidth/2,
-                  top: $(document).scrollTop() + windowHeight/2 - origin.parent('.material-placeholder').offset().top - newHeight/ 2
+                  width: newWidth
+                  //left: $(document).scrollLeft() + windowWidth/2 - origin.parent('.material-placeholder').offset().left - newWidth/2,
+                  //top: $(document).scrollTop() + windowHeight/2 - origin.parent('.material-placeholder').offset().top - newHeight/ 2
                 },
                 {
                   duration: inDuration,
@@ -149,9 +149,9 @@
           .velocity(
             {
               height: newHeight,
-              width: newWidth,
-              left: $(document).scrollLeft() + windowWidth/2 - origin.parent('.material-placeholder').offset().left - newWidth/2,
-              top: $(document).scrollTop() + windowHeight/2 - origin.parent('.material-placeholder').offset().top - newHeight/ 2
+              width: newWidth
+              //left: $(document).scrollLeft() + windowWidth/2 - origin.parent('.material-placeholder').offset().left - newWidth/2,
+              //top: $(document).scrollTop() + windowHeight/2 - origin.parent('.material-placeholder').offset().top - newHeight/ 2
             },
             {
               duration: inDuration,
@@ -222,7 +222,7 @@
               queue: false, easing: 'easeOutQuad'
             }
           );
-
+          origin.css({position: ''});
           // Remove Caption + reset css settings on image
           $('.materialbox-caption').velocity({opacity: 0}, {
             duration: outDuration, // Delay prevents animation overlapping
