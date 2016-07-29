@@ -25,9 +25,8 @@ cDeck.prototype.connect = function () {
         data = {},
         renderer = this.renderer,
         self = this,
-        errorModal = '',
         rShow = 0,
-        registered = 0;
+        errorModal = '';
     $.ajax({
         url: '/api/twitter/getToken',
         async: false,
@@ -43,28 +42,27 @@ cDeck.prototype.connect = function () {
                 $('#timeline').empty();
                 $('<div class="preloader-wrapper big active" style="display:none;" id="preloader' + modalCount + '"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-red"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-yellow"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-green"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div>').prependTo($('#timeline')).slideDown(300);
             } else {
-                socket.close();
-                Materialize.toast('Anmeldung gescheitert: ' + response.error, 2000);
-                throw new CDeckError("Login failed: " + response.error)
+                if(response.error == "double connect"){
+                    console.log("cDeck: Double Connect detected.")
+                }else{
+                    socket.close();
+                    Materialize.toast('Anmeldung gescheitert: ' + response.error, 2000);
+                    throw new CDeckError("Login failed: " + response.error)
+                }
             }
         });
     }
-    //register();
+    register();
     this.user = data;
     this.socket = socket;
-    this.socket.on('connect', function () {
-        if (registered === 0) {
-            registered = 1;
-            if (errorModal !== '') {
-                $('#modal' + errorModal).closeModal();
-            }
-            rShow = 0;
-            register();
-        }
-    });
+    /*this.socket.on('connect', function () {
+        register();
+    });*/
     this.socket.on('reconnect', function () {
             if (errorModal !== '') {
                 $('#modal' + errorModal).closeModal();
+                //$('#modal' + errorModal).remove();
+                errorModal = ''
             }
             rShow = 0;
             register();
@@ -123,7 +121,7 @@ cDeck.prototype.connect = function () {
     this.socket.on('fatal_error', function(err){
             throw new CDeckError('Server error: '+err);
     });
-    console.log(registered);
+    console.log(this.socket);
     /*if(registered === 0){
         register();
         registered = 1
@@ -132,6 +130,7 @@ cDeck.prototype.connect = function () {
 };
 
 cDeck.prototype.close = function(){
+    this.socket.emit('disconnect');
     this.socket.destroy();
     return this
 };
