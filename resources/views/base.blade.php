@@ -30,6 +30,31 @@
                             @endif
                         </a></li>
                 </ul>
+                <a href="#" data-activates="slide-out" class="button-collapse hide-on-large-only" style="margin-left: 18px; display: none;"><i class="material-icons">menu</i></a>
+                <ul id="slide-out" class="side-nav">
+                    <li><div class="userView">
+                            @if(Auth::user()->banner)
+                                <img class="background" src="{{Auth::user()->banner}}" style="max-height: 200px;margin-left: -50%;">
+                            @else
+                                <img class="background red darken-3" src="">
+                            @endif
+                            @if(Auth::user()->avatar)
+                                <a href=""><img class="circle" src=" {{Auth::user()->avatar}}"></a>
+                            @else
+                                <i class="material-icons">account_circle</i>
+                            @endif
+                            <a href=""><span class="white-text name"></span></a>
+                        </div></li>
+                    <li><a href="#"><i class="material-icons">search</i> Search</a></li>
+                    <li><a class="dropdown-button" href="#" data-activates="dropdown1"><i class="material-icons">apps</i> Tools</a></li>
+                    <ul id="dropdown1" class="dropdown-content" style="margin-top: 64px">
+                        <li><a href="#!">one</a></li>
+                        <li><a href="#!">two</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#!">three</a></li>
+                    </ul>
+                    <li><a href="#"><i class="material-icons">chat_bubble_outline</i> Messages</a></li>
+                </ul>
             @endunless
         </div>
 

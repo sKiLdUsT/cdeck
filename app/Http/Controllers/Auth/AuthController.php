@@ -142,6 +142,7 @@ class AuthController extends Controller
             'handle' => $twitterUser->screen_name,
             'twitter_id' => $twitterUser->id,
             'avatar' => $twitterUser->profile_image_url_https,
+            'banner' => ($twitterUser->profile_banner_url || 'https://pbs.twimg.com/profile_banners/2244994945/1396995246'),
             'token' => json_encode($token)
         ]);
     }

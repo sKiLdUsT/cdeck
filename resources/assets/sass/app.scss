@@ -24,14 +24,16 @@ body > .section{
 
 main{
   height: 100%;
-  padding-bottom: 10rem;
+  padding-bottom: 5rem;
+  width: 100%;
 }
 
-main .row{
+main > .row{
   height: 100%;
+  width: 100%;
 }
 
-main .row .col{
+main > .row > .col{
   height: 100%;
 }
 
@@ -39,10 +41,14 @@ main .row .col{
   overflow-y: hidden;
   height: 100%;
 }
-
 .section .row .col .section > div:hover {
   overflow-y: scroll;
-  margin-right: -15px;
+}
+
+@media only screen and (min-width: 993px) {
+  .section .row .col .section > div:hover {
+    margin-right: -18px;
+  }
 }
 
 .section .row .col .section .preload-wrapper{

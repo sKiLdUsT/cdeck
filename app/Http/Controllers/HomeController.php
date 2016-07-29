@@ -41,6 +41,7 @@ class HomeController extends Controller
         }
         #try {
             $user->avatar = Twitter::query('users/show', 'GET', ['screen_name' => $user->handle])->profile_image_url_https;
+            $user->banner = Twitter::query('users/show', 'GET', ['screen_name' => $user->handle])->profile_banner_url;
         #} catch (\Exception $e) {
         #    return redirect()->route('twitter.login');
         #}

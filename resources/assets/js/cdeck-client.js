@@ -11,7 +11,12 @@ var cDeck = function () {
         'Nein, so geht das nicht...',
         'Nope. Versuch es doch nochmal?',
         'I can’t let you do that, Starfox!'
-    ];
+    ],
+    tconfig = {};
+
+$.get('/api/twitter/tconfig', function (data) {
+    tconfig = data
+}, 'json');
 
 function CDeckError(message) {
     Error.apply(this, arguments);
@@ -55,13 +60,9 @@ cDeck.prototype.connect = function () {
     register();
     this.user = data;
     this.socket = socket;
-    /*this.socket.on('connect', function () {
-        register();
-    });*/
     this.socket.on('reconnect', function () {
             if (errorModal !== '') {
                 $('#modal' + errorModal).closeModal();
-                //$('#modal' + errorModal).remove();
                 errorModal = ''
             }
             rShow = 0;
@@ -121,11 +122,6 @@ cDeck.prototype.connect = function () {
     this.socket.on('fatal_error', function(err){
             throw new CDeckError('Server error: '+err);
     });
-    console.log(this.socket);
-    /*if(registered === 0){
-        register();
-        registered = 1
-    }*/
     return this
 };
 
@@ -141,7 +137,6 @@ cDeck.prototype.postStatus = function (data, modal) {
             if (response.result === true) {
                 $('#modal' + modal).closeModal();
             } else {
-                //Materialize.toast('Fehlgeschlafen', 2000);
                 $('#modal' + modal).closeModal();
                 throw new CDeckError('Update status failed: '+response.twitter.message);
             }
@@ -173,7 +168,6 @@ cDeck.prototype.postLike = function (data) {
             if (response.result === true) {
                 $('#tweet-' + data + ' #like i').html('favorite');
             } else {
-                //Materialize.toast('Fehlgeschlafen', 2000);
                 console.log(response);
                 throw new CDeckError('Like failed: '+response.twitter.message);
             }
@@ -188,20 +182,20 @@ var Renderer = function (upstream) {
     this.patterns['user'] = ' +@([a-z0-9_]*)?';
     this.patterns['hashtag'] = '(?:(?<=\s)|^)#(\w*[\p{L}-\d\p{Cyrillic}\d]+\w*)';
     this.patterns['long_url'] = '>(([[:alnum:]]+:\/\/)|www\.)?([^[:space:]]{12,22})([^[:space:]]*)([^[:space:]]{12,22})([[:alnum:]#?\/&=])<';
-    this.count = 0;
     this.index = {};
     this.socket = upstream;
-    var self = this;
-    $.get('/api/twitter/tconfig', function (data) {
-        self.config = data
-    }, 'json');
-};
+    this.config = tconfig;
+},
+    tcount = 0,
+    tindex = [];
+
 Renderer.prototype.display = function (data, socket) {
-    var self = this;
+    var self = this,
+        tid = 0,
+        fav = '';
     this.socket = socket;
-    var fav = '';
-    if (this.count == 100) {
-        this.index.slice(Math.max(this.index.length - 10, 1)).forEach(function (item, indx) {
+    if (tcount > 100) {
+        tindex.slice(Math.max(this.index.length - 10, 1)).forEach(function (item, indx) {
             $('#tweet-' + item[indx]).remove();
         })
     }
@@ -244,7 +238,6 @@ Renderer.prototype.display = function (data, socket) {
                 }
             }
         }
-        var tweetid = '0';
         if (data.retweeted_status === undefined && data.quoted_status === undefined) {
             $('<div class="divider"></div><div class="card blue-grey darken-1 white-text" id="tweet-' + data.id_str + '" style="display: none">' + medialink + '<div class="card-content"><span class="card-title left-align"><img src="' + data.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.user.screen_name + '"> @' + data.user.screen_name + '</a></span><p>' + tweet + '</p> </div> <div class="card-action"> <a id="reply" data-in-response="' + data.id_str + '" href="#"><i class="material-icons">reply</i></a></a><a id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + data.id_str + '" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + data.id_str + '" class="dropdown-content"><li><a id="rt" href="#">Retweet</a></li><li><a id="rt_quote" href="#">Quote Tweet</a></li></ul><a id="like" href="#"><i class="material-icons">' + fav + '</i></div></div>').prependTo($('#timeline')).slideDown(300);
             $('#tweet-' + data.id_str + ' .materialboxed').materialbox();
@@ -265,11 +258,11 @@ Renderer.prototype.display = function (data, socket) {
                 self.newRt(data.id_str, true, socket);
             });
             $('.dropdown-button').dropdown();
-            tweetid = data.id_str
+            tid = data.id_str
         } else if (data.quoted_status === undefined) {
-            if ($('#tweet-' + data.retweeted_status.id_str).length !== 0) {
-                $('#tweet-' + data.retweeted_status.id_str).remove()
-            }
+            //if ($('#tweet-' + data.retweeted_status.id_str).length !== 0) {
+            //    $('#tweet-' + data.retweeted_status.id_str).remove()
+            //}
             $('<div class="divider"></div><div class="card blue-grey darken-1 white-text" id="tweet-' + data.id_str + '" style="display: none"><div class="card-content"><span class="card-title left-align"><img src="' + data.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.user.screen_name + '"> @' + data.user.screen_name + '</a></span><blockquote><div class="card blue-grey darken-1 white-text z-depth-3" id="tweet-' + data.retweeted_status.id_str + '">' + medialink + '<div class="card-content"><span class="card-title left-align"><img src="' + data.retweeted_status.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.retweeted_status.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.retweeted_status.user.screen_name + '"> @' + data.retweeted_status.user.screen_name + '</a></span><p>' + tweet + '</p> </div></blockquote> </div> <div class="card-action">  <a id="reply" href="#"><i class="material-icons">reply</i></a><a id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + data.retweeted_status.id_str + '" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + data.retweeted_status.id_str + '" class="dropdown-content"><li><a id="rt" href="#">Retweet</a></li><li><a id="rt_quote" href="#">Quote Tweet</a></li></ul><a id="like" href="#"><i class="material-icons">' + fav + '</i></a></div></div>').prependTo($('#timeline')).slideDown(300);
             $('#tweet-' + data.id_str + ' .materialboxed').materialbox();
             $('#reply').on('click', function (event) {
@@ -289,11 +282,11 @@ Renderer.prototype.display = function (data, socket) {
                 self.newRt(data.retweeted_status.id_str, true, socket);
             });
             $('.dropdown-button').dropdown();
-            tweetid = data.id_str
+            tid = data.id_str
         } else if (data.quoted_status !== undefined) {
-            if ($('#tweet-' + data.quoted_status.id_str)) {
-                $('#tweet-' + data.quoted_status.id_str).remove()
-            }
+            //if ($('#tweet-' + data.quoted_status.id_str)) {
+            //    $('#tweet-' + data.quoted_status.id_str).remove()
+            //}
             $('<div class="divider"></div><div class="card blue-grey darken-1 white-text" id="tweet-' + data.id_str + '" style="display: none"><div class="card-content"><span class="card-title left-align"><img src="' + data.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.user.screen_name + '"> @' + data.user.screen_name + '</a></span><p>' + tweet.main + '</p><blockquote><div class="card blue-grey darken-1 white-text z-depth-3" id="tweet-' + data.quoted_status.id_str + '">' + medialink + '<div class="card-content"><span class="card-title left-align"><img src="' + data.quoted_status.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.quoted_status.user.name + '<a id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.quoted_status.user.screen_name + '"> @' + data.quoted_status.user.screen_name + '</a></span><p>' + tweet.sec + '</p></div></blockquote> </div> <div class="card-action">  <a id="reply" href="#"><i class="material-icons">reply</i></a><a id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + data.quoted_status.id_str + '" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + data.quoted_status.id_str + '" class="dropdown-content"><li><a id="rt" href="#">Retweet</a></li><li><a id="rt_quote" href="#">Quote Tweet</a></li></ul><a id="like" href="#"><i class="material-icons">' + fav + '</i></a></div></div>').prependTo($('#timeline')).slideDown(300);
             $('#tweet-' + data.id_str + ' .materialboxed').materialbox();
             $('#reply').on('click', function (event) {
@@ -313,9 +306,10 @@ Renderer.prototype.display = function (data, socket) {
                 self.newRt(data.id_str, true, socket);
             });
             $('.dropdown-button').dropdown();
-            tweetid = data.id_str
+            tid = data.id_str
         }
-        this.index += this.count[tweetid]
+        tcount++;
+        tindex[tcount] = tid;
     } else if (data.delete !== undefined) {
         $('#tweet-' + data.delete.status.id_str).remove();
     } else if (data.event == 'favorite') {
@@ -402,6 +396,8 @@ Renderer.prototype.newRt = function (id, isQuote, socket) {
     } else {
         socket.postRt(id);
     }
+};
+Renderer.prototype.addTL = function(socket, id){
 };
 
 function youtube_parser(url) {
