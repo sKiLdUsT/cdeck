@@ -10,8 +10,16 @@
     <nav role="navigation" class="red darken-4">
         <div class="nav-wrapper">
             <a href="#!" class="brand-logo"><img src="assets/img/logo.png" alt="cDeck Logo" style="width: 75px;height: 75px; margin: 5px 0 0 10px"></a>
+            <ul class="right hide-on-med-and-down valign-wrapper" style="margin-right: 30px;">
+                <li><a class="dropdown-button" href="#" data-activates="dropdown2">Get the client!</a></li>
+                <ul id="dropdown2" class="dropdown-content" style="margin-top: 64px">
+                    <li><a href="{{$clients->win_64}}">Windows</a></li>
+                    <li><a href="{{$clients->mac_dmg}}">Mac OS</a></li>
+                    <li><a><strike>Linux (.deb)</strike> (comming soon!)</a></li>
+                    <li class="divider"></li>
+                    <li><a href="{{$clients->android}}">Android</a></li>
+                </ul>
             @unless(isset($hideNavbar))
-                <ul class="right hide-on-med-and-down valign-wrapper" style="margin-right: 30px;">
                     <li class="center-align"><a href="#"><i class="material-icons">search</i></a></li>
                     <li><a class="dropdown-button" href="#" data-activates="dropdown1"><i class="material-icons">apps</i></a></li>
                     <ul id="dropdown1" class="dropdown-content" style="margin-top: 64px">
@@ -29,7 +37,9 @@
                                 <i class="material-icons">account_circle</i>
                             @endif
                         </a></li>
-                </ul>
+                @endunless
+            </ul>
+            @unless(isset($hideNavbar))
                 <a href="#" data-activates="slide-out" class="button-collapse hide-on-large-only" style="margin-left: 18px; display: none;"><i class="material-icons">menu</i></a>
                 <ul id="slide-out" class="side-nav">
                     <li><div class="userView">

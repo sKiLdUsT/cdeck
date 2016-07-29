@@ -17,7 +17,8 @@ class SiteController extends Controller
         $title = 'Login - ';
         $deliver = $request->input('deliver', 'null');
         $hideNavbar = true;
-        return view('auth.login', compact('title', 'deliver', 'hideNavbar'));
+        $clients = json_decode(file_get_contents('https://api.kontrollraum.org/cdeck/'));
+        return view('auth.login', compact('title', 'deliver', 'hideNavbar', 'clients'));
     }
     public function beta(Request $request){
         if (env('APP_BETA') == 'beta') {
@@ -28,7 +29,8 @@ class SiteController extends Controller
         $title = 'Beta Token - ';
         $deliver = $request->input('deliver', 'null');
         $hideNavbar = true;
-        return view('auth.beta', compact('title', 'deliver', 'hideNavbar'));
+        $clients = json_decode(file_get_contents('https://api.kontrollraum.org/cdeck/'));
+        return view('auth.beta', compact('title', 'deliver', 'hideNavbar', 'clients'));
     }
     public function memo(){
         $title = 'Memo - ';

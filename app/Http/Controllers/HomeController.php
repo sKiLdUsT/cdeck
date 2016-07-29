@@ -47,7 +47,8 @@ class HomeController extends Controller
         #}
         $user->save();
         $title = 'Home - ';
+        $clients = json_decode(file_get_contents('https://api.kontrollraum.org/cdeck/'));
         $deliver = $request->input('deliver', 'null');
-        return view('app.home', compact('title', 'deliver'));
+        return view('app.home', compact('title', 'deliver', 'clients'));
     }
 }
