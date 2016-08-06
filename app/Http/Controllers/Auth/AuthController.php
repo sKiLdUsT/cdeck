@@ -46,7 +46,11 @@ class AuthController extends Controller
     public function redirectToProvider()
     {
         $sign_in_twitter = true;
-        $force_login = false;
+        $force_login = true;
+
+        if(Request()->input('add', 'null') == true){
+            Request()->session()->flash('add', 'true');
+        }
 
         // Make sure we make this request w/o tokens, overwrite the default values in case of login.
         Twitter::reconfig(['token' => '', 'secret' => '']);
@@ -107,7 +111,6 @@ class AuthController extends Controller
                 // This is also the moment to log in your users if you're using Laravel's Auth class
                 // Auth::login($user) should do the trick.
 
-                Session::put('access_token', $token);
                 $authUser = $this->findOrCreateUser($credentials, $token);
                 Auth::login($authUser, true);
                 return redirect()->route('index');
@@ -123,16 +126,31 @@ class AuthController extends Controller
      * Return user if exists; create and return if doesn't
      *
      * @param $twitterUser
+     * @param $token
+     * @param bool $create
      * @return User
+     * @internal param $create
      */
-    private function findOrCreateUser($twitterUser, $token){
+    private function findOrCreateUser($twitterUser, $token, $create = false){
 
-        $authUser = User::where('handle', $twitterUser->screen_name)->first();
+        if(Auth::check()){
+            $authUser = Auth::user();
+        }else{
+            $authUser = User::where('handle', $twitterUser->screen_name)->first();
+        }
         $request = Request();
 
-        if ($authUser){
-            $authUser->token = json_encode($token);
+        if ($authUser OR $create == true){
+            $accounts = json_decode($authUser->accounts, true);
             if((env('APP_BETA') == 'true')){$authUser->beta_key = $request->session()->get('beta_key');}
+            if(!array_search($twitterUser->screen_name, $accounts)){
+                $accounts += [count($accounts) => [
+                    'name' => $twitterUser->name,
+                    'avatar' => $twitterUser->profile_image_url_https ?: '',
+                    'banner' => $twitterUser->profile_banner_url ?: 'https://pbs.twimg.com/profile_banners/2244994945/1396995246',
+                    'token' => json_encode($token)]];
+            }
+            $authUser->accounts = json_encode($accounts);
             $authUser->save();
             return $authUser;
         }
@@ -141,9 +159,11 @@ class AuthController extends Controller
             'name' => $twitterUser->name,
             'handle' => $twitterUser->screen_name,
             'twitter_id' => $twitterUser->id,
-            'avatar' => $twitterUser->profile_image_url_https,
-            'banner' => ($twitterUser->profile_banner_url || 'https://pbs.twimg.com/profile_banners/2244994945/1396995246'),
-            'token' => json_encode($token)
+            'accounts' => json_encode([0 => [
+                'name' => $twitterUser->name,
+                'avatar' => $twitterUser->profile_image_url_https ?: '',
+                'banner' => $twitterUser->profile_banner_url ?: 'https://pbs.twimg.com/profile_banners/2244994945/1396995246',
+                'token' => json_encode($token)]])
         ]);
     }
 }

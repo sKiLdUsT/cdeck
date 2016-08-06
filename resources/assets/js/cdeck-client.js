@@ -25,7 +25,10 @@ function CDeckError(message) {
     Materialize.toast(errmsg[Math.floor(Math.random()*errmsg.length)], 5000);
 }
 CDeckError.prototype = Object.create(Error.prototype);
-cDeck.prototype.connect = function () {
+cDeck.prototype.connect = function (id) {
+    if(id === undefined){
+        id = 0;
+    }
     var socket = io.connect({path: "/api/upstream", 'force new connection' : true}),
         data = {},
         renderer = this.renderer,
@@ -33,7 +36,7 @@ cDeck.prototype.connect = function () {
         rShow = 0,
         errorModal = '';
     $.ajax({
-        url: '/api/twitter/getToken',
+        url: '/api/twitter/getToken?id='+id,
         async: false,
         dataType: 'json',
         success: function (response) {
@@ -45,7 +48,8 @@ cDeck.prototype.connect = function () {
             if (response == true) {
                 Materialize.toast('Angemeldet!', 2000);
                 $('#timeline').empty();
-                $('<div class="preloader-wrapper big active" style="display:none;" id="preloader' + modalCount + '"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-red"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-yellow"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-green"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div>').prependTo($('#timeline')).slideDown(300);
+                $('#notifications').empty();
+                $('<div class="preloader-wrapper big active" style="display:none;" id="preloader' + modalCount + '"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-red"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-yellow"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-green"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div>').prependTo($('#timeline'), $('#notifications')).slideDown(300);
             } else {
                 if(response.error == "double connect"){
                     console.log("cDeck: Double Connect detected.")
@@ -68,11 +72,12 @@ cDeck.prototype.connect = function () {
             rShow = 0;
             register();
     });
-    this.socket.on('timeline', function (data) {
+    this.socket.on('timeline', function (data, response) {
         data.forEach(function (item) {
             $('#timeline .preloader-wrapper').hide();
             $('#notifications .preloader-wrapper').hide();
-            renderer.display(item, self)
+            renderer.display(item, self);
+            response(true);
         })
     });
     this.socket.on('connect_error', function () {
@@ -128,6 +133,7 @@ cDeck.prototype.connect = function () {
 cDeck.prototype.close = function(){
     this.socket.emit('disconnect');
     this.socket.destroy();
+    Materialize.toast('Abgemeldet!', 2000);
     return this
 };
 
@@ -235,6 +241,12 @@ Renderer.prototype.display = function (data, socket) {
                     medialink = '<div class="card-image"><img src="' + data.retweeted_status.entities.media[0].media_url_https + '" class="materialboxed" data-caption=\'' + tweet.replace(/'/g, "&#039;") + '\'></div>';
                 } else {
                     medialink = '<div class="card-image"><img src="' + data.quoted_status.entities.media[0].media_url_https + '" class="materialboxed" data-caption=\'' + tweet.replace(/'/g, "&#039;") + '\'></div>';
+                }
+            }
+            if(data.urls !== undefined){
+                if(data.urls.expanded_url.match(/(?:http:\/\/|https:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)(.+)/)){
+                    var uid = data.urls.expanded_url.replace(/(?:http:\/\/|https:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)(.+)/, '$1');
+                    tweet += '<div class="video-container"><iframe width="560" height="315" src="https://www.youtube.com/embed/'+uid+'" frameborder="0" allowfullscreen></iframe></div>';
                 }
             }
         }
@@ -366,8 +378,8 @@ Renderer.prototype.newRt = function (id, isQuote, socket) {
     if (isQuote === true) {
         var reply = $('#tweet-' + id);
         var modalNumber = spawnModal(),
-            inReply = '<blockquote>' + $(reply.clone()).remove('.card-action').html() + '</blockquote>',
-            count = 138 - this.config.short_url_length_https;
+            inReply = '<blockquote>' + $(reply).children('.card-content').clone().html() + '</blockquote>',
+            count = 138 - tconfig.short_url_length_https;
         $('#modal' + modalNumber + '-header').text('Quote Tweet');
         $('#modal' + modalNumber + '-content').html(inReply + ' <div class="row"> <form class="col s12 ajax-form" method="post" action="/api/twitter/postTweet"> <div class="row"> <div class="input-field col s12"><textarea id="text" class="materialize-textarea" length="' + count + '" name="status"></textarea> <label for="text">Tweete etwas...</label> </div><button class="btn waves-effect waves-light blue" type="submit">Tweeten<i class="material-icons right">send</i> </button> </div> </form> </div>');
         $('textarea#text').characterCounter();

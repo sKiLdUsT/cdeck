@@ -45,6 +45,10 @@ main > .row > .col{
   overflow-y: scroll;
 }
 
+nav > .nav-wrapper > ul > li > a {
+  height: 66px;
+}
+
 @media only screen and (min-width: 993px) {
   .section .row .col .section > div:hover {
     margin-right: -18px;

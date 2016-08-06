@@ -12,11 +12,15 @@ use Cache;
 class ApiController extends Controller
 {
     public function getToken(){
-        if(session()->get('access_token')['oauth_token'] AND session()->get('access_token')['oauth_token']){
+        $account = Request()->input('id', '0');
+        $user = Auth::user();
+        if($user){
+            $accounts = json_decode($user->accounts);
+            $requestAccount = json_decode($accounts[$account]->token);
             return(json_encode(array(
-                    'oauth_token' => session()->get('access_token')['oauth_token'],
-                    'oauth_token_secret' => session()->get('access_token')['oauth_token_secret'],
-                    'screen_name' => Auth::user()->handle
+                    'oauth_token' => $requestAccount->oauth_token,
+                    'oauth_token_secret' => $requestAccount->oauth_token_secret,
+                    'screen_name' => $requestAccount->screen_name
                 )));
         }else{
             return(json_encode(array('error' => 'unauthorized')));

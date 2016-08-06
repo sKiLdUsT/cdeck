@@ -10,7 +10,7 @@
     <nav role="navigation" class="red darken-4">
         <div class="nav-wrapper">
             <a href="#!" class="brand-logo"><img src="assets/img/logo.png" alt="cDeck Logo" style="width: 75px;height: 75px; margin: 5px 0 0 10px"></a>
-            <ul class="right hide-on-med-and-down valign-wrapper" style="margin-right: 30px;">
+            <ul class="right" style="margin-right: 30px;">
                 <li><a class="dropdown-button" href="#" data-activates="dropdown2">Get the client!</a></li>
                 <ul id="dropdown2" class="dropdown-content" style="margin-top: 64px">
                     <li><a href="{{$clients->win_64}}">Windows</a></li>
@@ -29,14 +29,21 @@
                         <li><a href="#!">three</a></li>
                     </ul>
                     <li><a href="#"><i class="material-icons">chat_bubble_outline</i></a></li>
-                    <li><a href="#">
-                            @if(Auth::user()->avatar)
-                                <img src="{{Auth::user()->avatar}}" alt="Profilbild"
-                                     class="circle responsive-img valign">
+                    <li><a class="dropdown-button" href="#" data-activates="accounts">
+                            @if(json_decode(Auth::user()->accounts)[0]->avatar)
+                                <img src="{{json_decode(Auth::user()->accounts)[0]->avatar}}" alt="Profilbild" class="circle responsive-img valign" id="pb">
                             @else
                                 <i class="material-icons">account_circle</i>
                             @endif
-                        </a></li>
+                        </a>
+                        <ul id="accounts" class="dropdown-content" style="margin-top: 64px">
+                            <?php $count = 0; ?>
+                            @foreach($accounts as $account)
+                            <li><a href="#!" data-id="{{$count++}}" class="changeTl"><img src="{{$account->avatar}}" alt="Profilbild" class="circle responsive-img">{{$account->name}}</a></li>
+                            @endforeach
+                            <li class="divider"></li>
+                            <li><a href="/auth/twitter?add=true"><i class="material-icons">person_add</i>Add account</a></li>
+                        </ul></li>
                 @endunless
             </ul>
             @unless(isset($hideNavbar))
@@ -44,12 +51,12 @@
                 <ul id="slide-out" class="side-nav">
                     <li><div class="userView">
                             @if(Auth::user()->banner)
-                                <img class="background" src="{{Auth::user()->banner}}" style="max-height: 200px;margin-left: -50%;">
+                                <img class="background" src="{{json_decode(Auth::user()->accounts)[0]->banner}}" style="max-height: 200px;margin-left: -50%;">
                             @else
                                 <img class="background red darken-3" src="">
                             @endif
                             @if(Auth::user()->avatar)
-                                <a href=""><img class="circle" src=" {{Auth::user()->avatar}}"></a>
+                                <a href=""><img class="circle" src=" {{json_decode(Auth::user()->accounts)[0]->avatar}}"></a>
                             @else
                                 <i class="material-icons">account_circle</i>
                             @endif

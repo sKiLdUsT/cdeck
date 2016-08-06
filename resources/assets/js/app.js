@@ -1,3 +1,7 @@
+var modalCount = 0,
+    upstream = "",
+    renderer = "",
+    activeID = 0;
 function ajaxForm(form, modal2) {
     var modalNumber = spawnModal();
     var modal = $('#modal' + modalNumber);
@@ -29,8 +33,6 @@ function ajaxForm(form, modal2) {
         })
     })
 }
-
-var modalCount = 0;
 function spawnModal() {
     modalCount++;
     var modal = '<div id="modal' + modalCount + '" class="modal">\
@@ -135,16 +137,26 @@ $(document).ready(function () {
     if (window.location.pathname == '/') {
         $('body > .section > main').css('position', 'fixed');
         var client = new cDeck();
-        var upstream = Object;
         Pace.ignore(function () {
             upstream = client.connect();
             $(window).on("beforeunload", function () {
                 upstream.close();
             });
         });
-        var renderer = new Renderer(upstream);
+        renderer = new Renderer(upstream);
         $('#newTweet').on('click', function () {
             renderer.newTweet();
+        });
+        $('a.changeTl').on('click', function () {
+            if($(this).attr('data-id') != activeID){
+                upstream.close();
+                $('#pb').attr('src', $(this).children('img').attr('src'));
+                upstream = client.connect($(this).attr('data-id'));
+                activeID = $(this).attr('data-id');
+            }else{
+                throw new CDeckError("ID already active");
+            }
+
         });
         if($(window).width() < 993 ) {
             $('ul.tabs').tabs();
