@@ -4,12 +4,21 @@
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "type": "project",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@git.skildust.com:cDeck/BBCodeParser.git"
+        }
+    ],
     "require": {
         "php": ">=5.5.9",
         "laravel/framework": "5.2.*",
         "thujohn/twitter": "~2.0",
         "laravel/socialite": "^2.0",
-        "doctrine/dbal": "^2.5"
+        "doctrine/dbal": "^2.5",
+        "vluzrmos/language-detector": "^1.0",
+        "skildust/gitlog": ">=1.0",
+        "cdeck/bbcodeparser": "^2.2.3"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -42,7 +51,7 @@
         "post-install-cmd": [
             "Illuminate\\Foundation\\ComposerScripts::postInstall",
             "php artisan optimize",
-            "npm install || npm install"
+            "npm install --no-bin-links || npm install --no-bin-links"
         ],
         "post-update-cmd": [
             "Illuminate\\Foundation\\ComposerScripts::postUpdate",

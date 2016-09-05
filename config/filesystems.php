@@ -48,9 +48,10 @@ return [
             'root' => storage_path('app'),
         ],
 
-        'content' => [
+        'voices' => [
             'driver' => 'local',
-            'root' => storage_path('app/usrcontent'),
+            'root' => storage_path('app/voices'),
+            'visibility' => 'public',
         ],
 
         'public' => [

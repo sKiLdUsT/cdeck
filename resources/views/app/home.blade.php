@@ -12,8 +12,8 @@
             </div>
             <div id="tab1" class="col s12 m12 l3">
                 <div class="section center-align">
-                    <h4 class="hide-on-med-and-down"><i class="material-icons" style="font-size: 3rem">trending_up</i></h4>
-                    <div class="slimScroll">
+                    <h4 class="hide-on-med-and-down"><i class="material-icons @if(json_decode(Auth::user()->uconfig)->colormode == 1)white-text @endif" style="font-size: 3rem">trending_up</i></h4>
+                    <div class="pad">
                         <div class="divider"></div>
 
 
@@ -30,8 +30,9 @@
             </div>
             <div id="tab2" class="col s12 m12 l6">
                 <div class="section center-align">
-                    <h4 class="hide-on-med-and-down"><i class="material-icons" style="font-size: 3rem">home</i></h4>
-                    <div id="timeline" class="slimScroll">
+                    <h4 class="hide-on-med-and-down"><i class="material-icons @if(json_decode(Auth::user()->uconfig)->colormode == 1)white-text @endif" style="font-size: 3rem">home</i></h4>
+                    <div id="timeline" class="pad">
+                        <div class="divider"></div>
                         <div class="preloader-wrapper big active">
                             <div class="spinner-layer spinner-blue">
                                 <div class="circle-clipper left">
@@ -86,8 +87,9 @@
             </div>
             <div id="tab3" class="col s12 m12 l3">
                 <div class="section center-align">
-                    <h4 class="hide-on-med-and-down"><i class="material-icons" style="font-size: 3rem">notifications</i></h4>
-                    <div id="notifications" class="slimScroll">
+                    <h4 class="hide-on-med-and-down"><i class="material-icons @if(json_decode(Auth::user()->uconfig)->colormode == 1)white-text @endif" style="font-size: 3rem">notifications</i></h4>
+                    <div id="notifications" class="pad">
+                        <div class="divider"></div>
                         <div class="preloader-wrapper big active">
                             <div class="spinner-layer spinner-blue">
                                 <div class="circle-clipper left">
@@ -143,14 +145,9 @@
             </div>
         </div>
         <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
-            <a class="btn-floating btn-large red">
+            <a class="btn-floating btn-large red" id="newTweet">
                 <i class="large material-icons">mode_edit</i>
             </a>
-            <ul>
-                <li><a class="btn-floating yellow darken-1" id="newTweet"><i class="material-icons">format_quote</i></a>
-                </li>
-                <li><a class="btn-floating blue" id="newMedia"><i class="material-icons">perm_media</i></a></li>
-            </ul>
         </div>
     </main>
 @endsection

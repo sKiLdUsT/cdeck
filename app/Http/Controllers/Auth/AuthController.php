@@ -140,17 +140,27 @@ class AuthController extends Controller
         }
         $request = Request();
 
+        function searchForHandle($handle, $array) {
+            foreach ($array as $key => $val) {
+                if ($val['handle'] === $handle) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         if ($authUser OR $create == true){
             $accounts = json_decode($authUser->accounts, true);
             if((env('APP_BETA') == 'true')){$authUser->beta_key = $request->session()->get('beta_key');}
-            if(!array_search($twitterUser->screen_name, $accounts)){
+            if(!searchForHandle($twitterUser->screen_name, $accounts)){
                 $accounts += [count($accounts) => [
                     'name' => $twitterUser->name,
-                    'avatar' => $twitterUser->profile_image_url_https ?: '',
-                    'banner' => $twitterUser->profile_banner_url ?: 'https://pbs.twimg.com/profile_banners/2244994945/1396995246',
+                    'handle' => $twitterUser->screen_name,
+                    'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
+                    'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246',
                     'token' => json_encode($token)]];
+                $authUser->accounts = json_encode($accounts);
             }
-            $authUser->accounts = json_encode($accounts);
             $authUser->save();
             return $authUser;
         }
@@ -161,9 +171,15 @@ class AuthController extends Controller
             'twitter_id' => $twitterUser->id,
             'accounts' => json_encode([0 => [
                 'name' => $twitterUser->name,
-                'avatar' => $twitterUser->profile_image_url_https ?: '',
-                'banner' => $twitterUser->profile_banner_url ?: 'https://pbs.twimg.com/profile_banners/2244994945/1396995246',
-                'token' => json_encode($token)]])
+                'handle' => $twitterUser->screen_name,
+                'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
+                'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246',
+                'token' => json_encode($token)]]),
+            'uconfig' => json_encode([
+                'notifications' => false,
+                'colormode' => 0,
+                'access_level' => 0
+            ])
         ]);
     }
 }

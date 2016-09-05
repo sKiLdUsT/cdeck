@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use Illuminate\Http\Request;
+use Vluzrmos\LanguageDetector\Facades\LanguageDetector;
 use DB;
 use Twitter;
 use Session;
@@ -19,7 +20,9 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        \App::setlocale(Request()->input('lang', (Auth::user() && isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
     }
+
 
     /**
      * Show the application dashboard.
@@ -34,29 +37,19 @@ class HomeController extends Controller
                 $request->session()->put('beta_key', json_decode($user)->beta_key);
             }
         }
-        /*if (!$request->session()->get('access_token')['oauth_token'] OR !$request->session()->get('access_token')['oauth_token_secret'] AND $user->token) {
-            $access_token = array('oauth_token' => json_decode($user->token)->oauth_token,
-                'oauth_token_secret' => json_decode($user->token)->oauth_token_secret);
-            $request->session()->put('access_token', $access_token);
-        }*/
+        $accounts = json_decode(Auth::user()->accounts, false);
         try{
-            foreach(json_decode($user->accounts) as $account){
+            foreach( $accounts as $account){
                 $account->avatar = Twitter::query('users/show', 'GET', ['screen_name' => $account->handle])->profile_image_url_https;
                 $account->banner = Twitter::query('users/show', 'GET', ['screen_name' => $account->handle])->profile_banner_url;
             }
+            Auth::user()->accounts = json_encode($accounts);
         } catch (\Exception $e) {
             #return redirect()->route('twitter.login');
         }
-        #try {
-            #$user->avatar = Twitter::query('users/show', 'GET', ['screen_name' => $user->handle])->profile_image_url_https;
-            #$user->banner = Twitter::query('users/show', 'GET', ['screen_name' => $user->handle])->profile_banner_url;
-        #} catch (\Exception $e) {
-        #    return redirect()->route('twitter.login');
-        #}
         $user->save();
         $title = 'Home - ';
-        $accounts = json_decode(Auth::user()->accounts, false);
-        $clients = json_decode(file_get_contents('https://api.kontrollraum.org/cdeck/'));
+        $clients = json_decode(file_get_contents('https://toolbox.kontrollraum.org/cdeck/'));
         $deliver = $request->input('deliver', 'null');
         return view('app.home', compact('title', 'deliver', 'clients', 'accounts'));
     }

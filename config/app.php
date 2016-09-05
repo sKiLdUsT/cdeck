@@ -154,6 +154,7 @@ return [
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
+        Vluzrmos\LanguageDetector\Providers\LanguageDetectorServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         'Thujohn\Twitter\TwitterServiceProvider',
         Laravel\Socialite\SocialiteServiceProvider::class
