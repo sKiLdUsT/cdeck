@@ -4,7 +4,7 @@
     <meta name="language" content="de">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="{{$title}}cDeck">
+    <meta property="og:title" content="{{$title or ""}}cDeck">
     <meta property="og:description" content="Modern and intelligent Twitter client">
     <meta property="og:image" content="{{url()->to('/assets/img/icon/ms-icon-310x310.png')}}" >
     @if(isset($onepost))
