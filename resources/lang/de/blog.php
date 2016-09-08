@@ -10,5 +10,6 @@ return [
     "preview" => "Vorschau",
     "posted" => "Beitrag geposted!",
     "show" => "Ansehen",
-    "no_content" => "Nichts zu sehen hier. <b>Noch</b> nicht! :-)"
+    "no_content" => "Nichts zu sehen hier. <b>Noch</b> nicht! :-)",
+    "back" => "Zurück"
 ];

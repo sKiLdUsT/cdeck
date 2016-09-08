@@ -10,5 +10,6 @@ return [
     "preview" => "Preview",
     "posted" => "Posted!",
     "show" => "Show",
-    "no_content" => "Nothing to see here. <b>Not yet</b>! :-)"
+    "no_content" => "Nothing to see here. <b>Not yet</b>! :-)",
+    "back" => "Back"
 ];
