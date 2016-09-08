@@ -67,11 +67,39 @@ $(document).ready(function () {
                     if ($('#recorded').length !== 0) {
                         $('#recorded').remove()
                     }
-                    $('<div class="row section z-depth-2" id="recorded" style="display:none"><blockquote class="col s12"><audio controls id="play"><source src="'+window.URL.createObjectURL(blob)+'" type="audio/mpeg">Your browser does not support the audio element.</audio></blockquote><a class="btn" id="send">' + lang.menu.send + '</a></div></div>').appendTo($('#modal' + mn + '-content')).fadeIn(400);
+                    $('<div class="row section z-depth-2" id="recorded" style="display:none"><blockquote class="col s12"><div id="voice-preview"></div><div class="controls center-align col s12"> <a id="play" class="btn waves-effect"><i class="material-icons">play_arrow</i>/<i class="material-icons">pause</i></a> <a id="stop" class="btn waves-effect"><i class="material-icons">stop</i></a> </div></blockquote><a class="btn" id="send">' + lang.menu.send + '</a></div></div>').appendTo($('#modal' + mn + '-content')).fadeIn(400);
                     $('#recorded a#send').click(function () {
                         $('.lean-overlay').trigger('click');
                         $('#newTweet').trigger('click');
                     });
+                    var wavesurfer = WaveSurfer.create({
+                        container: '#voice-preview',
+                        waveColor: 'blue',
+                        progressColor: 'red',
+                        backgroundColor: '#333333',
+                        barWidth: '3',
+                        normalize: true
+                    });
+                    wavesurfer.load(window.URL.createObjectURL($voiceblob));
+                    wavesurfer.on('finish', function () {
+                        $('#play').removeClass('playing')
+                    });
+                    $('#play').click(function(e){
+                        e.preventDefault();
+                        if($(this).hasClass('playing')){
+                            wavesurfer.playPause()
+                        }else{
+                            $(this).addClass('playing');
+                            wavesurfer.play()
+                        }
+                    });
+                    $('#stop').click(function(e){
+                        e.preventDefault();
+                        if($('#play').hasClass('playing')){
+                            wavesurfer.stop();
+                            $(this).removeClass('playing')
+                        }
+                    })
                 }
             });
         }

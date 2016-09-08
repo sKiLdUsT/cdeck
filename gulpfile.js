@@ -30,6 +30,7 @@ elixir(function(mix) {
         'shortcut.js',
         'twitter-text.js',
         'fallbackLang.js',
+        'voice/wavesurfer.js',
         'cdeck-client.js',
         'app.js',
         'blog.js',

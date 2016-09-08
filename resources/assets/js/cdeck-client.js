@@ -599,7 +599,7 @@ Renderer.prototype.newTweet = function (reply, socket) {
         prefill = (mentions.toString()).replace(',', ' ') + ' ';
     }
     if (typeof $voiceblob != 'undefined'){
-        inReply = '<blockquote><audio controls id="play"><source src="'+window.URL.createObjectURL($voiceblob)+'" type="audio/mpeg">Your browser does not support the audio element.</audio></blockquote>'+inReply;
+        inReply = '<blockquote><div id="voice-preview"></div><div class="controls center-align col s12"> <a id="play" class="btn waves-effect"><i class="material-icons">play_arrow</i>/<i class="material-icons">pause</i></a> <a id="stop" class="btn waves-effect"><i class="material-icons">stop</i></a> </div></blockquote>'+inReply;
         tlength = (tlength - 2) - tconfig.short_url_length_https
     }
     $('#modal' + modalNumber + '-header').text(lang.external.newtweet);
@@ -616,6 +616,36 @@ Renderer.prototype.newTweet = function (reply, socket) {
         opacity: .5,
         ready: function(){
             $('#modal' + modalNumber + ' form textarea').focus().setCursorToTextEnd();
+            if (typeof $voiceblob != 'undefined'){
+                var wavesurfer = WaveSurfer.create({
+                    container: '#voice-preview',
+                    waveColor: 'blue',
+                    progressColor: 'red',
+                    backgroundColor: '#333333',
+                    barWidth: '3',
+                    normalize: true
+                });
+                wavesurfer.load(window.URL.createObjectURL($voiceblob));
+                wavesurfer.on('finish', function () {
+                    $('#play').removeClass('playing')
+                });
+                $('#play').click(function(e){
+                    e.preventDefault();
+                    if($(this).hasClass('playing')){
+                        wavesurfer.playPause()
+                    }else{
+                        $(this).addClass('playing');
+                        wavesurfer.play()
+                    }
+                });
+                $('#stop').click(function(e){
+                    e.preventDefault();
+                    if($('#play').hasClass('playing')){
+                        wavesurfer.stop();
+                        $(this).removeClass('playing')
+                    }
+                })
+            }
         },
         complete: function () {
             $('#modal' + modalNumber).remove()
