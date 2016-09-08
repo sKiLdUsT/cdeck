@@ -10,5 +10,7 @@ return [
     "search" => "Search",
     "apps" => "Apps",
     "messages" => "Messages",
-    "send" => "Send"
+    "send" => "Send",
+    "noti_enabled" => "Notifications enabled!",
+    "noti_disabled" => "Notifications disabled!"
 ];

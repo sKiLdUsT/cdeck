@@ -10,5 +10,7 @@ return [
     "search" => "Suchen",
     "apps" => "Apps",
     "messages" => "Nachrichten",
-    "send" => "Senden"
+    "send" => "Senden",
+    "noti_enabled" => "Benachrichtigungen eingeschaltet!",
+    "noti_disabled" => "Benachrichtigungen ausgeschaltet!"
 ];

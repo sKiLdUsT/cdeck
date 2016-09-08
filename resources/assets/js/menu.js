@@ -186,20 +186,26 @@ $(document).ready(function () {
         if(notify.isSupported !== true){
             throw new CDeckError('Browser not supported');
         }
-        if(notify.permissionLevel() != notify.PERMISSION_GRANTED){
-            if(notify.permissionLevel() == notify.PERMISSION_DENIED){
-                Materialize.toast('Verweigert! Bitte erlaube cDeck in deinen Browser-Einstellungen, diese Funktion zu nutzen.', 5000);
-                throw new CDeckError('No Permission to access notifications. Result was: '+notify.permissionLevel())
-            }
-            notify.requestPermission(function(response){
-                if(response != notify.PERMISSION_GRANTED){
+        if(uconfig.notifications == "false"){
+            if(notify.permissionLevel() != notify.PERMISSION_GRANTED){
+                if(notify.permissionLevel() == notify.PERMISSION_DENIED){
                     Materialize.toast('Verweigert! Bitte erlaube cDeck in deinen Browser-Einstellungen, diese Funktion zu nutzen.', 5000);
                     throw new CDeckError('No Permission to access notifications. Result was: '+notify.permissionLevel())
                 }
-            })
-        }
-        if(changeUconfig({notifications: true}) === true){
-            notify.createNotification("cDeck", {body:"Notifications enabled!", icon: "assets/img/logo.png"})
+                notify.requestPermission(function(response){
+                    if(response != notify.PERMISSION_GRANTED){
+                        Materialize.toast('Verweigert! Bitte erlaube cDeck in deinen Browser-Einstellungen, diese Funktion zu nutzen.', 5000);
+                        throw new CDeckError('No Permission to access notifications. Result was: '+notify.permissionLevel())
+                    }
+                })
+            }
+            if(changeUconfig({notifications: true}) === true){
+                Materialize.toast(lang.menu.noti_enabled, 5000)
+            }
+        }else{
+            if(changeUconfig({notifications: false}) === true){
+                Materialize.toast(lang.menu.noti_disabled, 5000)
+            }
         }
     });
     $('#button_settings').click(function(e){

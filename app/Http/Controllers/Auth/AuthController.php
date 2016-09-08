@@ -164,7 +164,7 @@ class AuthController extends Controller
             $authUser->save();
             return $authUser;
         }
-
+        session()->put('notifications', 'false');
         return User::create([
             'name' => $twitterUser->name,
             'handle' => $twitterUser->screen_name,
@@ -176,7 +176,6 @@ class AuthController extends Controller
                 'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246',
                 'token' => json_encode($token)]]),
             'uconfig' => json_encode([
-                'notifications' => false,
                 'colormode' => 0,
                 'access_level' => 0
             ])

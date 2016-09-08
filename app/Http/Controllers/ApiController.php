@@ -77,7 +77,7 @@ class ApiController extends Controller
                             $uconfig->colormode = $value;
                             break;
                         case "notifications":
-                            $uconfig->notifications = $value;
+                            session()->put('notifications', $value);
                             break;
                         case "access_level":
                             return json_encode(["response" => "unauthorized"]);
@@ -86,9 +86,18 @@ class ApiController extends Controller
                 }
                 $user->uconfig = json_encode($uconfig);
                 $user->save();
-                return json_encode(["response" => true, "data" => $user->uconfig]);
+                $uconfig = json_decode($user->uconfig);
+                return json_encode(["response" => true, "data" => [
+                    "colormode" => $uconfig->colormode,
+                    "notifications" => session()->get('notifications'),
+                    "access_level" => $uconfig->access_level
+                ]]);
             }
-            return $user->uconfig;
+            return json_encode([
+                "colormode" => $uconfig->colormode,
+                "notifications" => session()->get('notifications'),
+                "access_level" => $uconfig->access_level
+            ]);
         }
         return json_encode(["response" => false]);
     }
