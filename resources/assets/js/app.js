@@ -14,7 +14,8 @@ var modalCount = 0,
     isScrolledDown = false;
 function spawnModal() {
     modalCount++;
-    var modal = '<div id="modal' + modalCount + '" class="modal">\
+    var colormode = uconfig.colormode == "1" ? 'grey darken-3 white-text' : '';
+    var modal = '<div id="modal' + modalCount + '" class="modal '+colormode+'">\
         <div class="wrapper">\
         <div class="modal-content center-align">\
         <h4 id="modal' + modalCount + '-header"></h4>\
@@ -57,8 +58,6 @@ function spawnModal() {
         </div>\
         </div>\
         </div></p>\
-        </div>\
-        <div class="modal-footer" id="modal-footer">\
         </div>\
         </div>\
         </div>';
