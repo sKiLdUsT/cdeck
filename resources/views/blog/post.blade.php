@@ -3,10 +3,10 @@
     <div class="container onepost">
         <div class="row">
             <div class="col s9">
-                <div id="post-{{$post->id}}" class="section white center-align z-depth-2 post">
+                <div id="post-{{$post->id}}" class="section @if(Auth::user() && json_decode(Auth::user()->uconfig)->colormode == 1)grey darken-3 white-text @else white @endif center-align z-depth-2 post">
                     <h2 id="title">{{$post->title}}</h2>
                     <div class="divider"></div>
-                    <div id="userinfo" class="grey lighten-4 valign-wrapper center-align">
+                    <div id="userinfo" class="grey @if(Auth::user() && json_decode(Auth::user()->uconfig)->colormode == 1)darken-2 white-text @else lighten-4 @endif valign-wrapper center-align">
                         <span class="valign">
                             {{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $post->updated_at)->formatLocalized('%A, %d %B %Y')}}
                             @lang('blog.from')
@@ -23,7 +23,7 @@
                     </div>
                     <br>
                     <div class="divider"></div>
-                    <div id="social" class="grey lighten-4 valign-wrapper center-align" style="height:3rem">
+                    <div id="social" class="grey @if(Auth::user() && json_decode(Auth::user()->uconfig)->colormode == 1)darken-2 white-text @else lighten-4 @endif valign-wrapper center-align" style="height:3rem">
                         <span class="valign">
                             <a id="share-twitter" class="twitter-share-button button btn btn-medium blue popout"
                                href="https://twitter.com/intent/tweet?original_referer={{urlencode(url()->current())}}&text={{urlencode($title.'cDeck')}}&related={{$userinfo["handle"]}}&url={{urlencode(url()->current())}}&via=cdeckapp">

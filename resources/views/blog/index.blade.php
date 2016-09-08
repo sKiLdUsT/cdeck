@@ -5,10 +5,10 @@
         <div class="col s9">
             @unless(isset($error))
             @foreach(array_reverse($content) as $post)
-                <div id="post-{{$post->id}}" class="section white center-align z-depth-2 post">
+                <div id="post-{{$post->id}}" class="section @if(Auth::user() && json_decode(Auth::user()->uconfig)->colormode == 1)grey darken-3 white-text @else white @endif center-align z-depth-2 post">
                     <h2 id="title">{{$post->title}}</h2>
                     <div class="divider"></div>
-                    <div id="userinfo" class="grey lighten-4 valign-wrapper center-align">
+                    <div id="userinfo" class="grey @if(Auth::user() && json_decode(Auth::user()->uconfig)->colormode == 1)darken-2 white-text @else lighten-4 @endif valign-wrapper center-align">
                         <span class="valign">{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $post->updated_at)->formatLocalized('%A, %d %B %Y')}}
                         @lang('blog.from')
                         {{$userinfo[$post->uid]['name']}}</span>
