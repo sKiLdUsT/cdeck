@@ -8,7 +8,7 @@
             <div class="section white">
                 <div class="row container center-align">
                     <h2 class="header">Information</h2>
-                    <p class="grey-text text-darken-3 lighten-3">Dieser Client befindet sich immer noch in der <b>BETA</b>-Phase. Er könnte eure Katze töten oder euer Haus anzünden.<br><br>Benutzen auf eigene Gefahr!</p>
+                    <p class="grey-text text-darken-3 lighten-3">{!! trans('message.homewarning') !!}</p>
                     <div class="divider"></div><br>
                     <a href="/auth/twitter">
                         <button class="btn waves-effect waves-light blue btn-block">Login via Twitter

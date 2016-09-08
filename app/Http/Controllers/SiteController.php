@@ -5,9 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use Session;
+use App;
+use Vluzrmos\LanguageDetector\Facades\LanguageDetector;
+use Illuminate\Support\Facades\Storage;
 
 class SiteController extends Controller
 {
+    public function __construct()
+    {
+        \App::setlocale(Request()->input('lang', (\Auth::user() && isset(json_decode(\Auth::user()->uconfig)->lang)) ? json_decode(\Auth::user()->uconfig)->lang : LanguageDetector::detect()));
+
+    }
     public function login(Request $request){
         if (env('APP_BETA') == 'true') {
             if (!$request->session()->has('beta_key')) {
@@ -17,7 +25,7 @@ class SiteController extends Controller
         $title = 'Login - ';
         $deliver = $request->input('deliver', 'null');
         $hideNavbar = true;
-        $clients = json_decode(file_get_contents('https://api.kontrollraum.org/cdeck/'));
+        $clients = json_decode(file_get_contents('https://toolbox.kontrollraum.org/cdeck/'));
         return view('auth.login', compact('title', 'deliver', 'hideNavbar', 'clients'));
     }
     public function beta(Request $request){
@@ -25,12 +33,13 @@ class SiteController extends Controller
             if ($request->session()->has('beta_key')) {
                 return redirect()->route('index');
             }
+            $title = 'Beta Token - ';
+            $deliver = $request->input('deliver', 'null');
+            $hideNavbar = true;
+            $clients = json_decode(file_get_contents('https://toolbox.kontrollraum.org/cdeck/'));
+            return view('auth.beta', compact('title', 'deliver', 'hideNavbar', 'clients'));
         }
-        $title = 'Beta Token - ';
-        $deliver = $request->input('deliver', 'null');
-        $hideNavbar = true;
-        $clients = json_decode(file_get_contents('https://api.kontrollraum.org/cdeck/'));
-        return view('auth.beta', compact('title', 'deliver', 'hideNavbar', 'clients'));
+        return redirect()->route('index');
     }
     public function memo(){
         $title = 'Memo - ';
@@ -44,20 +53,59 @@ class SiteController extends Controller
         $request = Request();
         $deliver = $request->input('deliver', 'null');
         $hideNavbar = true;
-        return view('auth.register', compact('title', 'deliver', 'hideNavbar'));
+        $clients = json_decode(file_get_contents('https://toolbox.kontrollraum.org/cdeck/'));
+        return view('auth.register', compact('title', 'deliver', 'hideNavbar', 'clients'));
     }
     public function impressum(){
         $title = 'Impressum - ';
         $request = Request();
         $deliver = $request->input('deliver', 'null');
         $hideNavbar = true;
-        return view('app.impressum', compact('title', 'deliver', 'hideNavbar'));
+        $clients = json_decode(file_get_contents('https://toolbox.kontrollraum.org/cdeck/'));
+        return view('app.impressum', compact('title', 'deliver', 'hideNavbar', 'clients'));
     }
     public function datenschutz(){
         $title = 'Datenschutz - ';
         $request = Request();
         $deliver = $request->input('deliver', 'null');
         $hideNavbar = true;
-        return view('app.datenschutz', compact('title', 'deliver', 'hideNavbar'));
+        $clients = json_decode(file_get_contents('https://toolbox.kontrollraum.org/cdeck/'));
+        return view('app.datenschutz', compact('title', 'deliver', 'hideNavbar', 'clients'));
+    }
+    public function changelog(){
+        $title = 'Changelog - ';
+        $request = Request();
+        $deliver = $request->input('deliver', 'null');
+        $hideNavbar = true;
+        $clients = json_decode(file_get_contents('https://toolbox.kontrollraum.org/cdeck/'));
+        $log = (new \Skildust\Gitlog\Gitlog)->get();
+        return view('app.changelog', compact('title', 'deliver', 'hideNavbar', 'clients', 'log'));
+    }
+    public function showVoice($id){
+        $voice = App\Voice::where('id', $id)->first();
+        if($voice == null)
+        {
+            App::abort(404);
+        }
+        $user = App\User::where('id', $voice->uid)->first();
+        if($user == null)
+        {
+            App::abort(500);
+        }
+
+        $user = json_decode(json_encode([
+            "name" => $user->name,
+            "handle" => $user->handle,
+            "avatar" => json_decode($user->accounts)[0]->avatar,
+            "banner" => json_decode($user->accounts)[0]->banner
+        ]));
+
+        $title = $user->name.'\'s Voice Message - ';
+        $request = Request();
+        $deliver = $request->input('deliver', 'null');
+        $url = $voice->path;
+        $time = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $voice->created_at)->formatLocalized('%A, %d %B %Y %R');
+
+        return view('voice', compact('title', 'deliver', 'voice', 'user', 'url', 'time'));
     }
 }

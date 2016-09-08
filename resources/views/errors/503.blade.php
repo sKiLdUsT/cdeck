@@ -10,8 +10,8 @@
 <body>
 <div class="container">
     <div class="content">
-        <div class="title">Einen Moment....</div>
-        <strong>Wir räumen nur etwas auf, gleich geht es weiter :-)</strong><br><br>
+        <div class="title">@lang('message.onemoment')</div>
+        <strong>@lang('message.cleanup')</strong><br><br>
         <div class="progress" style="height:5px;">
             <div class="indeterminate"></div>
         </div>
