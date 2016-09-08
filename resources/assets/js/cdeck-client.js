@@ -190,6 +190,9 @@ cDeck.prototype.connect = function (id) {
     this.socket.on('fatal_error', function(err){
             throw new CDeckError('Server error: '+err);
     });
+    this.socket.on('ready', function(){
+        $app.state = "ready";
+    });
     return this
 };
 
@@ -504,7 +507,7 @@ Renderer.prototype.display = function (data, socket, action) {
             }else if(action == 'append'){
                 $('<div class="divider"></div><div class="card blue-grey darken-1 white-text" style="display: none"><div class="card-content"><img src="' + data.source.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.source.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.source.screen_name + '"> @' + data.source.screen_name + '</a> liked <br><blockquote><div class="card blue-grey darken-1 white-text z-depth-3 tweet" id="tweet-' + data.target_object.id_str + '"><div class="card-content"><span class="card-title left-align"><img src="' + data.target_object.user.profile_image_url_https + '" alt="Profilbild" class="circle responsive-img">' + data.target_object.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + data.target_object.user.screen_name + '"> @' + data.target_object.user.screen_name + '</a></span><p>' + tweet + '</p> </div></blockquote> </div> </div>').prependTo($('#notifications')).slideDown(300);
             }
-            if(uconfig.notifications == "true"){
+            if($app.state == "ready" && uconfig.notifications == "true"){
                 notify.createNotification("cDeck", {body: "@"+data.source.screen_name+" "+lang.external.liked, icon: "/assets/img/logo.png"})
             }
         } else {

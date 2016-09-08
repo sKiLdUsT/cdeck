@@ -4,6 +4,13 @@
         this.val($initialVal);
     };
 })(jQuery);
+
+window.$app = {
+    version: "0.5",
+    isStable: false,
+    state: "init"
+};
+
 var modalCount = 0,
     upstream = "",
     renderer = "",
