@@ -86,7 +86,7 @@ class ApiController extends Controller
                 }
                 $user->uconfig = json_encode($uconfig);
                 $user->save();
-                return json_encode(["response" => true]);
+                return json_encode(["response" => true, "data" => $user->uconfig]);
             }
             return $user->uconfig;
         }

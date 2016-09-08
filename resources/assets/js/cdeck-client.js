@@ -63,7 +63,8 @@ function changeUconfig(params){
         url: '/api/uconfig',
         data: params,
         success: function(data){
-            a = data
+            a = data;
+            uconfig = data.data
         },
         dataType: 'json',
         async: false
