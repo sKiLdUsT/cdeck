@@ -142,7 +142,7 @@ class AuthController extends Controller
 
         function searchForHandle($handle, $array) {
             foreach ($array as $key => $val) {
-                if ($val['handle'] === $handle) {
+                if (isset($val['handle']) && $val['handle'] === $handle) {
                     return true;
                 }
             }
