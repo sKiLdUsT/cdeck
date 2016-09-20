@@ -51,23 +51,14 @@ main {
     .col {
       .section {
         > div.pad {
-          overflow: hidden;
+          overflow: auto;
           height: 100%;
-          &:hover {
-            overflow-y: scroll
-          }
         }
         .preloader-wrapper {
           overflow: hidden
         }
       }
     }
-  }
-}
-
-@media only screen and (min-width: 993px) {
-  .section .row .col .section > div.pad:hover {
-    margin-right: -18px
   }
 }
 
