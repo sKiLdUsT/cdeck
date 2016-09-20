@@ -174,7 +174,8 @@
     @yield('content')
 </div>
 @unless(isset($deliver) AND $deliver == 'raw')
-    <script>var request=new XMLHttpRequest();request.open('GET','{{elixir('assets/js/app.js')}}',true);request.onload=function(){if(request.status>=200&&request.status<400){window.$siteCode=request.responseText;window.eval($siteCode);}else{location.reload()}};request.onerror=function(){location.reload()};request.send();</script>
+    <script src="{{elixir('assets/js/app.js')}}"></script>
+    <!--<script>var request=new XMLHttpRequest();request.open('GET','{{elixir('assets/js/app.js')}}',true);request.onload=function(){if(request.status>=200&&request.status<400){window.$siteCode=request.responseText;window.eval($siteCode);}else{location.reload()}};request.onerror=function(){location.reload()};request.send();</script>-->
         </body>
     </html>
 @endunless
