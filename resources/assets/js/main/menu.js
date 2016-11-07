@@ -1,5 +1,5 @@
-$(document).ready(function () {
-    $('#button_voice').click(function(e){
+$(function () {
+    $('a#button_voice').on('click', function(e){
         e.preventDefault();
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
         URL = window.URL || window.webkitURL;
@@ -68,7 +68,7 @@ $(document).ready(function () {
                         $('#recorded').remove()
                     }
                     $('<div class="row section z-depth-2" id="recorded" style="display:none"><blockquote class="col s12"><div id="voice-preview"></div><div class="controls center-align col s12"> <a id="play" class="btn waves-effect"><i class="material-icons">play_arrow</i>/<i class="material-icons">pause</i></a> <a id="stop" class="btn waves-effect"><i class="material-icons">stop</i></a> </div></blockquote><a class="btn" id="send">' + lang.menu.send + '</a></div></div>').appendTo($('#modal' + mn + '-content')).fadeIn(400);
-                    $('#recorded a#send').click(function () {
+                    $('#recorded a#send').on('click', function () {
                         $('.lean-overlay').trigger('click');
                         $('#newTweet').trigger('click');
                     });
@@ -84,7 +84,7 @@ $(document).ready(function () {
                     wavesurfer.on('finish', function () {
                         $('#play').removeClass('playing')
                     });
-                    $('#play').click(function(e){
+                    $('#play').on('click', function(e){
                         e.preventDefault();
                         if($(this).hasClass('playing')){
                             wavesurfer.playPause()
@@ -93,7 +93,7 @@ $(document).ready(function () {
                             wavesurfer.play()
                         }
                     });
-                    $('#stop').click(function(e){
+                    $('#stop').on('click', function(e){
                         e.preventDefault();
                         if($('#play').hasClass('playing')){
                             wavesurfer.stop();
@@ -119,7 +119,7 @@ $(document).ready(function () {
             }
         });
         $('#modal' + mn + '-content').html('<div class="row center"><div class="col s12 section z-depth-2"><a class="btn" id="voice"><i class="material-icons">fiber_manual_record</i></a>  <b id="timer" style="display:none"></b></div></div>');
-        $('.btn#voice').click(function (e) {
+        $('.btn#voice').on('click', function (e) {
             if($(this).hasClass('recording')) {
                 audioRecorder.finishRecording();
                 $(this).removeClass('recording');
@@ -152,21 +152,36 @@ $(document).ready(function () {
             }
         })
     });
-    $('#button_nightmode').click(function(e){
+    $('a#button_nightmode').on('click', function(e){
         e.preventDefault();
-        var body = $('body');
+        var sel = $('.grey');
+        var tweets = $('.blue-grey');
         var headline = $('h4 > i');
-        if(body.hasClass('lighten-2')){
-            body.removeClass('lighten-2').addClass('darken-3');
-            headline.addClass('white-text');
-            changeUconfig({colormode: 1});
-        }else{
-            body.removeClass('darken-3').addClass('lighten-2');
+        sel.each(function(){
+            if($(this).hasClass('lighten-2')){
+                $(this).removeClass('lighten-2').addClass('darken-3');
+                $(this).addClass('white-text').removeClass('black-text');
+            }else{
+                $(this).removeClass('darken-3').addClass('lighten-2');
+                $(this).removeClass('white-text').addClass('black-text');
+            }
+        });
+        tweets.each(function(){
+            if($(this).hasClass('lighten-2')){
+                $(this).removeClass('lighten-2').addClass('darken-4');
+            }else{
+                $(this).removeClass('darken-4').addClass('lighten-2');
+            }
+        });
+        if(headline.hasClass('white-text')){
             headline.removeClass('white-text');
             changeUconfig({colormode: 0});
+        } else {
+            headline.addClass('white-text');
+            changeUconfig({colormode: 1});
         }
     });
-    $('#button_map').click(function(e){
+    $('a#button_map').on('click', function(e){
         e.preventDefault();
         var mn = spawnModal();
         $('#modal' + mn + '-header').text('Kontrollraum Twitter-Map');
@@ -179,9 +194,9 @@ $(document).ready(function () {
                 $(this).remove()
             }
         });
-        $('#modal' + mn + '-content').html('<iframe name="map" scrolling="no" width="100%" height="500px" style="border: 5px solid aliceblue;" src="https://kontrollraum.org"></iframe>');
+        $('#modal' + mn + '-content').html('<iframe name="map" class="z-depth-2" scrolling="no" width="100%" height="100%" style="border: 0 solid;" src="//map.kontrollraum.org"></iframe>');
     });
-    $('#button_notifications').click(function(e){
+    $('a#button_notifications').on('click', function(e){
         e.preventDefault();
         if(notify.isSupported !== true){
             throw new CDeckError('Browser not supported');
@@ -199,19 +214,59 @@ $(document).ready(function () {
                     }
                 })
             }
-            if(changeUconfig({notifications: true}) === true){
-                Materialize.toast(lang.menu.noti_enabled, 5000)
-            }
+            changeUconfig({notifications: true}, function(result){
+                if(result === true){
+                    Materialize.toast(lang.menu.noti_enabled, 5000)
+                }
+            });
         }else{
-            if(changeUconfig({notifications: false}) === true){
-                Materialize.toast(lang.menu.noti_disabled, 5000)
-            }
+            changeUconfig({notifications: false}, function(result){
+                if(result === true){
+                    Materialize.toast(lang.menu.noti_disabled, 5000)
+                }
+            });
+
         }
     });
-    $('#button_settings').click(function(e){
+    $('a#button_settings').on('click', function(e){
         e.preventDefault();
+        var mn = spawnModal(),
+            colormode = uconfig.colormode == "1" ? 'grey darken-2 white-text' : '';
+        $('#modal' + mn + '-header').text(lang.menu.settings);
+        $('#modal' + mn + '-content').html('<ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui">UI</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><form><p><input type="checkbox" class="filled-in" id="round-pb" checked="checked" disabled="disabled" value="1" /> <label for="round-pb">Round Profile Pictures</label></p></form></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/impressum">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/datenschutz">'+lang.privacy.this+'</a></p></div>');
+        $('#modal' + mn + '-content').children('div.container').css({margin: '2em auto'});
+        $('#modal'+mn).openModal({
+            dismissible: true,
+            opacity: .5,
+            ready:function(){
+                $('#modal'+ mn + '-content').children('ul.tabs').tabs();
+                $('#modal'+ mn + '-content form').children('#round-pb').on('change', function(){
+                    if($(this).attr('checked') == 'checked'){
+                        changeUconfig({roundpb: false}, function(result){
+                            if(result === true){
+                                $(this).removeAttr('checked');
+                                $('img.pb').removeClass('circle')
+                            }
+                        });
+                    } else {
+                        changeUconfig({roundpb: true}, function(result){
+                            if(result === true){
+                                $(this).attr('checked', 'checked');
+                                $('img.pb').addClass('circle')
+                            }
+                        });
+                    }
+                });
+            },
+            complete: function () {
+                $('#modal'+mn).remove()
+            }
+        });
+        $('#modal' + mn + ' form').on('submit', function (event) {
+            event.preventDefault();
+        });
     });
-    $('#button_language').click(function(e){
+    $('a#button_language').on('click', function(e){
         e.preventDefault();
         var mn = spawnModal();
         $('#modal' + mn + '-header').text(lang.menu.lang);
@@ -223,10 +278,10 @@ $(document).ready(function () {
             dismissible: true,
             opacity: .5,
             complete: function () {
-                $(this).remove()
+                $('#modal'+mn).remove()
             }
         });
-        $('#modal' + mn + ' form').submit(function (event) {
+        $('#modal' + mn + ' form').on('submit', function (event) {
             event.preventDefault();
             var modalNumber2 = spawnModal();
             var modal = $('#modal' + modalNumber2);
@@ -237,28 +292,60 @@ $(document).ready(function () {
                     $('#preloader' + modalNumber2).show();
                 }
             });
-            if(changeUconfig($(this).serialize()) === true){
-                location.reload();
-            }else{
-                modal.closeModal();
-                $('#modal'+mn).closeModal();
-                throw new CDeckError('Setting language failed')
-            }
+            changeUconfig($(this).serialize(), function(result){
+                if(result === true){
+                    location.reload();
+                }else{
+                    modal.closeModal();
+                    $('#modal'+mn).closeModal();
+                    throw new CDeckError('Setting language failed')
+                }
+            });
         });
     });
+
     $('a.changeTl').on('click', function () {
-        if($(this).attr('data-id') != activeID){
-            upstream.close();
+        if($(this).attr('data-id') != $app.activeID){
+            cDeck.close();
+            $('.card.tweet').remove();
+            $('#timeline').children('div.divider').remove().html('<div class="divider"></div>');
+            $('#timeline, #notifications').children('.preloader-wrapper').show();
             $('#pb').attr('src', $(this).children('img').attr('src'));
-            upstream = client.connect($(this).attr('data-id'));
-            activeID = $(this).attr('data-id');
+            cDeck.init({
+                tconfig_url: $app.tconfig_url,
+                uconfig_url: $app.uconfig_url,
+                lang_url: $app.lang_url,
+                upstream_url: $app.upstream_url,
+                user_url: $app.user_url
+            },cDeckInit);
+            $app.activeID = $(this).attr('data-id');
+            cDeck.connect($app.activeID);
+            changeUconfig({activeID: $app.activeID});
         }else{
             throw new CDeckError("ID already active");
         }
 
     });
+    $('a#button_remacc').on('click', function(e){
+        e.preventDefault();
+        var mn = spawnModal();
+        var accounts = $('a.changeTl').clone().removeClass('changeTl').addClass('btn-large red').css({margin: '0 5px'});
+        accounts.each(function(){
+            $(this).attr('href', '/api/rmacc/' + $(this).attr('data-id'))
+        });
+        $('#modal' + mn + '-header').text(lang.message.remacc);
+        $('#modal'+mn).css('overflow-y', 'hidden');
+        $('#modal' + mn + '-content').html(accounts);
+        $('#modal'+mn).openModal({
+            dismissible: true,
+            opacity: .5,
+            complete: function () {
+                $('#modal'+mn).remove()
+            }
+        });
+    });
     $('.dropdown-button').dropdown({constrain_width: false, belowOrigin: true});
-    $('#search_activate').click(function (e){
+    $('#search_activate').on('click', function (e){
         if(e !== undefined){
             e.preventDefault();
         }
@@ -272,5 +359,4 @@ $(document).ready(function () {
         setTimeout(function(){$('#search_activate').show()}, 350);
     });
     $('.collapsible').collapsible();
-    $(".button-collapse").sideNav({menuWidth: 300});
 });

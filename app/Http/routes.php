@@ -21,6 +21,10 @@ Route::get('/memo', 'SiteController@memo');
 Route::get('/beta', ['as' => 'beta', 'uses' =>'SiteController@beta']);
 
 Route::get('/login', ['as' => 'login', 'uses' =>'SiteController@login']);
+Route::get('/logout', function(){
+    Auth::logout();
+    return redirect(route('index'));
+});
 Route::post('/auth/beta', ['as' => 'beta.login', 'uses' =>'Auth\AuthController@beta']);
 Route::get('auth/twitter', ['as' => 'twitter.login', 'uses' => 'Auth\AuthController@redirectToProvider']);
 Route::get('auth/twitter/callback', ['as' => 'twitter.callback', 'uses' => 'Auth\AuthController@handleProviderCallback']);
@@ -32,7 +36,7 @@ Route::group(['prefix' => 'api'], function ()
     Route::get('assets', 'ApiController@assets');
     Route::any('uconfig', 'ApiController@uconfig');
     Route::get('lang', 'ApiController@lang');
-    Route::get('ping', 'ApiController@ping');
+    Route::any('ping', 'ApiController@ping');
 
     Route::group(['prefix' => 'twitter'], function ()
     {

@@ -24,7 +24,7 @@ class BlogController extends Controller
         $this->table = DB::table('blog');
         $this->deliver = Request()->input('deliver', 'null');
         $this->hideNavbar = true;
-        $this->clients = json_decode(file_get_contents('https://toolbox.kontrollraum.org/cdeck/'));
+        $this->clients = json_decode(file_get_contents('https://cdn.skildust.com/dl/cdeck/meta.json'));
         switch(App::getlocale())
         {
             case "de":

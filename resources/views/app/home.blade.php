@@ -145,7 +145,7 @@
             </div>
         </div>
         <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
-            <a class="btn-floating btn-large red" id="newTweet">
+            <a class="btn-floating btn-large red darken-4" id="newTweet">
                 <i class="large material-icons">mode_edit</i>
             </a>
         </div>

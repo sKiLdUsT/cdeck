@@ -2,7 +2,6 @@
     <title>{{$title or ""}}cDeck</title>
     <meta name="description" content="Modern and intelligent Twitter client">
     <meta name="language" content="de">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="{{$title or ""}}cDeck">
     <meta property="og:description" content="Modern and intelligent Twitter client">

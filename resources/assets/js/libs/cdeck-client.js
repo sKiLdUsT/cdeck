@@ -19,11 +19,10 @@
         Error.apply( this, arguments );
         this.name = "cDeckError";
         this.message = ( message || "Non-specified error" );
-
     }
 
     // Initiate it.
-    CDeckError.prototype = Object.create(Error.prototype);
+    CDeckError.prototype = Object.create( Error.prototype );
 
     // Define our object
     var Cdeck = function( config ) {
@@ -36,7 +35,10 @@
             upstream_url: '/api/upstream',
             user_url: '/api/twitter/getTokens'
         };
+        this.version = '0.6-pre';
+        // Set config if given
         if( typeof config == 'object' ){
+            // Loop through keys
             for( var key in config){
                 // Skip loop if the property is from prototype
                 if ( ! config.hasOwnProperty( key ) ) continue;
@@ -45,12 +47,13 @@
                 if ( this.config.hasOwnProperty( key ) ) this.config[ key ] = config[ key ];
             }
         }
+        //Set instance reference
         self = this;
         return this;
     };
 
     // Initial function. Call this first to set up our environment.
-    Cdeck.prototype.init = function (config, callback) {
+    Cdeck.prototype.init = function ( config, callback ) {
         // Set config if given
         if( typeof config == 'object' ){
             for( var key in config){
@@ -61,55 +64,82 @@
                 if ( this.config.hasOwnProperty( key ) ) this.config[ key ] = config[ key ];
             }
         }
+        // Get Twitter-config.
+        // cDeck calls the Twitter-API every 24h for this.
+        // More: http://bit.ly/2cjQYc2
+        // Only set when not previously defined.
+        if ( window.tconfig === undefined ){
+            $.get( this.config.tconfig_url, function ( data ) {
+                if( data !== null ) {
+                    window.tconfig = data;
+                } else {
+                    throw new CDeckError( 'tconfig is null. Contact server administrator.' );
+                }
+            }, 'json' );
+        }
+
+        // Get User-config
+        // This returns some user-specific data.
+        // See the API-Documentation at: https://developer.cdeck.net/api/rest
+        // Only set when not previously defined.
+        if ( window.uconfig === undefined ){
+            $.get( this.config.uconfig_url, function ( data ) {
+                if( data !== null ) {
+                    window.uconfig = data;
+                    if(data.activeID !== undefined){
+                        $app.activeID = data.activeID;
+                    }
+                    // Set the Language from uconfig if recieved.
+                    // Otherwise use language defined in the page HTML
+                    // Only set if not previously defined
+                    if( window.lang === undefined ){
+                        if( data.lang !== undefined ){
+                            $.ajax({
+                                url: self.config.lang_url+data.lang,
+                                async: true,
+                                dataType: 'json',
+                                success: function ( data ) {
+                                    if( data !== null) {
+                                        window.lang = data;
+                                    } else {
+                                        throw new CDeckError( 'Couldn\'t get lang file' );
+                                    }
+                                },
+                                error: function(){
+                                    throw new CDeckError( 'Couldn\'t get lang file' );
+                                }
+                            });
+                        } else {
+                            $.ajax({
+                                url: self.config.lang_url+$('html').attr('lang'),
+                                async: true,
+                                dataType: 'json',
+                                success: function ( data ) {
+                                    if( data !== null ) {
+                                        window.lang = data;
+                                    } else {
+                                        throw new CDeckError( 'Couldn\'t get lang file' );
+                                    }
+                                },
+                                error: function(){
+                                    throw new CDeckError( 'Couldn\'t get lang file' );
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    throw new CDeckError( 'Couldn\'t recieve uconfig' );
+                }
+
+            }, 'json' );
+        }
         //Check if callback is given and use it if so
         if( typeof callback === 'function' ){
             self.callback = callback;
         } else {
             self.callback = function(){};
-            throw new CDeckError( 'no callback given' );
+            console.info( 'cDeck Client: no callback given' );
         }
-
-        // Get Twitter-config.
-        // cDeck calls the Twitter-API every 24h for this.
-        // More: http://bit.ly/2cjQYc2
-        $.get( this.config.tconfig_url, function ( data ) {
-            if( data !== null ) {
-                window.tconfig = data;
-            } else {
-                throw new CDeckError( 'tconfig is null. Contact server administrator.' );
-            }
-        }, 'json' );
-
-        // Get User-config
-        // This returns some user-specific data.
-        // See the API-Documentation at: https://developer.cdeck.net/api/rest/
-        $.get( this.config.uconfig_url, function ( data ) {
-            if( data !== null ) {
-                window.uconfig = data;
-                // Set the Language from uconfig if defined.
-                // Otherwise use language defined in the page HTML
-                if( data.lang !== undefined ){
-                    $.get( self.config.lang_url+data.lang, function ( data ) {
-                        if( data !== null ) {
-                            window.lang = data;
-                        } else {
-                            throw new CDeckError( 'Couldn\'t get lang file' );
-                        }
-                    }, 'json' );
-                } else {
-                    $.get( self.config.lang_url+'en', function ( data ) {
-                        if( data !== null ) {
-                            window.lang = data;
-                        } else {
-                            throw new CDeckError( 'Couldn\'t get lang file' );
-                        }
-                    }, 'json' );
-                }
-            } else {
-                throw new CDeckError( 'Couldn\'t recieve uconfig' );
-            }
-
-        }, 'json' );
 
         self = this;
         return this;
@@ -119,32 +149,39 @@
     // It connects to the cDeck Websocket-API and
     // Registers itself. After that, it receives various
     // Events, according to the API (see: https://developer.cdeck.net/api/rest/)
-    Cdeck.prototype.connect = function (id) {
-        var socket = io.connect({path: this.config.upstream_url, 'force new connection' : true}),
-            data = {};
+    Cdeck.prototype.connect = function ( id ) {
+        var socket = io.connect({
+            path: this.config.upstream_url,
+            'force new connection' : true
+            }),
+            udata = {};
 
-        //Get User information
+        // Get User information
+        // This can't be done asynchronously.
         $.ajax({
             url: this.config.user_url,
             async: false,
             dataType: 'json',
             success: function ( response ) {
-                data = response;
+                udata = response;
+            },
+            error: function(){
+                throw new CDeckError( 'User not existent or server error.' )
             }
         });
-
-        this.user = data;
 
         // If id is not set, set it to default value
         // (id being the User-UID)
         if(id === undefined){
-            id = Object.keys(this.user)[0];
+            id = 0;
         }
 
+        this.user = udata[id];
+
         //Function for registering at the server.
-        function register() {
+        function register( user ) {
             // Emit "register" with the user-object specified by id
-            socket.emit('register', data, function ( response ) {
+            socket.emit( 'register', user[id], function ( response ) {
                 if ( response === true ) {
                     self.callback( 'client_register', true );
                 } else {
@@ -161,14 +198,14 @@
         //Set internal socket to current socket
         this.socket = socket;
         // Register
-        register();
+        register( udata );
         // The following functions deal with events
         // described in the cDeck Websocket-API (https://developer.cdeck.net/api/ws/)
         this.socket.on( 'reconnect', function () {
             // Emit event.
             // Instructions on how to handle this event used to be here.
-           self.callback( 'client_reconnect' );
-            register();
+            self.callback( 'client_reconnect' );
+            register( udata );
         });
         this.socket.on( 'timeline', function (data, response) {
             // Emit event with data.
@@ -212,9 +249,9 @@
                 }, function ( response ) {
                     if ( response.result === true ) {
                         // Instructions on how to handle this event used to be here.
-                        self.callback( 'client_tweet_sent', modal );
+                        self.callback( 'client_tweet_sent' );
                     } else {
-                        self.callback( 'client_tweet_error', modal );
+                        self.callback( 'client_tweet_error' );
                         throw new CDeckError( 'Tweet failed: ' + response.twitter.message );
                     }
             });
@@ -226,17 +263,17 @@
     };
 
     // Function to post a Retweet
-    Cdeck.prototype.postRt = function ( data ) {
+    Cdeck.prototype.postRt = function ( id ) {
         // Only executes if socket is present.
         // Otherwise throws an error.
         if ( this.socket ) {
             this.socket.emit( 'postRt', {
-                id: data,
+                id: id,
                 api_token: this.user.api_token
             }, function ( response ) {
                 if ( response.result === true ) {
                     // Instructions on how to handle this event used to be here.
-                    self.callback( 'client_tweet_sent', modal );
+                    self.callback( 'client_retweet_sent', id );
                 } else {
                     // Instructions on how to handle this event used to be here.
                     self.callback( 'client_tweet_error', modal );
@@ -257,6 +294,7 @@
                 id: data,
                 api_token: this.user.api_token
                 }, function ( response ) {
+
                     if ( response.result === true ) {
                         // Instructions on how to handle this event used to be here.
                         self.callback( 'client_like_sent', data );

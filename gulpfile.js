@@ -30,16 +30,19 @@ elixir(function(mix) {
         'libs/shortcut.js',
         'libs/twitter-text.js',
         'libs/wavesurfer.js',
+        'libs/twemoji.js',
+        'libs/moment.js',
+        'libs/moment-timezone.js',
         'libs/cdeck-client.js',
-        'main/tools.js',
         'main/renderer.js',
+        'main/tools.js',
         'main/app.js',
         //'main/blog.js',
         'main/menu.js',
-        'main/shortcuts.js'
-    ], 'public/assets/js/app.js');
-
-    mix.scripts([
+        'main/shortcuts.js',
+        'main/debug.js'
+    ], 'public/assets/js/app.js')
+        .scripts([
         'libs/jquery.js',
         'libs/materialize.js',
         'libs/materialbox.js',

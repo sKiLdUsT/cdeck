@@ -110,7 +110,11 @@ class AuthController extends Controller
 
                 // This is also the moment to log in your users if you're using Laravel's Auth class
                 // Auth::login($user) should do the trick.
-
+                $request = Request();
+                if (!$request->session()->has('access_token')) {
+                    $request->session()->flush();
+                    $request->session()->put('access_token', $token);
+                }
                 $authUser = $this->findOrCreateUser($credentials, $token);
                 Auth::login($authUser, true);
                 return redirect()->route('index');
@@ -148,36 +152,48 @@ class AuthController extends Controller
             }
             return false;
         }
-
         if ($authUser OR $create == true){
-            $accounts = json_decode($authUser->accounts, true);
-            if((env('APP_BETA') == 'true')){$authUser->beta_key = $request->session()->get('beta_key');}
-            if(!searchForHandle($twitterUser->screen_name, $accounts)){
-                $accounts += [count($accounts) => [
+            if(env('APP_BETA') == 'true')
+            {
+                $authUser->beta_key = $request->session()->get('beta_key');
+            }
+            if(!DB::table('users')->where('handle', $twitterUser->screen_name)->first())
+            {
+                DB::table('users')->insert([
                     'name' => $twitterUser->name,
                     'handle' => $twitterUser->screen_name,
-                    'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
-                    'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246',
-                    'token' => json_encode($token)]];
-                $authUser->accounts = json_encode($accounts);
+                    'twitter_id' => $twitterUser->id,
+                    'token' => json_encode($token),
+                    'media' => json_encode([
+                        'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
+                        'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246']),
+                    'uconfig' => json_encode([
+                        'colormode' => 0,
+                        'access_level' => 0
+                    ])
+                ]);
             }
-            $authUser->save();
+            $authorized = json_decode($authUser->authorized, true) ?: [];
+            if($twitterUser->screen_name !== $authUser->handle){
+                array_push($authorized, $twitterUser->screen_name);
+                $authUser->authorized = json_encode($authorized);
+                $authUser->save();
+            }
             return $authUser;
         }
-        session()->put('notifications', 'false');
+        $request->session()->put('notifications', 'false');
         return User::create([
             'name' => $twitterUser->name,
             'handle' => $twitterUser->screen_name,
             'twitter_id' => $twitterUser->id,
-            'accounts' => json_encode([0 => [
-                'name' => $twitterUser->name,
-                'handle' => $twitterUser->screen_name,
+            'token' => json_encode($token),
+            'media' => json_encode([
                 'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
-                'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246',
-                'token' => json_encode($token)]]),
+                'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246']),
             'uconfig' => json_encode([
                 'colormode' => 0,
-                'access_level' => 0
+                'access_level' => 0,
+                'activeID' => 0
             ])
         ]);
     }

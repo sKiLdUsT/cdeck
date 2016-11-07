@@ -5,7 +5,7 @@
     };
 })(jQuery);
 
-var modalCount;
+var modalCount = 0;
 
 function spawnModal() {
     modalCount++;
@@ -62,9 +62,8 @@ function spawnModal() {
 
 function ajaxNav(ancor) {
     event.preventDefault();
-    var spinner = ' <div class="preloader-wrapper big active valign"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-red"> <div class="circle-clipper left"><div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-yellow"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-green"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> </div>';
     var url = ancor.attr("href");
-    $('<div style="z-index: 9999; width: 100%; height: 915px; display: none; position: fixed; background-color: rgba(0, 0, 0, 0.5);" class="loader valign-wrapper">'+spinner+'</div>').prependTo($('body')).fadeIn(300);
+    $('.loader').fadeIn(300);
     $('body').css('overflow-y', 'hidden');
     if(cDeck instanceof CdeckClient){
         upstream.close();
@@ -77,7 +76,7 @@ function ajaxNav(ancor) {
         setTimeout(function(){
             $('body > div.loader').fadeOut(300, function () {
                 $('body').css('overflow-y', '');
-                $.when($('.loader').remove()).then(window.eval($siteCode));
+                window.eval($siteCode);
             });
         }, 1000)
     })
@@ -125,17 +124,30 @@ function healthCheck(url) {
         })
     }, 5000 );
 }
-function changeUconfig(params){
+function changeUconfig(params, callback){
     var a = {};
     $.post({
         url: '/api/uconfig',
         data: params,
         success: function(data){
             a = data;
-            uconfig = data.data
+            if(data.response === true){
+                window.uconfig = data.data;
+                if(typeof callback == 'function'){
+                    callback(data.response);
+                }
+            } else {
+                throw new CDeckError('Changing uconfig failed')
+            }
         },
         dataType: 'json',
-        async: false
+        async: true
     });
-    return a.response
 }
+
+function CDeckError( message ) {
+    Error.apply( this, arguments );
+    this.name = "cDeckError";
+    this.message = ( message || "Non-specified error" );
+}
+CDeckError.prototype = Object.create(Error.prototype);
