@@ -15,7 +15,6 @@ elixir(function(mix) {
     mix.sass('app.voice.scss', 'public/assets/css');
     //mix.copy('node_modules/materialize-css/js', 'resources/assets/js/materialize');
     //mix.copy('node_modules/materialize-css/materialize/date_picker/*.js', 'resources/assets/materialize/materialize');
-    mix.copy('node_modules/materialize-css/bin/materialize.js', 'resources/assets/js/libs');
     mix.copy('node_modules/html5-desktop-notifications/desktop-notify.js', 'resources/assets/js/libs');
     //mix.scriptsIn('resources/assets/materialize/materialize', 'resources/assets/materialize/materialize.js');
 
