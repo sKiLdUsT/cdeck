@@ -80,7 +80,7 @@ class BlogController extends Controller
                 $userinfo[$post->uid] = [
                     "name" => $user->name,
                     "handle" => $user->handle,
-                    "pb" => json_decode($user->accounts)[0]->avatar
+                    "pb" => json_decode($user->media)->avatar
                 ];
             }
         }
@@ -107,7 +107,7 @@ class BlogController extends Controller
         $userinfo = [
             "name" => $user->name,
             "handle" => $user->handle,
-            "pb" => json_decode($user->accounts)[0]->avatar
+            "pb" => json_decode($user->media)->avatar
         ];
 
         $title = $post->title.' - Blog - ';
