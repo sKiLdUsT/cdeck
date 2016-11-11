@@ -203,6 +203,11 @@ $(function(){
     // Run health check function
     healthCheck('/api/ping');
 
+    // Functions to run when on login page
+    if ( window.location.pathname.indexOf('/login') !== -1) {
+        $('body').css({overflow: 'hidden', 'background-image': 'url(/assets/img/bg.png)', 'background-size': 'cover'})
+    }
+
     // Functions to run when on home page
     if ( window.location.pathname == '/' ) {
         // Set main section to fixed

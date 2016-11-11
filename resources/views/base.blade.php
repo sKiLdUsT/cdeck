@@ -20,8 +20,7 @@
 <div class="navbar-fixed">
     <nav role="navigation" class="red darken-4">
         <div class="nav-wrapper">
-            <a href="/" class="brand-logo"><img src="/assets/img/logo.png" alt="cDeck Logo"
-                                                 style="width: 75px;height: 75px; margin: 5px 0 0 10px"></a>
+            <a href="/" class="brand-logo"><img src="/assets/img/logo.png" alt="cDeck Logo" class="z-depth-2" style="width: 75px;height: 75px; margin: 5px 0 0 10px; border-radius: 50%"></a>
             <ul class="right hide-on-med-and-down" style="margin-right: 30px;">
                 <li><a href="/blog" class="tooltipped" data-tooltip="@lang('menu.blog')"><i class="material-icons">developer_board</i></a></li>
                 <li><a class="dropdown-button" href="#" style="display:none" data-activates="clients">@lang('message.getclient')</a></li>
