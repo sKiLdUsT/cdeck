@@ -3,7 +3,7 @@
     <main>
         <div class="valign-wrapper" style="height: calc(100vh - 64px);">
             <div class="valign">
-                <div class="section z-depth-2 row white">
+                <div class="section z-depth-2 row white" style="width: 100vw;">
                     <div class="col s3 push-s3">
                         <p>
                             {{trans('message.homedesc')}}
