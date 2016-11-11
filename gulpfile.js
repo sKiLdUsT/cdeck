@@ -36,7 +36,7 @@ elixir(function(mix) {
         'main/renderer.js',
         'main/tools.js',
         'main/app.js',
-        //'main/blog.js',
+        'main/blog.js',
         'main/menu.js',
         'main/shortcuts.js',
         'main/debug.js'
