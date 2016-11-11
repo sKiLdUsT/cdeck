@@ -15,38 +15,42 @@ elixir(function(mix) {
     mix.sass('app.voice.scss', 'public/assets/css');
     //mix.copy('node_modules/materialize-css/js', 'resources/assets/js/materialize');
     //mix.copy('node_modules/materialize-css/materialize/date_picker/*.js', 'resources/assets/materialize/materialize');
-    mix.copy('node_modules/materialize-css/bin/materialize.js', 'resources/assets/js');
-    mix.copy('node_modules/html5-desktop-notifications/desktop-notify.js', 'resources/assets/js');
+    mix.copy('node_modules/html5-desktop-notifications/desktop-notify.js', 'resources/assets/js/libs');
     //mix.scriptsIn('resources/assets/materialize/materialize', 'resources/assets/materialize/materialize.js');
 
     mix.scripts([
-        'socket-io.js',
-        'jquery.js',
-        'materialize.js',
-        'materialbox.js',
-        'desktop-notify.js',
-        'prism.js',
-        'WebAudioRecorder.js',
-        'shortcut.js',
-        'twitter-text.js',
-        'fallbackLang.js',
-        'voice/wavesurfer.js',
-        'cdeck-client.js',
-        'app.js',
-        'blog.js',
-        'menu.js'
-    ], 'public/assets/js/app.js');
-
-    mix.scripts([
-        'jquery.js',
-        'materialize.js',
-        'materialbox.js',
-        'upload.js',
-        'fallbackLang.js',
-        'voice/wavesurfer.js',
-        'voice/swfobject.js',
-        'voice/wavesurfer.swf.js',
-        'voice/app.js'
+        'libs/socket-io.js',
+        'libs/jquery.js',
+        'libs/materialize.js',
+        'libs/materialbox.js',
+        'libs/desktop-notify.js',
+        'libs/prism.js',
+        'libs/WebAudioRecorder.js',
+        'libs/shortcut.js',
+        'libs/twitter-text.js',
+        'libs/wavesurfer.js',
+        'libs/twemoji.js',
+        'libs/moment.js',
+        'libs/moment-timezone.js',
+        'libs/cdeck-client.js',
+        'main/renderer.js',
+        'main/tools.js',
+        'main/app.js',
+        //'main/blog.js',
+        'main/menu.js',
+        'main/shortcuts.js',
+        'main/debug.js'
+    ], 'public/assets/js/app.js')
+        .scripts([
+        'libs/jquery.js',
+        'libs/materialize.js',
+        'libs/materialbox.js',
+        'libs/wavesurfer.js',
+        'libs/swfobject.js',
+        'libs/wavesurfer.swf.js',
+        'main/tools.js',
+        'voice/app.js',
+        'main/shortcuts.js'
     ], 'public/assets/js/app.voice.js');
 
     mix.version(['assets/css/app.css', 'assets/js/app.js', 'assets/css/app.voice.css', 'assets/js/app.voice.js']);

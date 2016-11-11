@@ -17,6 +17,7 @@ class VerifyCsrfToken extends BaseVerifier
         '/api/uconfig',
         '/api/blog/preview',
         '/api/blog/new',
-        '/api/voice/new'
+        '/api/voice/new',
+        '/api/ping'
     ];
 }

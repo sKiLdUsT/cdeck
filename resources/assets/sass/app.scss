@@ -1,4 +1,4 @@
-@import "node_modules/materialize-css/sass/materialize";
+@import "materialize/materialize";
 
 @font-face {
   font-family: 'Noto-Emoji';
@@ -7,13 +7,22 @@
   src: local('Noto Color Emoji'), url('../fonts/NotoColorEmoji.ttf') format('ttf')
 }
 
-html{
+html {
   font-family: "Noto-Emoji", "Roboto", sans-serif !important
 }
 
 body > .section {
     position: relative;
     overflow-y: auto
+}
+
+@media only screen and (min-width: 993px) {
+  nav .nav-wrapper i {
+    height: unset;
+  }
+  body > .section{
+    margin-top: -2em;
+  }
 }
 
 nav {
@@ -51,23 +60,14 @@ main {
     .col {
       .section {
         > div.pad {
-          overflow: hidden;
+          overflow: auto;
           height: 100%;
-          &:hover {
-            overflow-y: scroll
-          }
         }
         .preloader-wrapper {
           overflow: hidden
         }
       }
     }
-  }
-}
-
-@media only screen and (min-width: 993px) {
-  .section .row .col .section > div.pad:hover {
-    margin-right: -18px
   }
 }
 
@@ -136,7 +136,7 @@ main {
       min-height:100%
     }
   }
-  .card-content p{
+  .card-content p {
     overflow-wrap: break-word;
     word-wrap: break-word;
     -ms-word-break: break-all;
@@ -157,37 +157,54 @@ main {
   font-size: 14px
 }
 
-ul#apps {
-  margin-top: 64px;
-  width: 350px !important;
-  margin-left: 150px
+ul {
+  &#apps {
+    margin-top: 64px;
+    width: 350px !important;
+    margin-left: 150px
+  }
+
+  &#accounts {
+    margin-top: 64px;
+    width: 200px !important;
+    margin-left: 25px
+  }
 }
 
-.box__dragndrop,
-.box__uploading,
-.box__success,
-.box__error {
-  display: none;
+.preloader-wrapper.very-small {
+  width: 24px;
+  height: 24px;
 }
 
-.box{
+img {
+  &.emoji {
+  height: 1em;
+  width: 1em;
+  margin: 0 .05em 0 .1em;
+  vertical-align: -0.1em;
+  }
 
-}
-.box.has-advanced-upload {
-  background-color: white;
-  outline: 2px dashed black;
-  outline-offset: -10px;
-}
-.box.has-advanced-upload .box__dragndrop {
-  display: inline;
+  &.pb {
+    width: 48px;
+    height: 48px;
+  }
 }
 
-.box.is-dragover {
-  background-color: grey;
+.card-content .chip {
+  position: absolute;
+  right: 0;
 }
-.box.is-uploading .box__input {
-  visibility: none;
+
+i.material-icons, .side-nav a{
+  color: unset !important;
 }
-.box.is-uploading .box__uploading {
-  display: block;
+
+img.responsive-img {
+  border-radius: 10%;
 }
+
+.circle {
+  border-radius: 50% !important;
+}
+
+

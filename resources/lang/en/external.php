@@ -16,4 +16,8 @@ return [
     "one_moment" => "One moment...",
     "quote_tweet" => "Quote tweet",
     "cleanup" => "We're just working on some things, be right back...",
+    "mention" => "mentioned you",
+    "retweet" => "retweeted your tweet",
+    "quote" => "quoted your tweet",
+    "like" => "liked your tweet",
 ];

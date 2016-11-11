@@ -1,0 +1,19 @@
+{
+  "js": {
+    "uglify": {
+      "options": {
+        "compress": {
+          "drop_console": true,
+          "dead_code": true,
+          "unused": true,
+          "warnings": true,
+          "sequences": true,
+          "conditionals": true,
+          "booleans": true,
+          "if_return": true,
+          "join_vars": true
+        }
+      }
+    }
+  }
+}

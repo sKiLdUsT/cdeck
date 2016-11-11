@@ -37,20 +37,27 @@ class HomeController extends Controller
                 $request->session()->put('beta_key', json_decode($user)->beta_key);
             }
         }
-        $accounts = json_decode(Auth::user()->accounts, false);
-        try{
-            foreach( $accounts as $account){
-                $account->avatar = Twitter::query('users/show', 'GET', ['screen_name' => $account->handle])->profile_image_url_https;
-                $account->banner = Twitter::query('users/show', 'GET', ['screen_name' => $account->handle])->profile_banner_url;
-            }
-            Auth::user()->accounts = json_encode($accounts);
-        } catch (\Exception $e) {
-            #return redirect()->route('twitter.login');
+        if (!$request->session()->has('access_token')) {
+            $request->session()->put('access_token', json_decode($user->token, true));
         }
-        $user->save();
+        try {
+            Twitter::query('account/verify_credentials', 'GET');
+        } catch (\Exception $e){
+            #return dd(Twitter::logs());
+            return redirect(route('login'));
+        }
+
+        $rawacc = [];
+        $authorized = array_merge([$user->handle], json_decode($user->authorized, true) ?: []);
+        foreach($authorized as $cuser) {
+            $acc = DB::table('users')->where('handle', $cuser)->first();
+            array_push($rawacc, (object) (array_merge(["name" => $acc->name], json_decode($acc->media, true))));
+        }
+        $accounts = $rawacc;
+        $aid = json_decode($user->uconfig)->activeID;
         $title = 'Home - ';
-        $clients = json_decode(file_get_contents('https://toolbox.kontrollraum.org/cdeck/'));
+        $clients = json_decode(file_get_contents('https://cdn.skildust.com/dl/cdeck/meta.json'));
         $deliver = $request->input('deliver', 'null');
-        return view('app.home', compact('title', 'deliver', 'clients', 'accounts'));
+        return view('app.home', compact('title', 'deliver', 'clients', 'accounts', 'aid'));
     }
 }

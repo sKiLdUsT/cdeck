@@ -20,26 +20,27 @@ class ApiController extends Controller
         App::setlocale(Request()->input('lang', (Auth::user() && isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
     }
     public function getToken(){
-        $account = Request()->input('id', '0');
         $user = Auth::user();
         if($user){
-            $accounts = json_decode($user->accounts);
-            $requestAccount = json_decode($accounts[$account]->token);
-            if(!isset($requestAccount->api_token)){
-                $api_token = str_random(16);
-                $requestAccount->api_token = $api_token;
-                $accounts[$account]->token = json_encode($requestAccount);
-                $user->accounts = json_encode($accounts);
-                $user->save();
-            }else{
-                $api_token = $requestAccount->api_token;
-            }
-            return(json_encode(array(
-                    'oauth_token' => $requestAccount->oauth_token,
-                    'oauth_token_secret' => $requestAccount->oauth_token_secret,
-                    'screen_name' => $requestAccount->screen_name,
+            $finalAccount = [];
+            $accounts = array_merge([$user->handle], json_decode($user->authorized, true) ?: []);
+            foreach($accounts as $cuser){
+                $requestAccount = DB::table('users')->where('handle', $cuser)->first();
+                if($requestAccount->api_token == ""){
+                    $api_token = str_random(16);
+                    DB::table('users')->where('handle', $cuser)->update(['api_token' => $api_token]);
+                }else{
+                    $api_token = $requestAccount->api_token;
+                }
+                $token = json_decode($requestAccount->token);
+                array_push($finalAccount, array(
+                    'oauth_token' => $token->oauth_token,
+                    'oauth_token_secret' => $token->oauth_token_secret,
+                    'screen_name' => $requestAccount->handle,
                     'api_token' => $api_token
-                )));
+                ));
+            }
+            return(json_encode($finalAccount));
         }else{
             return(json_encode(array('error' => 'unauthorized')));
         }
@@ -82,6 +83,12 @@ class ApiController extends Controller
                         case "access_level":
                             return json_encode(["response" => "unauthorized"]);
                             break;
+                        case "activeID":
+                            $uconfig->activeID = $value;
+                            break;
+                        case "roundpb":
+                            $uconfig->roundpb = $value;
+                            break;
                     }
                 }
                 $user->uconfig = json_encode($uconfig);
@@ -96,7 +103,9 @@ class ApiController extends Controller
             return json_encode([
                 "colormode" => $uconfig->colormode,
                 "notifications" => session()->get('notifications'),
-                "access_level" => $uconfig->access_level
+                "access_level" => $uconfig->access_level,
+                "activeID" => isset($uconfig->activeID) ? $uconfig->activeID : 0,
+                "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true
             ]);
         }
         return json_encode(["response" => false]);
@@ -106,11 +115,20 @@ class ApiController extends Controller
             "external" => trans('external'),
             "menu" => trans('menu'),
             "message" => trans('message'),
-            "blog" => trans('blog')
+            "blog" => trans('blog'),
+            "disclaimer" => trans('disclaimer'),
+            "privacy" => trans('privacy')
         ]);
     }
     public function ping(){
-        return "{response: true}";
+        switch(Request()->method()){
+            case 'GET':
+                return "{response: true}";
+                break;
+            case 'POST':
+                return "{response: true}";
+                break;
+        }
     }
     public function blogPreview()
     {

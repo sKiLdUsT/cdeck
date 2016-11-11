@@ -16,4 +16,8 @@ return [
     "one_moment" => "Einen Moment...",
     "quote_tweet" => "Tweet zitieren",
     "cleanup" => "Wir räumen etwas auf, einen Moment bitte...",
+    "mention" => "hat dich erwähnt",
+    "retweet" => "hat dich retweeted",
+    "quote" => "hat dich zitiert",
+    "like" => "gefällt dein Tweet",
 ];
