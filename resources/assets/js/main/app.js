@@ -28,6 +28,7 @@ function cDeckInit ( action, data ){
             }
             break;
         case 'client_recievedData':
+            console.log(data);
             var selector = $('#timeline, #notifications').children('.preloader-wrapper');
             if(selector.length > 0){
                 selector.each(function(b, a){$(a).hide()});

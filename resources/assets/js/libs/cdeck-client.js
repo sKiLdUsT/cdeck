@@ -3,7 +3,7 @@
     Name: cDeck JS Client
     Author: cDeck Team
     Description: Example Client for using the cDeck Websocket API written in Javascript
-    Version: 0.6
+    Version: 0.7-pre
     Dependencies:   * jQuery (https://jquery.com/download/)
                     * Socket.io (http://socket.io/download/)
     License: BSD 3-Clause License (see LICENSE.md or http://bit.ly/2crw8Hj)
@@ -35,7 +35,7 @@
             upstream_url: '/api/upstream',
             user_url: '/api/twitter/getTokens'
         };
-        this.version = '0.6';
+        this.version = '0.7-pre';
         // Set config if given
         if( typeof config == 'object' ){
             // Loop through keys
@@ -207,11 +207,10 @@
             self.callback( 'client_reconnect' );
             register( udata );
         });
-        this.socket.on( 'timeline', function (data, response) {
+        this.socket.on( 'timeline', function (data) {
             // Emit event with data.
             // Instructions on how to use the data used to be here.
             self.callback( 'client_recievedData', data );
-            response( true );
         });
         this.socket.on( 'connect_error', function () {
             // Emit event.
