@@ -6,8 +6,8 @@
     @include('include.head')
 </head>
 <body class="grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
-<div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: rgba(0, 0, 0, 0.75);" class="loader valign-wrapper">
-    <img src="/assets/img/pulse.gif">
+<div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;" class="loader valign-wrapper">
+    <video autoplay loop src="/assets/img/pulse.webm">
 </div>
 <noscript>
     <div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;" class="loader valign-wrapper">
