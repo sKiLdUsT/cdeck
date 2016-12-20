@@ -306,7 +306,21 @@
                 finalTweet = this.helper.favoriteContent( data );
                 this.templater.notification( data.id_str, extra, finalTweet );
                 if($app.state == "ready" && uconfig.notifications == "true"){
-                    notify.createNotification("cDeck", {body: "@"+data.source.screen_name+" "+lang.external.liked, icon: data.profile_image_url_https})
+                    if (!Notify.needsPermission) {
+                        doNotification();
+                    } else if (Notify.isSupported()) {
+                        Notify.requestPermission(onPermissionGranted, onPermissionDenied);
+                    }
+                    function onPermissionGranted() {
+                        console.log('Permission has been granted by the user');
+                        doNotification();
+                    }
+                    function onPermissionDenied() {
+                        console.warn('Permission has been denied by the user');
+                    }
+                    function doNotification(){
+
+                    }
                 }
             }
         }
@@ -342,7 +356,7 @@
                 break;
         }
         if (typeof $voiceblob != 'undefined' && type === undefined){
-            inReply = '<blockquote><div id="voice-preview"></div><div class="controls center-align col s12"> <a id="play" class="btn waves-effect"><i class="material-icons">play_arrow</i>/<i class="material-icons">pause</i></a> <a id="stop" class="btn waves-effect"><i class="material-icons">stop</i></a> </div></blockquote>'+inReply;
+            beforeContent = '<blockquote><div id="voice-preview"></div><div class="controls center-align col s12"> <a id="play" class="btn waves-effect"><i class="material-icons">play_arrow</i>/<i class="material-icons">pause</i></a> <a id="stop" class="btn waves-effect"><i class="material-icons">stop</i></a> </div></blockquote>'+inReply;
             tlength = (tlength - 2) - tconfig.short_url_length_https
         }
         $('#modal' + modalNumber + '-content').html(beforeContent + '<div class="row"> <form class="col s12 ajax-form" method="post" action="/api/twitter/postTweet"> <div class="row"> <div class="input-field col s12">' + formExtra + '<textarea id="text" class="materialize-textarea" length="'+tlength+'" name="status"></textarea><label for="text">'+lang.external.tweet_something+'</label> </div><button class="btn waves-effect waves-light blue" type="submit">'+lang.external.tweet+'<i class="material-icons right">send</i> </button> </div> </form> </div>');

@@ -12,12 +12,6 @@ class VerifyCsrfToken extends BaseVerifier
      * @var array
      */
     protected $except = [
-        '/api/twitter/postTweet',
-        '/auth/beta',
-        '/api/uconfig',
-        '/api/blog/preview',
-        '/api/blog/new',
-        '/api/voice/new',
-        '/api/ping'
+        //
     ];
 }

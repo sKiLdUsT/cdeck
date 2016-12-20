@@ -6,8 +6,9 @@
     @include('include.head')
 </head>
 <body class="grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
+<body class="grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
 <div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;" class="loader valign-wrapper">
-    <video autoplay loop src="/assets/img/pulse.webm">
+    <video autoplay loop src="/assets/img/pulse.webm"></video>
 </div>
 <noscript>
     <div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;" class="loader valign-wrapper">
@@ -81,8 +82,8 @@
                     </ul>
                     <li><a href="#" class="tooltipped" data-tooltip="@lang('menu.messages')"><i class="material-icons">chat_bubble_outline</i></a></li>
                     <li><a class="dropdown-button" href="#" data-activates="accounts">
-                            @if(Auth::user() && isset($accounts) && $accounts[0]->avatar)
-                                <img src="{{str_replace("_normal", "", $accounts[isset($aid) ? $aid : 0]->avatar)}}" alt="@lang('message.pb')"
+                            @if(Auth::user() && isset($accounts) && $accounts[0]->media->avatar)
+                                <img src="{{str_replace("_normal", "", $accounts[isset($aid) ? $aid : 0]->media->avatar)}}" alt="@lang('message.pb')"
                                      class="circle responsive-img valign pb" id="pb">
                             @else
                                 <i class="material-icons">account_circle</i>
@@ -91,11 +92,11 @@
                         <ul id="accounts" class="dropdown-content grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}" style="margin-top:64px;">
                             <?php $count = 0; ?>
                             @if(isset($accounts))
-                                @foreach($accounts as $account)
-                                    <li><a data-id="{{$count++}}" class="changeTl"><img src="{{str_replace("_normal", "", $account->avatar)}}"
-                                                                                                  alt="@lang('message.pb')"
-                                                                                                  class="circle responsive-img pb">{{$account->name}}
-                                        </a></li>
+                                    @foreach($accounts as $account)
+                                        <li><a data-id="{{$count++}}" class="changeTl"><img src="{{str_replace("_normal", "", $account->media->avatar)}}"
+                                                                                            alt="@lang('message.pb')"
+                                                                                            class="circle responsive-img pb">{{base64_decode($account->name)}}
+                                            </a></li>
                                     @endforeach
                             @endif
                             <li class="divider"></li>
@@ -108,8 +109,8 @@
                 @unless(!isset($blogmode))
                     <li class="center-align">
                     <li><a href="@if(!Auth::user()) /login @else /blog/settings @endif">
-                            @if(Auth::user() && isset($accounts) && $accounts[0]->avatar)
-                                <img src="{{$accounts[0]->avatar}}" alt="@lang('message.pb')"
+                            @if(Auth::user() && isset($accounts) && $accounts[0]->media->avatar)
+                                <img src="{{$accounts[0]->media->avatar}}" alt="@lang('message.pb')"
                                      class="circle responsive-img valign" id="pb">
                             @else
                                 <i class="material-icons">account_circle</i>
@@ -123,9 +124,9 @@
                    style="margin-left: 18px;"><i class="material-icons">menu</i></a>
                 <ul id="slide-out" class="side-nav grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
                     <li><div class="userView">
-                            @if(Auth::user() && isset($accounts) && $accounts[0]->avatar)
-                                <img class="background" src="{{$accounts[0]->banner}}" style="max-height: 200px;margin-left: -50%;">
-                                <img class="circle" src=" {{str_replace("_normal", "", $accounts[0]->avatar)}}">
+                            @if(Auth::user() && isset($accounts) && $accounts[0]->media->avatar)
+                                <img class="background" src="{{$accounts[0]->media->banner}}" style="max-height: 200px;margin-left: -50%;">
+                                <img class="circle" src=" {{str_replace("_normal", "", $accounts[0]->media->avatar)}}">
                                 <span class="name white-text">{{$accounts[0]->name}}</span>
                             @else
                                 <i class="material-icons">account_circle</i>

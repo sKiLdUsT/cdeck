@@ -48,12 +48,6 @@ return [
             'root' => storage_path('app'),
         ],
 
-        'voices' => [
-            'driver' => 'local',
-            'root' => storage_path('app/voices'),
-            'visibility' => 'public',
-        ],
-
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

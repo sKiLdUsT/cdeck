@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\User;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App;
+use App\User;
 use Auth;
 use Twitter;
 use Session;
 use Redirect;
 use DB;
-use Illuminate\Support\Facades\Input;
+
 
 class AuthController extends Controller
 {
@@ -26,17 +27,6 @@ class AuthController extends Controller
     */
 
     protected $redirectPath = '/';
-
-    public function beta(Request $request)
-    {
-        if(DB::table('keys')->where([['key', $_POST['key']],['used', '0']])->get()){
-            $request->session()->put('beta_key', $_POST['key']);
-            DB::table('keys')->where('key', $_POST['key'])->update(['used' => 1]);
-            return redirect()->route('index');
-        }else{
-            return redirect()->route('beta')->with('status', 'Key nicht gefunden oder bereits benutzt');
-        }
-    }
 
     /**
      * Redirect the user to the Twitter authentication page.
@@ -66,6 +56,7 @@ class AuthController extends Controller
 
             return Redirect::to($url);
         }
+        return App::abort(500);
     }
 
     /**
@@ -73,7 +64,7 @@ class AuthController extends Controller
      *
      * @return Response
      */
-    public function handleProviderCallback()
+    public function handleProviderCallback(Request $request)
     {
         if (Session::has('oauth_request_token'))
         {
@@ -86,9 +77,9 @@ class AuthController extends Controller
 
             $oauth_verifier = false;
 
-            if (Input::has('oauth_verifier'))
+            if ($request->has('oauth_verifier'))
             {
-                $oauth_verifier = Input::get('oauth_verifier');
+                $oauth_verifier = $request->input('oauth_verifier');
             }
 
             // getAccessToken() will reset the token for you
@@ -122,8 +113,7 @@ class AuthController extends Controller
 
             return Redirect::route('twitter.error')->with('flash_error', 'Crab! Something went wrong while signing you up!');
         }
-
-
+        return App::abort(500);
     }
 
     /**
@@ -153,14 +143,10 @@ class AuthController extends Controller
             return false;
         }
         if ($authUser OR $create == true){
-            if(env('APP_BETA') == 'true')
-            {
-                $authUser->beta_key = $request->session()->get('beta_key');
-            }
             if(!DB::table('users')->where('handle', $twitterUser->screen_name)->first())
             {
                 DB::table('users')->insert([
-                    'name' => $twitterUser->name,
+                    'name' => base64_encode($twitterUser->name),
                     'handle' => $twitterUser->screen_name,
                     'twitter_id' => $twitterUser->id,
                     'token' => json_encode($token),
@@ -183,9 +169,9 @@ class AuthController extends Controller
         }
         $request->session()->put('notifications', 'false');
         return User::create([
-            'name' => $twitterUser->name,
+            'name' => base64_encode($twitterUser->name),
             'handle' => $twitterUser->screen_name,
-            'twitter_id' => $twitterUser->id,
+            'twitter_id' => $twitterUser->id_str,
             'token' => json_encode($token),
             'media' => json_encode([
                 'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
@@ -197,4 +183,5 @@ class AuthController extends Controller
             ])
         ]);
     }
+
 }
