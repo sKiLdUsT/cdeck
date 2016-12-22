@@ -3,6 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Vluzrmos\LanguageDetector\Facades\LanguageDetector;
+use Auth;
+use URL;
+use Twitter;
+use Cache;
+use DB;
+use Storage;
+use App;
 
 class ApiController extends Controller
 {
@@ -14,6 +22,11 @@ class ApiController extends Controller
     | This controller handles API requests.
     |
     */
+
+    public function __construct()
+    {
+        App::setlocale(Request()->input('lang', (Auth::user() && isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
+    }
 
     /*
         GET

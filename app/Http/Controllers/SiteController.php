@@ -38,6 +38,10 @@ class SiteController extends Controller
 
     # Login View
     public function login(Request $request){
+        # Fist check if user is already logged in and if so
+        # Redirect him back to home page
+        if(!is_null(Auth::user()))return redirect()->route('index');
+
         $this->beforeRun() ?: App::abort(500);
 
         # Site-specific vars for view

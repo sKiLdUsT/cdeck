@@ -12,7 +12,7 @@
 </div>
 <noscript>
     <div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;" class="loader valign-wrapper">
-        <div class="container">
+        <div class="container white-text">
             <h1>Hi there!</h1><br>
             <h3>Unfortunately you need JavaScript activated and functioning to use this service. That's a bummer :-(</h3>
         </div>
