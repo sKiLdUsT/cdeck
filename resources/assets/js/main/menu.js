@@ -201,7 +201,7 @@ $(function () {
         if(notify.isSupported !== true){
             throw new CDeckError('Browser not supported');
         }
-        if(uconfig.notifications == "false"){
+        if(window.uconfig.notifications == "false"){
             if(notify.permissionLevel() != notify.PERMISSION_GRANTED){
                 if(notify.permissionLevel() == notify.PERMISSION_DENIED){
                     Materialize.toast('Verweigert! Bitte erlaube cDeck in deinen Browser-Einstellungen, diese Funktion zu nutzen.', 5000);
@@ -231,9 +231,12 @@ $(function () {
     $('a#button_settings').on('click', function(e){
         e.preventDefault();
         var mn = spawnModal(),
-            colormode = uconfig.colormode == "1" ? 'grey darken-2 white-text' : '';
+            colormode = uconfig.colormode == "1" ? 'grey darken-2 white-text' : '',
+            setting = {
+                roundpb: uconfig.roundpb == "true" ? 'checked="checked"' : ''
+            };
         $('#modal' + mn + '-header').text(lang.menu.settings);
-        $('#modal' + mn + '-content').html('<ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui">UI</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><form><p><input type="checkbox" class="filled-in" id="round-pb" checked="checked" disabled="disabled" value="1" /> <label for="round-pb">Round Profile Pictures</label></p></form></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/impressum">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/datenschutz">'+lang.privacy.this+'</a></p></div>');
+        $('#modal' + mn + '-content').html('<ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui">UI</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><form id="settings"><p><input type="checkbox" class="filled-in" id="round-pb" '+ setting.roundpb +' /> <label for="round-pb">Round Profile Pictures</label></p></form></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016-2017 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/imprint">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/privacy">'+lang.privacy.this+'</a></p></div>');
         $('#modal' + mn + '-content').children('div.container').css({margin: '2em auto'});
         $('#modal'+mn).openModal({
             dismissible: true,
@@ -262,8 +265,21 @@ $(function () {
                 $('#modal'+mn).remove()
             }
         });
-        $('#modal' + mn + ' form').on('submit', function (event) {
-            event.preventDefault();
+        $('#settings input[type="checkbox"]').on('click', function (event) {
+            var id = $(this).attr('id').replace('-',''),
+                value = $(this).is(':checked');
+            changeUconfig({[id]: value}, function(result){
+                if(result === true){
+                    switch(id){
+                        case 'roundpb':
+                            if(value){
+                                $('img.responsive-img').addClass('circle')
+                            } else {
+                                $('img.responsive-img').removeClass('circle')
+                            }
+                    }
+                }
+            });
         });
     });
     $('a#button_language').on('click', function(e){

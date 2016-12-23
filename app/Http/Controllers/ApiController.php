@@ -167,7 +167,9 @@ class ApiController extends Controller
                 return json_encode(["response" => true, "data" => [
                     "colormode" => $uconfig->colormode,
                     "notifications" => session()->get('notifications'),
-                    "access_level" => $uconfig->access_level
+                    "access_level" => $uconfig->access_level,
+                    "activeID" => isset($uconfig->activeID) ? $uconfig->activeID : 0,
+                    "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true
                 ]]);
             }
             return json_encode([

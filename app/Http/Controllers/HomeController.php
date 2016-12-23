@@ -35,7 +35,7 @@ class HomeController extends Controller
 
         # Get Client build info from cache (refreshed every 5 minutes through cron)
         $this->clients = Cache::remember('clients', 5, function () {
-            return json_decode(file_get_contents('https://cdn.skildust.com/dl/cdeck/meta.json'));
+            return json_decode(file_get_contents('https://cdn.skildust.com/dl/cdeck/meta.json')) ?: (object) [];
         });
 
         # Get and parse uconfig

@@ -173,9 +173,9 @@
     // Mainly used to display tweet cards and notification cards.
     Renderer.prototype.templater = {
         timeline: function( id, extra, object ) {
-            var content, rpb, html,
-                colormode = uconfig.colormode == "1" ? 'blue-grey darken-4 white-text' : 'blue-grey lighten-2 white-text';
-            if(uconfig.roundpb === true){
+            var content, rpb = '', html,
+                colormode = window.uconfig.colormode == "1" ? 'blue-grey darken-4 white-text' : 'blue-grey lighten-2 white-text';
+            if(window.uconfig.roundpb == "true"){
                 rpb = "circle"
             }
             if (object.original.retweeted_status === undefined && object.original.quoted_status === undefined) {
@@ -222,9 +222,9 @@
             }
         },
         notification: function( id, extra, object ) {
-            var content, rpb, html,
-                colormode = uconfig.colormode == "1" ? 'blue-grey darken-4 white-text' : 'blue-grey lighten-2 white-text';
-            if(uconfig.roundpb === true){
+            var content, rpb = '', html,
+                colormode = window.uconfig.colormode == "1" ? 'blue-grey darken-4 white-text' : 'blue-grey lighten-2 white-text';
+            if(window.uconfig.roundpb == "true"){
                 rpb = "circle"
             }
             if (object.original.quoted_status !== undefined) {
@@ -305,7 +305,7 @@
             if(( ( data.object !== undefined && data.object.screen_name !== cDeck.user.screen_name) || (data.source !== undefined && data.source.screen_name !== cDeck.user.screen_name) ) ){
                 finalTweet = this.helper.favoriteContent( data );
                 this.templater.notification( data.id_str, extra, finalTweet );
-                if($app.state == "ready" && uconfig.notifications == "true"){
+                if($app.state == "ready" && window.uconfig.notifications == "true"){
                     if (!Notify.needsPermission) {
                         doNotification();
                     } else if (Notify.isSupported()) {

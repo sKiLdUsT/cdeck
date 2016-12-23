@@ -84,7 +84,7 @@
                     <li><a class="dropdown-button" href="#" data-activates="accounts">
                             @if(Auth::user() && isset($accounts) && $accounts[0]->media->avatar)
                                 <img src="{{str_replace("_normal", "", $accounts[isset($aid) ? $aid : 0]->media->avatar)}}" alt="@lang('message.pb')"
-                                     class="circle responsive-img valign pb" id="pb">
+                                     class="@if(json_decode(Auth::user()->uconfig)->roundpb == "true") circle @endif responsive-img valign pb" id="pb">
                             @else
                                 <i class="material-icons">account_circle</i>
                             @endif
@@ -95,7 +95,7 @@
                                     @foreach($accounts as $account)
                                         <li><a data-id="{{$count++}}" class="changeTl"><img src="{{str_replace("_normal", "", $account->media->avatar)}}"
                                                                                             alt="@lang('message.pb')"
-                                                                                            class="circle responsive-img pb">{{base64_decode($account->name)}}
+                                                                                            class="@if(json_decode(Auth::user()->uconfig)->roundpb == "true") circle @endif responsive-img pb">{{base64_decode($account->name)}}
                                             </a></li>
                                     @endforeach
                             @endif
@@ -111,7 +111,7 @@
                     <li><a href="@if(!Auth::user()) /login @else /blog/settings @endif">
                             @if(Auth::user() && isset($accounts) && $accounts[0]->media->avatar)
                                 <img src="{{$accounts[0]->media->avatar}}" alt="@lang('message.pb')"
-                                     class="circle responsive-img valign" id="pb">
+                                     class="@if(json_decode(Auth::user()->uconfig)->roundpb == "true") circle @endif responsive-img valign" id="pb">
                             @else
                                 <i class="material-icons">account_circle</i>
                             @endif
