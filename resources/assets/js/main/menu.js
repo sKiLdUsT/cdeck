@@ -198,27 +198,31 @@ $(function () {
     });
     $('a#button_notifications').on('click', function(e){
         e.preventDefault();
-        if(notify.isSupported !== true){
-            throw new CDeckError('Browser not supported');
-        }
+        var Notify = window.Notify.default;
         if(window.uconfig.notifications == "false"){
-            if(notify.permissionLevel() != notify.PERMISSION_GRANTED){
-                if(notify.permissionLevel() == notify.PERMISSION_DENIED){
-                    Materialize.toast('Verweigert! Bitte erlaube cDeck in deinen Browser-Einstellungen, diese Funktion zu nutzen.', 5000);
-                    throw new CDeckError('No Permission to access notifications. Result was: '+notify.permissionLevel())
-                }
-                notify.requestPermission(function(response){
-                    if(response != notify.PERMISSION_GRANTED){
-                        Materialize.toast('Verweigert! Bitte erlaube cDeck in deinen Browser-Einstellungen, diese Funktion zu nutzen.', 5000);
-                        throw new CDeckError('No Permission to access notifications. Result was: '+notify.permissionLevel())
+            if(Notify.needsPermission && Notify.isSupported()){
+                Notify.requestPermission(onPermissionGranted, onPermissionDenied);
+            } else if(Notify.isSupported()) {
+                changeUconfig({notifications: true}, function(result){
+                    if(result === true){
+                        Materialize.toast(lang.menu.noti_enabled, 5000)
                     }
-                })
+                });
+            } else {
+                Materialize.toast('Unsupported');
+                console.warn('cDeck: Notifications unsupported');
             }
-            changeUconfig({notifications: true}, function(result){
-                if(result === true){
-                    Materialize.toast(lang.menu.noti_enabled, 5000)
-                }
-            });
+            function onPermissionGranted() {
+                changeUconfig({notifications: true}, function(result){
+                    if(result === true){
+                        Materialize.toast(lang.menu.noti_enabled, 5000)
+                    }
+                });
+            }
+            function onPermissionDenied() {
+                console.warn('cDeck: Notification permission denied');
+                Materialize.toast('Permission denied');
+            }
         }else{
             changeUconfig({notifications: false}, function(result){
                 if(result === true){

@@ -305,21 +305,14 @@
             if(( ( data.object !== undefined && data.object.screen_name !== cDeck.user.screen_name) || (data.source !== undefined && data.source.screen_name !== cDeck.user.screen_name) ) ){
                 finalTweet = this.helper.favoriteContent( data );
                 this.templater.notification( data.id_str, extra, finalTweet );
-                if($app.state == "ready" && window.uconfig.notifications == "true"){
+                if(!document.hasFocus() && $app.state == "ready" && window.uconfig.notifications == "true"){
+                    var Notify = window.Notify.default;
                     if (!Notify.needsPermission) {
-                        doNotification();
-                    } else if (Notify.isSupported()) {
-                        Notify.requestPermission(onPermissionGranted, onPermissionDenied);
-                    }
-                    function onPermissionGranted() {
-                        console.log('Permission has been granted by the user');
-                        doNotification();
-                    }
-                    function onPermissionDenied() {
-                        console.warn('Permission has been denied by the user');
-                    }
-                    function doNotification(){
-
+                        var myNotification = new Notify('cDeck', {
+                            body: finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
+                            icon: '/assets/img/logo.png'
+                        });
+                        myNotification.show();
                     }
                 }
             }

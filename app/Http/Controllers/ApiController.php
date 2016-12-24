@@ -166,7 +166,7 @@ class ApiController extends Controller
                 $uconfig = json_decode($user->uconfig);
                 return json_encode(["response" => true, "data" => [
                     "colormode" => $uconfig->colormode,
-                    "notifications" => session()->get('notifications'),
+                    "notifications" => session()->get('notifications') ?: false,
                     "access_level" => $uconfig->access_level,
                     "activeID" => isset($uconfig->activeID) ? $uconfig->activeID : 0,
                     "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true
@@ -174,7 +174,7 @@ class ApiController extends Controller
             }
             return json_encode([
                 "colormode" => $uconfig->colormode,
-                "notifications" => session()->get('notifications'),
+                "notifications" => session()->get('notifications') ?: false,
                 "access_level" => $uconfig->access_level,
                 "activeID" => isset($uconfig->activeID) ? $uconfig->activeID : 0,
                 "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true
