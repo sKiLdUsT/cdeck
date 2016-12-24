@@ -14,6 +14,9 @@ Route::get('/logout', function(){
     Auth::logout();
     return redirect(route('index'));
 });
+# Voice Messages
+Route::get('/voice/{id}', 'SiteController@showVoice');
+
 # Auth
 Route::get('auth/twitter', ['as' => 'twitter.login', 'uses' => 'Auth\AuthController@redirectToProvider']);
 Route::get('auth/twitter/callback', ['as' => 'twitter.callback', 'uses' => 'Auth\AuthController@handleProviderCallback']);

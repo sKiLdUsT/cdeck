@@ -54,6 +54,12 @@ return [
             'visibility' => 'public',
         ],
 
+        'voices' => [
+            'driver' => 'local',
+            'root' => storage_path('app/voices'),
+            'visibility' => 'public',
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => 'your-key',

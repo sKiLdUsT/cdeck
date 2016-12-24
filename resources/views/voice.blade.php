@@ -15,7 +15,7 @@
                     </div>
                     <div class="white-text info">
                         <div id="name">
-                            <h3>{{$user->name}}</h3>
+                            <h3>{{base64_decode($user->name)}}</h3>
                         </div>
                         <div id="misc">
                             <div id="handle">
@@ -36,6 +36,7 @@
             </div>
         </div>
 @unless(isset($deliver) AND $deliver == 'raw')
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
             <script type="text/javascript" src="{{elixir('assets/js/app.voice.js')}}"></script>
     </body>
 </html>
