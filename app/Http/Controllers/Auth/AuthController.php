@@ -179,7 +179,8 @@ class AuthController extends Controller
             'uconfig' => json_encode([
                 'colormode' => 0,
                 'access_level' => 0,
-                'activeID' => 0
+                'activeID' => 0,
+                'roundpb' => 'true'
             ])
         ]);
     }
