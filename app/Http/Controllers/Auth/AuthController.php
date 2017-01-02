@@ -163,6 +163,7 @@ class AuthController extends Controller
                 $authUser->media = json_encode([
                     'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
                     'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246']);
+                $authUser->save();
             }
             $authorized = json_decode($authUser->authorized, true) ?: [];
             if($twitterUser->screen_name !== $authUser->handle){
