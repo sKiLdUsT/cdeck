@@ -20,4 +20,5 @@ return [
     "retweet" => "retweeted your tweet",
     "quote" => "quoted your tweet",
     "like" => "liked your tweet",
+    "follow" => "followed you"
 ];

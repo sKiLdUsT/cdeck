@@ -18,6 +18,11 @@
         </div>
     </div>
 </noscript>
+<div id="dragdrop" class="valign-wrapper" style="display: none">
+    <div class="valign">
+        <h4>Drop file to send</h4>
+    </div>
+</div>
 <div class="navbar-fixed">
     <nav role="navigation" class="red darken-4">
         <div class="nav-wrapper">

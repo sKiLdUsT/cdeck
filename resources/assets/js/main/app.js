@@ -116,6 +116,9 @@ function cDeckInit ( action, data ){
     return true;
 }
 $(function(){
+    // Set local user background, if set
+    if (typeof(Storage) !== "undefined" && localStorage.getItem("background")) $('body').css('background-image', 'url('+localStorage.getItem("background")+')');
+
     // Get Twitter-config.
     // cDeck calls the Twitter-API every 24h for this.
     // More: http://bit.ly/2cjQYc2
@@ -211,6 +214,8 @@ $(function(){
 
     // Functions to run when on home page
     if ( window.location.pathname == '/' ) {
+        window.$tweetFile = [];
+
         // Set main section to fixed
         $( 'body > .section > main' ).css( 'position', 'fixed' );
         // Add client event listeners when window is ready
@@ -233,6 +238,60 @@ $(function(){
                 closeOnClick: true,
                 menuWidth: 300
         });
+
+        $(document).on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        })
+            .on('dragover dragenter', function() {
+                $('#dragdrop').fadeIn();
+            })
+            .on('dragleave dragend drop', function() {
+                $('#dragdrop').fadeOut();
+            })
+            .on('drop', function(e) {
+                console.log('File dropped');
+                console.log(e.originalEvent.dataTransfer.files);
+                if(window.$tweetFile.length < 4 && e.originalEvent.dataTransfer.files.length <= 4){
+                    var files = e.originalEvent.dataTransfer.files;
+                    for (var i = 0; i < files.length; i++) {
+                        window.$tweetFile.forEach(function(object){
+                            if(files[i] === object.file)return Materialize.toast('File already added', 2000);
+                        });
+                        if(window.$tweetFile.length < 4 && window.$tweetFile.find(function(object){return (object.type === 'video' || object.type === 'gif')}) === undefined){
+                            if (files[i].type == 'image/png' || files[i].type == 'image/jpeg' || files[i].type == 'image/webp') {
+                                if(files[i].size > 3145728)return Materialize.toast('File '+(i+1)+'/'+files.length+' above 3MB file limit', 2000);
+                                window.$tweetFile.push({file: files[i], type: 'image'})
+                            }else if(files[i].type == 'image/gif' && window.$tweetFile.length === 0){
+                                if(files[i].size > 5242880)return Materialize.toast('File '+(i+1)+'/'+files.length+' above 5MB file limit', 2000);
+                                window.$tweetFile.push({file: files[i], type: 'gif'})
+                            } else if (files[i].type == 'video/mp4' && window.$tweetFile.length === 0 ) {
+                                if(files[i].size > 536870912)return Materialize.toast('File '+(i+1)+'/'+files.length+' above 512MB file limit', 2000);
+                                $('<video style="display:none;height:0;width:0" id="shadowplayer"><source type="video/mp4" src="'+URL.createObjectURL(files[i])+'"></video>').appendTo('body');
+                                var duration;
+                                $.when(duration = $('#shadowplayer').duration).then($('#shadowplayer').remove());
+                                if(duration > 140)return Materialize.toast('File '+(i+1)+'/'+files.length+' above 1:20 duration limit',2000);
+                                window.$tweetFile.push({file: files[i], type: 'video'})
+                            } else if (window.$tweetFile.length !== 0){
+                                Materialize.toast('You can\'t mix videos/gifs and images', 3000);
+                            } else {
+                                Materialize.toast('Unsupported file type', 3000);
+                                return;
+                            }
+                        } else if(window.$tweetFile.length < 4){
+                            Materialize.toast('You can only send one video or gif alone at the time', 3000);
+                        } else {
+                            Materialize.toast('You cannot drop more fies', 3000);
+                            console.warn('cDeck: Either 4 image or 1 video/gif limit reached. Object: \n'+JSON.stringify(window.$tweetFile));
+                        }
+                    }
+                    if($('.lean-overlay').length > 0)$('.lean-overlay').trigger('click');
+                    renderer.newTweet();
+                } else {
+                    Materialize.toast('You cannot drop more fies', 3000);
+                    console.warn('cDeck: Either 4 image or 1 video limit reached. Object: \n'+JSON.stringify(window.$tweetFile));
+                }
+            });
 
         setSize($('.section .row .col .section > div'));
         if($(window).width() < 993 ) {

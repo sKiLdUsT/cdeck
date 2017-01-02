@@ -56,28 +56,28 @@ class ApiController extends Controller
                     'api_token' => $api_token
                 ));
             }
-            return(json_encode($finalAccount));
+            return(response()->json($finalAccount));
         }else{
-            return(json_encode(array('error' => 'unauthorized')));
+            return response()->json(['error' => 'unauthorized']);
         }
     }
 
     # Function to fetch latest server assets
     public function assets()
     {
-        return json_encode(array("css" => URL::to(elixir('assets/css/app.css')), "js" => URL::to(elixir('assets/js/app.js'))));
+        return response()->json(array("css" => URL::to(elixir('assets/css/app.css')), "js" => URL::to(elixir('assets/js/app.js'))));
     }
 
     # Function to fetch Twitter config
     public function tconfig()
     {
-        return json_encode(Cache::get('twitter_config'));
+        return response()->json(Cache::get('twitter_config'));
     }
 
     # Function to get cDeck translation stuff
     public function lang()
     {
-        return json_encode([
+        return response()->json([
             "external" => trans('external'),
             "menu" => trans('menu'),
             "message" => trans('message'),
@@ -95,10 +95,10 @@ class ApiController extends Controller
     {
         switch($request->method()){
             case 'GET':
-                return "{response: true}";
+                return response()->json(['response' => true]);
                 break;
             case 'POST':
-                return "{response: true}";
+                return response()->json(['response' => true]);
                 break;
         }
         return App::abort(500);
@@ -109,7 +109,7 @@ class ApiController extends Controller
     {
         # Only return when in debug mode
         if(!\Config::get('app.debug'))return(json_encode(array('error' => 'Debug functions deactivated')));
-        return(json_encode(session()->all()));
+        return response()->json(session()->all());
     }
 
     /*
@@ -123,7 +123,7 @@ class ApiController extends Controller
         if(!\Config::get('app.debug'))return(json_encode(array('error' => 'Debug functions deactivated')));
         $config = Twitter::get('help/configuration');
         Cache::put('twitter_config', $config, 1440);
-        return json_encode(array("response" => true));
+        return response()->json(["response" => true]);
     }
 
     # Function to get/set User Config (depending on request type)
@@ -134,7 +134,6 @@ class ApiController extends Controller
         if($user)
         {
             $uconfig = json_decode($user->uconfig);
-
             # I decided to go with this approach, because it is slightly
             # safer than letting the user set every value they want.
             # Still maybe not the best solution. ~sKiLdUsT
@@ -164,7 +163,7 @@ class ApiController extends Controller
                 $user->uconfig = json_encode($uconfig);
                 $user->save();
                 $uconfig = json_decode($user->uconfig);
-                return json_encode(["response" => true, "data" => [
+                return response()->json(["response" => true, "data" => [
                     "colormode" => $uconfig->colormode,
                     "notifications" => session()->get('notifications') ?: false,
                     "access_level" => $uconfig->access_level,
@@ -172,7 +171,7 @@ class ApiController extends Controller
                     "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true
                 ]]);
             }
-            return json_encode([
+            return response()->json([
                 "colormode" => $uconfig->colormode,
                 "notifications" => session()->get('notifications') ?: false,
                 "access_level" => $uconfig->access_level,
@@ -180,7 +179,7 @@ class ApiController extends Controller
                 "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true
             ]);
         }
-        return json_encode(["response" => false]);
+        return response()->json(['response' => false]);
     }
 
     # Function to render a blog post preview
@@ -207,9 +206,9 @@ class ApiController extends Controller
         $blog->title = $post["title"];
         $blog->content = $parser->parse($post["content"]);
         if($blog->save()){
-            return (json_encode(["response" => true, "id" => $blog->id]));
+            return response()->json(["response" => true, "id" => $blog->id]);
         }
-        return "{response: false}";
+        return response()->json(['response' => false]);
     }
 
     # Function to create a cDeck Voice Message
@@ -227,11 +226,52 @@ class ApiController extends Controller
             $voice->path = '/cdn/voices/'.$user->id.'/'.$id.'.mp3';
             $voice->save();
 
-            return json_encode([
+            return response()->json([
                 "response" => true,
                 "path" => url('voice/'.$id)
             ]);
         }
-        return "{response: false}";
+        return response()->json(['response' => false]);
+    }
+
+    # Function to upload videos/images to Twitter
+    public function upload(Request $request)
+    {
+        # From http://www.go4expert.com/articles/splitting-file-parts-php-t29885/
+        function fsplit($file){
+            $buffer = 1048576;
+            $file_handle = fopen($file,'r');
+            $file_size = filesize($file);
+            $parts = $file_size / $buffer;
+
+            $file_parts = [];
+
+            for($i=0;$i<$parts;$i++){
+                $file_part = fread($file_handle, $buffer);
+                array_push($file_parts, $file_part);
+            }
+            fclose($file_handle);
+            return $file_parts;
+        }
+
+        if(Auth::user()) {
+            // return response()->json(['response' => false, 'data' => $request->input('data')]);
+            if ($request->file('data')->isValid()) {
+                $file = fsplit($request->file('data')->path());
+                $mID = Twitter::query('media/upload', 'POST', ["command" => "INIT", "total_bytes" => filesize($request->file('data')->path()), "media_type" => $request->input('type')], true);
+                $mID = $mID->media_id;
+                foreach ($file as $index => $chunk) {
+                    Twitter::query('media/upload', 'POST', ["command" => "APPEND", "media_id" => $mID, "segment_index" => $index, "media" => $chunk], true);
+                }
+                $final = Twitter::query('media/upload', 'POST', ["command" => "FINALIZE", "media_id" => $mID], true);
+                if (isset($final->processing_info)) {
+                    return response()->json(['response' => true, 'is_pending' => true, "data" => $final]);
+                } else {
+                    return response()->json(['response' => true, 'is_pending' => false, "data" => $final]);
+                }
+            }
+            return response()->json(['response' => false]);
+        }
+        return response()->json(['response' => false]);
     }
 }

@@ -20,4 +20,5 @@ return [
     "retweet" => "hat dich retweeted",
     "quote" => "hat dich zitiert",
     "like" => "gefällt dein Tweet",
+    "follow" => "folgt dir jetzt"
 ];

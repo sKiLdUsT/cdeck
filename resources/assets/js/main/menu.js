@@ -240,7 +240,7 @@ $(function () {
                 roundpb: uconfig.roundpb == "true" ? 'checked="checked"' : ''
             };
         $('#modal' + mn + '-header').text(lang.menu.settings);
-        $('#modal' + mn + '-content').html('<ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui">UI</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><form id="settings"><p><input type="checkbox" class="filled-in" id="round-pb" '+ setting.roundpb +' /> <label for="round-pb">Round Profile Pictures</label></p></form></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016-2017 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/imprint">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/privacy">'+lang.privacy.this+'</a></p></div>');
+        $('#modal' + mn + '-content').html('<ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui">UI</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><form id="settings"><p><input type="checkbox" class="filled-in" id="round-pb" '+ setting.roundpb +' /> <label for="round-pb">Round Profile Pictures</label></p><p><div class="file-field input-field"> <div class="btn"> <span>Change local background</span> <input type="file" id="settings-bg"> </div> <div class="file-path-wrapper hidden"><input class="file-path validate" type="text"></div></div></p></form></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016-2017 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/imprint">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/privacy">'+lang.privacy.this+'</a></p></div>');
         $('#modal' + mn + '-content').children('div.container').css({margin: '2em auto'});
         $('#modal'+mn).openModal({
             dismissible: true,
@@ -285,6 +285,23 @@ $(function () {
                 }
             });
         });
+        $('#settings-bg').on('change', function (event) {
+            event.preventDefault();
+            var reader = new FileReader();
+            reader.readAsDataURL($(this)[0].files[0]);
+            reader.onload = function () {
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem("background", reader.result);
+                    $('body').css('background-image', 'url('+reader.result+')')
+                } else {
+                    throw new CDeckError('Missing localStorage support')
+                }
+            };
+            reader.onerror = function (error) {
+                console.log('Error: ', error);
+            };
+        });
+
     });
     $('a#button_language').on('click', function(e){
         e.preventDefault();
@@ -375,8 +392,7 @@ $(function () {
         $(search.parent()).find('input').focus();
     });
     $($('#search_activate').parent()).find('input').blur(function(){
-        ($($('#search_activate').parent()).children('form').fadeOut());
-        setTimeout(function(){$('#search_activate').show()}, 350);
+        ($($('#search_activate').parent()).children('form').fadeOut(350, function () {$('#search_activate').show()}));
     });
     $('.collapsible').collapsible();
 });

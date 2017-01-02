@@ -23,6 +23,7 @@ elixir(mix => {
     mix.scripts([
     'libs/socket-io.js',
     'libs/jquery.js',
+    'libs/paste-image-reader.js',
     'libs/materialize.js',
     'libs/materialbox.js',
     'libs/notify.js',

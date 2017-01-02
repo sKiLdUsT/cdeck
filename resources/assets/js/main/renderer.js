@@ -141,7 +141,7 @@
             return {original: data, tweet: objects.tweet, marray: objects.marray, medialink: medialink, fav: objects.fav}
         },
         favoriteContent: function( data ){
-            var type, source, target;
+            var type, source, target, tweet;
             if(data.object !== undefined){
                 if (data.object.text !== undefined && data.object.retweeted_status === undefined && data.object.quoted_status === undefined) {
                     type = 'mention';
@@ -162,9 +162,14 @@
                     type = 'like';
                     source = data.source;
                     target = data.target_object
+                } else if(data.event == 'follow'){
+                    type = 'follow';
+                    source = data.source;
+                    target = data.target;
+                    tweet = '';
                 }
             }
-            var tweet = twttr.txt.autoLink(target.text, {urlEntities: target.entities.urls});
+            tweet = tweet !== undefined ? tweet : twttr.txt.autoLink(target.text, {urlEntities: target.entities.urls});
             return {original: data, tweet: tweet, type: type, source: source, target: target};
         }
     };
@@ -232,11 +237,20 @@
             } else {
                 content = '<p>' + object.tweet + '</p>'
             }
-            try {
-                html = '<div class="divider"></div><div class="card '+colormode+'" style="display: none"><div class="card-content"><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.source.screen_name + '"> @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span><p>' + content + '</p> </div></blockquote> </div> </div>';
-            } catch (e) {
-                console.warn("Warning: "+e);
-                html = '<div class="divider"></div><div class="card '+colormode+'" style="display: none"><div class="card-content"><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.source.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.source.screen_name + '"> @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span><p>' + content + '</p> </div></blockquote> </div> </div>';
+            if(object.type === 'follow'){
+                try {
+                    html = '<div class="divider"></div><div class="card '+colormode+'" style="display: none"><div class="card-content"><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.source.screen_name + '"> @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br> </div> </div>';
+                } catch (e) {
+                    console.warn("Warning: "+e);
+                    html = '<div class="divider"></div><div class="card '+colormode+'" style="display: none"><div class="card-content"><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.source.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.source.screen_name + '"> @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br> </div> </div>';
+                }
+            } else {
+                try {
+                    html = '<div class="divider"></div><div class="card '+colormode+'" style="display: none"><div class="card-content"><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.source.screen_name + '"> @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span><p>' + content + '</p> </div></blockquote> </div> </div>';
+                } catch (e) {
+                    console.warn("Warning: "+e);
+                    html = '<div class="divider"></div><div class="card '+colormode+'" style="display: none"><div class="card-content"><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.source.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.source.screen_name + '"> @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span><p>' + content + '</p> </div></blockquote> </div> </div>';
+                }
             }
             if( extra.action == 'prepend' ){
                 if(extra.animate !== undefined && extra.animate == false){
@@ -301,11 +315,11 @@
             $('.slider').slider({full_width: true,indicators: false});
         } else if ( data.delete !== undefined ) {
             $( '#tweet-' + data.delete.status.id_str ).remove();
-        } else if ( (data.event == 'favorite' || data.event == 'user-related')) {
+        } else if ( (data.event == 'favorite' || data.event == 'user-related' || data.event == 'follow')) {
             if(( ( data.object !== undefined && data.object.screen_name !== cDeck.user.screen_name) || (data.source !== undefined && data.source.screen_name !== cDeck.user.screen_name) ) ){
                 finalTweet = this.helper.favoriteContent( data );
                 this.templater.notification( data.id_str, extra, finalTweet );
-                if(!document.hasFocus() && $app.state == "ready" && window.uconfig.notifications == "true"){
+                if($app.state == "ready" && window.uconfig.notifications == "true"){
                     var Notify = window.Notify.default;
                     if (!Notify.needsPermission) {
                         var myNotification = new Notify('cDeck', {
@@ -326,7 +340,8 @@
             formExtra = '',
             prefill = '',
             tlength = 140,
-            marray = '';
+            marray = '',
+            colormode = uconfig.colormode == "1" ? 'grey darken-3 white-text' : '';
         $('#modal' + modalNumber + '-header').text(lang.external.newtweet);
         switch(type){
             case 'reply':
@@ -352,7 +367,19 @@
             beforeContent = '<blockquote><div id="voice-preview"></div><div class="controls center-align col s12"> <a id="play" class="btn waves-effect"><i class="material-icons">play_arrow</i>/<i class="material-icons">pause</i></a> <a id="stop" class="btn waves-effect"><i class="material-icons">stop</i></a> </div></blockquote>';
             tlength = (tlength - 2) - tconfig.short_url_length_https
         }
-        $('#modal' + modalNumber + '-content').html(beforeContent + '<div class="row"> <form class="col s12 ajax-form" method="post" action="/api/twitter/postTweet"> <div class="row"> <div class="input-field col s12">' + formExtra + '<textarea id="text" class="materialize-textarea" length="'+tlength+'" name="status"></textarea><label for="text">'+lang.external.tweet_something+'</label> </div><button class="btn waves-effect waves-light blue" type="submit">'+lang.external.tweet+'<i class="material-icons right">send</i> </button> </div> </form> </div>');
+        if($tweetFile.length > 0){
+            beforeContent = '<div class="row z-depth-2" style="padding:1rem;" id="image-holder">';
+            $tweetFile.forEach(function(file, index){
+                beforeContent += '<div class="col s3" id="media-'+index+'"><div style="display:none;height:100%;width:100%;position:fixed;background-color:rgba(0,0,0,0.6);border-radius: 10%;" class="valign-wrapper" id="loader"><div class="progress"><div class="determinate" style="width: 0"></div></div></div> ';
+                if(file.type === 'image'  || file.type === 'gif'){
+                    beforeContent += '<img class="responsive-img" src="'+URL.createObjectURL(file.file)+'"></div>'
+                } else if(file.type === 'video'){
+                    beforeContent += '<video class="responsive-video" controls><source src="'+URL.createObjectURL(file.file)+'" type="'+file.file.type+'"></video></div>'
+                }
+            });
+            beforeContent += '</div>'
+        }
+        $('#modal' + modalNumber + '-content').html(beforeContent + '<div class="row"> <form class="col s12 ajax-form"> <div class="row"> <div class="input-field col s12">' + formExtra + '<textarea id="text" class="materialize-textarea" length="'+tlength+'" name="status"></textarea><label for="text">'+lang.external.tweet_something+'</label> </div><button class="btn waves-effect waves-light blue" type="submit">'+lang.external.tweet+'<i class="material-icons right">send</i> </button> </div> </form> </div>');
         $('textarea#text').characterCounter();
         $('#modal' + modalNumber).openModal({
             dismissible: true,
@@ -391,23 +418,108 @@
                 }
             },
             complete: function () {
+                window.$tweetFile = [];
+                window.$voiceblob = undefined;
                 $('#modal' + modalNumber).remove()
+            }
+        });
+        $('#modal' + modalNumber + ' form').find('textarea').pasteImageReader(function(results){
+            if(window.$tweetFile.length < 4 && window.$tweetFile.find(function(object){return (object.type === 'video' || object.type === 'gif')}) === undefined){
+                window.$tweetFile.forEach(function(object){
+                    if(results.file === object.file)return Materialize.toast('File already added', 2000);
+                });
+                if(results.file.size > 3145728)return Materialize.toast('Pasted image above 3MB file limit', 2000);
+                window.$tweetFile.push({file: results.file, type: 'image'});
+                var html = '<div class="row z-depth-2" style="padding:1rem;" id="image-holder"><div class="col s3" id="media-'+$tweetFile.length+'"><div style="display:none;height:100%;width:100%;position:fixed;background-color:rgba(0,0,0,0.6);border-radius: 10%;" class="valign-wrapper" id="loader"><div class="progress"><div class="determinate" style="width: 0"></div></div></div><img class="responsive-img" src="'+results.dataURL+'"></div>';
+                if($('#image-holder').length == 0){
+                    $(html).prependTo('#modal' + modalNumber + '-content');
+                } else {
+                    $(html).find('.col.s3').clone().appendTo('#image-holder')
+                }
+            } else if(window.$tweetFile.length < 4){
+                Materialize.toast('You can only send one video or gif alone at the time', 3000);
+            } else {
+                Materialize.toast('You cannot drop more fies', 3000);
+                console.warn('cDeck: Either 4 image or 1 video/gif limit reached. Object: \n'+JSON.stringify(window.$tweetFile));
             }
         });
         $('#modal' + modalNumber + ' form').submit(function (event) {
             event.preventDefault();
+            event.stopPropagation();
+            if(($tweetFile.length == 0 && $(this).find('textarea').val() == ''))return Materialize.toast('Empty tweet', 3000);
             var modalNumber2 = spawnModal();
             var modal = $('#modal' + modalNumber2);
             modal.addClass('bottom-sheet');
-            modal.openModal({
-                dismissible: false, ready: function () {
-                    $('#modal' + modalNumber2 + '-content').text(lang.external.one_moment);
-                    $('#preloader' + modalNumber2).show();
-                }, complete: function() {
-                    modal.remove();
-                }
-            });
-            if (typeof $voiceblob != 'undefined' && type === undefined ){
+            if($tweetFile.length > 0){
+                var media_ids = [],
+                    done = 0;
+                $tweetFile.forEach(function(file, index) {
+                    var data = new FormData();
+                    data.append('type', file.file.type);
+                    data.append('data', file.file);
+                    $('#media-'+index+' #loader').css({height: $('#media-'+index+' img').height(), width: $('#media-'+index+' img').width()}).fadeIn();
+                    $.post({
+                        url: '/api/twitter/upload',
+                        data: data,
+                        dataType: 'json',
+                        processData: false,
+                        contentType: false,
+                        success: function (e) {
+                            done++;
+                            if(e.response === true){
+                                media_ids.push(e.data.media_id_string);
+                                if(done === $tweetFile.length) {
+                                    console.log(media_ids);
+                                    console.log('Last one that finished and is running this function: ' + (index + 1));
+                                    modal.openModal({
+                                        dismissible: true, ready: function () {
+                                            $('#modal' + modalNumber2 + '-content').text(lang.external.one_moment);
+                                            $('#preloader' + modalNumber2).show();
+                                        }, complete: function () {
+                                            modal.remove();
+                                        }
+                                    });
+                                    var extra =  (type !== undefined && type == 'quote') ? (' %0D%0A' + $('#tweet-' + data + ' .card-title #username').attr('href') + '/status/' + data) : '';
+                                    var tweet = {status: $('#modal' + modalNumber + ' form').find('textarea').val(), media_ids: media_ids.join(",")};
+                                    $.when(cDeck.postStatus(tweet)).then($('#modal' + modalNumber).closeModal(), modal.closeModal(), window.$tweetFile = []);
+                                }
+                            } else {
+                                Materialize.toast('Upload failed', 2000);
+                                $('#media-'+index+' #loader').fadeOut(350, function(){
+                                    $('#media-'+index+' #loader .indeterminate').width('0%').removeClass('indeterminate').addClass('determinate');
+                                });
+                            }
+                        },
+                        error: function(xhr, e){
+                            Materialize.toast('Error while uploading media '+(index + 1)+'/'+$tweetFile.length, 2000);
+                            console.error(e);
+                        },
+                        xhr: function() {
+                            var xhr = new window.XMLHttpRequest();
+                            xhr.upload.addEventListener("progress", function(evt){
+                                if (evt.lengthComputable) {
+                                    var percentComplete = (evt.loaded / evt.total) * 100;
+                                    //Do something with upload progress
+                                    $('#media-'+index+' #loader .determinate').width(percentComplete+'%');
+                                    if(percentComplete == 100){
+                                        $('#media-'+index+' #loader .determinate').removeClass('determinate').addClass('indeterminate');
+                                    }
+                                }
+                            }, false);
+                            return xhr;
+                        }
+                    });
+                });
+
+            } else if (typeof $voiceblob != 'undefined' && type === undefined ){
+                modal.openModal({
+                    dismissible: false, ready: function () {
+                        $('#modal' + modalNumber2 + '-content').text(lang.external.one_moment);
+                        $('#preloader' + modalNumber2).show();
+                    }, complete: function() {
+                        modal.remove();
+                    }
+                });
                 var reader = new window.FileReader(),
                     fD = new FormData();
                 reader.readAsDataURL($voiceblob);
@@ -421,7 +533,7 @@
                         contentType: false,
                         success: function(e){
                             if(e.response === true){
-                                cDeck.postStatus($('#modal' + modalNumber + ' form').serialize() + ' %0D%0A' + e.path);
+                                $.when(cDeck.postStatus($('#modal' + modalNumber + ' form').find('textarea').val() + ' ' + e.path)).then($('#modal' + modalNumber).closeModal(), modal.closeModal());
                             }else{
                                 modal.closeModal();
                                 throw new CDeckError('Couldn\'t upload voice message');
@@ -434,10 +546,19 @@
                     });
                 };
             }else{
+                modal.openModal({
+                    dismissible: false, ready: function () {
+                        $('#modal' + modalNumber2 + '-content').text(lang.external.one_moment);
+                        $('#preloader' + modalNumber2).show();
+                    }, complete: function() {
+                        modal.remove();
+                    }
+                });
                 var extra =  (type !== undefined && type == 'quote') ? (' %0D%0A' + $('#tweet-' + data + ' .card-title #username').attr('href') + '/status/' + data) : '';
-                cDeck.postStatus($(this).serialize() + extra);
+                var tweet = {status: $(this).find('textarea').val()};
+                if($('#modal' + modalNumber + ' form input[name="in_reply_to_status_id"]'))tweet.in_reply_to_status_id = $('#modal' + modalNumber + ' form input[name="in_reply_to_status_id"]').val();
+                $.when(cDeck.postStatus(tweet)).then($('#modal' + modalNumber).closeModal(), modal.closeModal());
             }
-            $('#modal' + modalNumber).closeModal().remove();
         });
     };
 
