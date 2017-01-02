@@ -113,7 +113,7 @@ class AuthController extends Controller
 
             return Redirect::route('twitter.error')->with('flash_error', 'Crab! Something went wrong while signing you up!');
         }
-        return App::abort(500);
+        #return App::abort(500);
     }
 
     /**
@@ -130,7 +130,7 @@ class AuthController extends Controller
         if(Auth::check()){
             $authUser = Auth::user();
         }else{
-            $authUser = User::where('handle', $twitterUser->screen_name)->first();
+            $authUser = User::where('twitter_id', $twitterUser->id_str)->first();
         }
         $request = Request();
 
@@ -143,12 +143,12 @@ class AuthController extends Controller
             return false;
         }
         if ($authUser OR $create == true){
-            if(!DB::table('users')->where('handle', $twitterUser->screen_name)->first())
+            if(!DB::table('users')->where('twitter_id', $twitterUser->id_str)->first())
             {
                 DB::table('users')->insert([
                     'name' => base64_encode($twitterUser->name),
                     'handle' => $twitterUser->screen_name,
-                    'twitter_id' => $twitterUser->id,
+                    'twitter_id' => $twitterUser->id_str,
                     'token' => json_encode($token),
                     'media' => json_encode([
                         'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
@@ -158,6 +158,11 @@ class AuthController extends Controller
                         'access_level' => 0
                     ])
                 ]);
+            } else {
+                $authUser->token = json_encode($token);
+                $authUser->media = json_encode([
+                    'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
+                    'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246']);
             }
             $authorized = json_decode($authUser->authorized, true) ?: [];
             if($twitterUser->screen_name !== $authUser->handle){
