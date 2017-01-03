@@ -423,26 +423,6 @@
                 $('#modal' + modalNumber).remove()
             }
         });
-        $('#modal' + modalNumber + ' form').find('textarea').pasteImageReader(function(results){
-            if(window.$tweetFile.length < 4 && window.$tweetFile.find(function(object){return (object.type === 'video' || object.type === 'gif')}) === undefined){
-                window.$tweetFile.forEach(function(object){
-                    if(results.file === object.file)return Materialize.toast('File already added', 2000);
-                });
-                if(results.file.size > 3145728)return Materialize.toast('Pasted image above 3MB file limit', 2000);
-                window.$tweetFile.push({file: results.file, type: 'image'});
-                var html = '<div class="row z-depth-2" style="padding:1rem;" id="image-holder"><div class="col s3" id="media-'+$tweetFile.length+'"><div style="display:none;height:100%;width:100%;position:fixed;background-color:rgba(0,0,0,0.6);border-radius: 10%;" class="valign-wrapper" id="loader"><div class="progress"><div class="determinate" style="width: 0"></div></div></div><img class="responsive-img" src="'+results.dataURL+'"></div>';
-                if($('#image-holder').length == 0){
-                    $(html).prependTo('#modal' + modalNumber + '-content');
-                } else {
-                    $(html).find('.col.s3').clone().appendTo('#image-holder')
-                }
-            } else if(window.$tweetFile.length < 4){
-                Materialize.toast('You can only send one video or gif alone at the time', 3000);
-            } else {
-                Materialize.toast('You cannot drop more fies', 3000);
-                console.warn('cDeck: Either 4 image or 1 video/gif limit reached. Object: \n'+JSON.stringify(window.$tweetFile));
-            }
-        });
         $('#modal' + modalNumber + ' form').submit(function (event) {
             event.preventDefault();
             event.stopPropagation();
