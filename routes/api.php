@@ -23,6 +23,7 @@ Route::group(['prefix' => 'twitter', 'middleware' => 'api'], function ()
     Route::get('getToken', 'ApiController@getToken');
     Route::get('tconfig', 'ApiController@tconfig');
     Route::post('upload', 'ApiController@upload');
+    Route::get('upload/status', 'ApiController@upload_status');
 });
 
 Route::group(['prefix' => 'debug', 'middleware' => 'api'], function ()

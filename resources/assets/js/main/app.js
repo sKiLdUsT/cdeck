@@ -101,6 +101,15 @@ function cDeckInit ( action, data ){
             }
             $('.bottom-sheet').closeModal();
             $('.bottom-sheet').remove();
+            Materialize.toast('Tweet sent', 2000);
+            break;
+        case 'client_tweet_error':
+            if (typeof $voiceblob != 'undefined'){
+                window.$voiceblob = undefined
+            }
+            $('.bottom-sheet').closeModal();
+            $('.bottom-sheet').remove();
+            Materialize.toast('Failed to sent tweet: '+data, 2000);
             break;
         case 'client_retweet_sent':
             Materialize.toast('Retweeted.', 2000);
@@ -111,6 +120,9 @@ function cDeckInit ( action, data ){
             break;
         case 'client_like_sent':
             $('#tweet-' + data + ' #like').html('<i class="material-icons">favorite</i>');
+            break;
+        case 'client_removedTweet':
+            Materialize.toast('Tweet deleted', 2000);
             break;
     }
     return true;
@@ -216,6 +228,16 @@ $(function(){
     if ( window.location.pathname == '/' ) {
         window.$tweetFile = [];
 
+        // We have to periodically clean up our modals since
+        // Materialize is too stupid to fire our cleanup callback
+        setInterval(function(){
+            $('.modal').each(function(){
+                if(!$(this).is(':visible')){
+                    $(this).remove();
+                }
+            })
+        }, 1000);
+
         // Set main section to fixed
         $( 'body > .section > main' ).css( 'position', 'fixed' );
         // Add client event listeners when window is ready
@@ -273,25 +295,29 @@ $(function(){
                                 if(duration > 140)return Materialize.toast('File '+(i+1)+'/'+files.length+' above 1:20 duration limit',2000);
                                 window.$tweetFile.push({file: files[i], type: 'video'})
                             } else if (window.$tweetFile.length !== 0){
-                                Materialize.toast('You can\'t mix videos/gifs and images', 3000);
+                               return Materialize.toast('You can\'t mix videos/gifs and images', 3000);
                             } else {
-                                Materialize.toast('Unsupported file type', 3000);
-                                return;
+                                return Materialize.toast('Unsupported file type', 3000);
                             }
                         } else if(window.$tweetFile.length < 4){
-                            Materialize.toast('You can only send one video or gif alone at the time', 3000);
+                            return Materialize.toast('You can only send one video or gif alone at the time', 3000);
                         } else {
                             Materialize.toast('You cannot drop more files', 3000);
-                            console.warn('cDeck: Either 4 image or 1 video/gif limit reached. Object: \n'+JSON.stringify(window.$tweetFile));
+                            return console.warn('cDeck: Either 4 image or 1 video/gif limit reached. Object: \n'+JSON.stringify(window.$tweetFile));
                         }
                         if($('.modal').length == 0) {
                             renderer.newTweet();
                         } else {
-                            var html = '<div class="col s3" id="media-'+window.$tweetFile.length+'"><div style="display:none;height:100%;width:100%;position:fixed;background-color:rgba(0,0,0,0.6);border-radius: 10%;" class="valign-wrapper" id="loader"><div class="progress"><div class="determinate" style="width: 0"></div></div></div> ';
+                            if(!$('.modal').is(':visible')){
+                                $('.modal').remove();
+                                return renderer.newTweet();
+                            }
+                            if(!$('#image-holder').is(':visible'))$('#image-holder').fadeIn();
+                            var html = '<div class="col s3" id="media-'+(window.$tweetFile.length - 1)+'"><div style="display:none;height:100%;width:100%;position:fixed;background-color:rgba(0,0,0,0.6);border-radius: 10%;" class="valign-wrapper" id="iloader"><div class="progress"><div class="determinate" style="width: 0"></div></div></div> ';
                             if(files[i].type == 'image/png' || files[i].type == 'image/jpeg' || files[i].type == 'image/webp' || files[i].type == 'image/gif'){
-                                html += '<img class="responsive-img" src="'+URL.createObjectURL(files[i])+'"></div>'
+                                html += '<img id="tweetMedia" class="responsive-img" src="'+URL.createObjectURL(files[i])+'"></div>'
                             } else if(files[i].type === 'video/mp4'){
-                                html += '<video class="responsive-video" controls><source src="'+URL.createObjectURL(files[i])+'" type="'+files[i].type+'"></video></div>'
+                                html += '<video id="tweetMedia" class="responsive-video" controls><source src="'+URL.createObjectURL(files[i])+'" type="'+files[i].type+'"></video></div>'
                             }
                             $(html).appendTo('#image-holder');
                         }
@@ -301,20 +327,17 @@ $(function(){
                     console.warn('cDeck: Either 4 image or 1 video limit reached. Object: \n'+JSON.stringify(window.$tweetFile));
                 }
             });
-    $('body').pasteImageReader(function(results){
-            if($('.modal').length === 0)renderer.newTweet();
+        $('body').pasteImageReader(function(results){
+            if(!$('.modal').is(':visible'))renderer.newTweet();
             if(window.$tweetFile.length < 4 && window.$tweetFile.find(function(object){return (object.type === 'video' || object.type === 'gif')}) === undefined){
                 window.$tweetFile.forEach(function(object){
                     if(results.file === object.file)return Materialize.toast('File already added', 2000);
                 });
                 if(results.file.size > 3145728)return Materialize.toast('Pasted image above 3MB file limit', 2000);
                 window.$tweetFile.push({file: results.file, type: 'image'});
-                var html = '<div class="row z-depth-2" style="padding:1rem;" id="image-holder"><div class="col s3" id="media-'+$tweetFile.length+'"><div style="display:none;height:100%;width:100%;position:fixed;background-color:rgba(0,0,0,0.6);border-radius: 10%;" class="valign-wrapper" id="loader"><div class="progress"><div class="determinate" style="width: 0"></div></div></div><img class="responsive-img" src="'+results.dataURL+'"></div>';
-                if($('#image-holder').length == 0){
-                    renderer.newTweet();
-                } else {
-                    $(html).appendTo('#image-holder')
-                }
+                var html = '<div class="col s3" id="media-'+(window.$tweetFile.length - 1)+'"><div style="display:none;height:100%;width:100%;position:fixed;background-color:rgba(0,0,0,0.6);border-radius: 10%;" class="valign-wrapper" id="iloader"><div class="progress"><div class="determinate" style="width: 0"></div></div></div><img id="tweetMedia" class="responsive-img" src="'+results.dataURL+'"></div>';
+                if(!$('#image-holder').is(':visible'))$('#image-holder').fadeIn();
+                $(html).appendTo('#image-holder');
             } else if(window.$tweetFile.length < 4){
                 Materialize.toast('You can only send one video or gif alone at the time', 3000);
             } else {

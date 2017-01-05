@@ -255,23 +255,53 @@ class ApiController extends Controller
         }
 
         if(Auth::user()) {
-            // return response()->json(['response' => false, 'data' => $request->input('data')]);
-            if ($request->file('data')->isValid()) {
-                $file = fsplit($request->file('data')->path());
-                $mID = Twitter::query('media/upload', 'POST', ["command" => "INIT", "total_bytes" => filesize($request->file('data')->path()), "media_type" => $request->input('type')], true);
-                $mID = $mID->media_id;
-                foreach ($file as $index => $chunk) {
-                    Twitter::query('media/upload', 'POST', ["command" => "APPEND", "media_id" => $mID, "segment_index" => $index, "media" => $chunk], true);
-                }
-                $final = Twitter::query('media/upload', 'POST', ["command" => "FINALIZE", "media_id" => $mID], true);
-                if (isset($final->processing_info)) {
-                    return response()->json(['response' => true, 'is_pending' => true, "data" => $final]);
-                } else {
-                    return response()->json(['response' => true, 'is_pending' => false, "data" => $final]);
+            if ($request->hasFile('data') && $request->file('data')->isValid())
+            {
+                try
+                {
+                    $file = fsplit($request->file('data')->path());
+                    $params = ["command" => "INIT", "total_bytes" => filesize($request->file('data')->path()), "media_type" => $request->input('type')];
+                    if($request->input('type') == 'video/mp4')$params["media_category" ] = 'tweet_video';
+                    $mID = Twitter::query('media/upload', 'POST', $params, true);
+                    $mID = $mID->media_id;
+                    foreach ($file as $index => $chunk)
+                    {
+                        Twitter::query('media/upload', 'POST', ["command" => "APPEND", "media_id" => $mID, "segment_index" => $index, "media" => $chunk], true);
+                    }
+                    $final = Twitter::query('media/upload', 'POST', ["command" => "FINALIZE", "media_id" => $mID], true);
+                    if (isset($final->processing_info) && $final->processing_info->state == 'pending')
+                    {
+                        return response()->json(['response' => true, 'is_pending' => true, "data" => $final]);
+                    } else
+                    {
+                        return response()->json(['response' => true, 'is_pending' => false, "data" => $final]);
+                    }
+                } catch (\Exception $e)
+                {
+                    return response()->json(['response' => false]);
                 }
             }
             return response()->json(['response' => false]);
         }
         return response()->json(['response' => false]);
+    }
+
+    # Function to check Twitter async upload status
+    public function upload_status(Request $request)
+    {
+        $id = $request->input('id');
+        if($id){
+            try
+            {
+                $status = Twitter::query('media/upload', 'GET', ["command" => "STATUS", "media_id" => $id], true);
+                if($status->processing_info->state == 'succeeded')return response()->json(['response' => true, 'data' => $status]);
+                else if($status->processing_info->state == 'failed')http_response_code(500);return response()->json(['response' => false, 'data' => $status]);
+            }catch (\Exception $e)
+            {
+                return response()->json(['response' => true]);
+                //return App::abort(500, 'Twitter API failed');
+            }
+        }
+        return App::abort(400, 'Bad Request');
     }
 }

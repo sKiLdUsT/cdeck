@@ -41,6 +41,24 @@ class HomeController extends Controller
         # Get and parse uconfig
         $this->uconfig = json_decode($this->user->uconfig);
 
+        # Check, if user tokens are still fresh.
+        # This is not the case f.e. if the user deactivated themself in the past or
+        # revoked access in Twitter Settings
+        # Then we just redirect them back to login.
+        # This is also a great opportunity to update user media since we get a
+        # full user object back from Twitter
+        try {
+            $data = Twitter::query('account/verify_credentials', 'GET');
+            $this->user->media = json_encode([
+                'avatar' => $data->profile_image_url_https,
+                'banner' => $data->profile_banner_url]);
+            $this->user->name = $data->name;
+            $this->user->handle = $data->screen_name;
+            $this->user->save();
+        } catch (\Exception $e){
+            return redirect(route('login'));
+        }
+
         # Get accounts the user has access to
         # We use a bit odd approach here, just let it be unless it broke down.
         $accs = $this->user->handle;
@@ -65,16 +83,6 @@ class HomeController extends Controller
         # Sometime it gets unset, for whatever reason. Don't ask me!
         if (!$request->session()->has('access_token')) {
             $request->session()->put('access_token', json_decode($this->user->token, true));
-        }
-
-        # Check, if user tokens are still fresh.
-        # This is not the case f.e. if the user deactivated themself in the past or
-        # revoked access in Twitter Settings
-        # Then we just redirect them back to login.
-        try {
-            Twitter::query('account/verify_credentials', 'GET');
-        } catch (\Exception $e){
-            return redirect(route('login'));
         }
 
         # Site-specific vars for view

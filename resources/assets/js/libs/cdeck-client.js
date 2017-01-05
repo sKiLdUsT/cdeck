@@ -242,17 +242,14 @@
         // Only executes if socket is present.
         // Otherwise throws an error.
         if ( this.socket ) {
-            this.socket.emit( 'postStatus', {
-                tweet: data,
-                api_token: this.user.api_token
-                }, function ( response ) {
-                    if ( response.result === true ) {
-                        // Instructions on how to handle this event used to be here.
-                        self.callback( 'client_tweet_sent' );
-                    } else {
-                        self.callback( 'client_tweet_error' );
-                        throw new CDeckError( 'Tweet failed: ' + response.twitter.message );
-                    }
+            this.socket.emit( 'postStatus', {tweet: data, api_token: this.user.api_token}, function ( response ) {
+                if ( response.result === true ) {
+                    // Instructions on how to handle this event used to be here.
+                    self.callback( 'client_tweet_sent' );
+                } else {
+                    self.callback( 'client_tweet_error', response.twitter.message );
+                    throw new CDeckError( 'Tweet failed: ' + response.twitter.message );
+                }
             });
         } else {
             throw new CDeckError( 'No socket present' );
@@ -322,6 +319,18 @@
         });
         self = this;
         return this;
+    };
+
+    // Function to delete tweet
+    Cdeck.prototype.removeTweet = function( id ){
+        this.socket.emit( 'remove', {api_token: this.user.api_token, id: id}, function( response ){
+            if(response.result == true){
+                // Emit event.
+                self.callback( 'client_removedTweet', response );
+            } else {
+                throw new CDeckError( 'Delete failed: ' + response.twitter.message );
+            }
+        });
     };
 
     // Function to close the socket
