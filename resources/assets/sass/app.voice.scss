@@ -4,8 +4,6 @@ body {
   background: no-repeat fixed center center;
   background-size: cover;
   height: 100vh;
-  min-height: 374px;
-  min-width: 490px;
   .section {
     height: 100%;
     display: flex;
@@ -31,5 +29,17 @@ body {
         padding: 0 !important;
       }
     }
+  }
+}
+
+@media only screen and (min-width: 265px) {
+  div.user{
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 490px) {
+  div.user{
+    display: inherit;
   }
 }

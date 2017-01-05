@@ -15,7 +15,7 @@
                     </div>
                     <div class="white-text info">
                         <div id="name">
-                            <h3>{{base64_decode($user->name)}}</h3>
+                            <h3>{{$user->name}}</h3>
                         </div>
                         <div id="misc">
                             <div id="handle">

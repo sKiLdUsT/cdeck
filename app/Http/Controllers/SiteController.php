@@ -93,18 +93,18 @@ class SiteController extends Controller
 
         # Construct new user object for view
         $user = (object) [
-            "name" => $user->name,
+            "name" => base64_decode($user->name),
             "handle" => $user->handle,
             "avatar" => json_decode($user->media)->avatar,
             "banner" => json_decode($user->media)->banner
         ];
 
         # Site-specific vars for view
-        $title = base64_decode($user->name).'\'s Voice Message - ';
+        $title = $user->name.'\'s Voice Message - ';
         $deliver = $request->input('deliver', 'null');
         $url = $vm->path;
         $time = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $vm->created_at)->formatLocalized('%A, %d %B %Y %R %Z');
-
+        $voice = true;
 
         # Return view
         return view('voice', compact('title', 'deliver', 'voice', 'user', 'url', 'time'));

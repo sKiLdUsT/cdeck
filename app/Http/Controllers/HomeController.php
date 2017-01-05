@@ -52,7 +52,7 @@ class HomeController extends Controller
             $this->user->media = json_encode([
                 'avatar' => $data->profile_image_url_https,
                 'banner' => $data->profile_banner_url]);
-            $this->user->name = $data->name;
+            $this->user->name = base64_encode($data->name);
             $this->user->handle = $data->screen_name;
             $this->user->save();
         } catch (\Exception $e){

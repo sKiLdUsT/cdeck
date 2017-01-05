@@ -57,18 +57,16 @@
                 if(item.expanded_url.match(/(?:https:\/\/)?(?:cdeck\.?|dev\.cdeck\.)?(?:skil\.pw?|net)\/(?:voice\/)(.+)/g)){
                     cards = {
                         tweet: tweet.replace(item.url, ''),
-                        card: '<iframe src="'+item.expanded_url+'" height="375px" width="100%" style="border: 0" class="z-depth-2"></iframe>'
+                        card: '<iframe src="'+item.expanded_url+'" height="100%" width="100%" style="border: 0" class="z-depth-2"></iframe>'
                     };
-                    return cards;
-                }
-                if (uid = item.expanded_url.match(/(?:http:\/\/|https:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/)){
-                    cards = {
+                } else if (uid = item.expanded_url.match(/(?:http:\/\/|https:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/)){
+                    cards =  {
                         tweet: tweet.replace(item.url, ''),
                         card: '<div class="video-container z-depth-2"><iframe width="100%" height="315" src="https://www.youtube.com/embed/'+uid[1]+'" frameborder="0" allowfullscreen></iframe></div>'
                     };
-                    return cards;
                 }
             });
+            return cards;
         },
         linkText: function( data ){
             var tweet, cards, marray = [], fav;
@@ -77,6 +75,7 @@
                 type = self.helper.type(data);
                 tweet = type.text;
                 cards = self.helper.linkCards(type.entities.urls, tweet);
+                console.log(cards);
                 if (data.quoted_status !== undefined) {
                     tweet = {
                         'main': tweet.replace(/(?:https?|http):\/\/[\n\S]+/g, ''),
@@ -85,7 +84,6 @@
                 } else {
                     tweet = twttr.txt.autoLink(type.text, {urlEntities: type.entities.urls});
                 }
-                console.log(cards);
                 if(typeof cards == 'object'){
                     if( tweet.sec !== undefined ){
                         tweet.main = cards.tweet + cards.card
@@ -440,7 +438,7 @@
         $('#modal' + modalNumber + ' form').submit(function (event) {
             event.preventDefault();
             event.stopPropagation();
-            if(($tweetFile.length == 0 && $(this).find('textarea').val() == ''))return Materialize.toast('Empty tweet', 3000);
+            if(($tweetFile.length == 0 && typeof $voiceblob == 'undefined' && $(this).find('textarea').val() == ''))return Materialize.toast('Empty tweet', 3000);
             var modalNumber2 = spawnModal();
             var modal = $('#modal' + modalNumber2);
             modal.addClass('bottom-sheet');
