@@ -271,8 +271,10 @@ $(function () {
         });
         $('#settings input[type="checkbox"]').on('click', function (event) {
             var id = $(this).attr('id').replace('-',''),
-                value = $(this).is(':checked');
-            changeUconfig({[id]: value}, function(result){
+                value = $(this).is(':checked'),
+                object = {};
+            object.id = value;
+            changeUconfig(object, function(result){
                 if(result === true){
                     switch(id){
                         case 'roundpb':
