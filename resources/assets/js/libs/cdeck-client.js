@@ -333,6 +333,23 @@
         });
     };
 
+    Cdeck.prototype.getUserInfo = function( handle, callback ){
+        this.socket.emit( 'getUser', {api_token: this.user.api_token, handle: handle}, function( response ){
+            if(response.result == true){
+                // Emit event.
+                self.callback( 'client_gotUserInfo', response );
+                // Also call custom callback, if given
+                if(callback !== undefined && typeof callback == 'function'){
+                    callback(response.data)
+                }
+            } else {
+                self.callback( 'client_getUserInfoFailed', response );
+                callback({failed: true, reason: response.twitter.message});
+                throw new CDeckError( 'Getting user info failed: ' + response.twitter.message );
+            }
+        });
+    };
+
     // Function to close the socket
     Cdeck.prototype.close = function(){
         this.socket.emit( 'disconnect', this.user.api_token );

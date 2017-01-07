@@ -322,6 +322,16 @@
                     cDeck.removeTweet(data.id_str);
                 });
             }
+            $('#tweet-' + data.id_str+' a#username').click(function(e){
+                e.preventDefault();
+                self.userInfo(($(this).attr('href')).replace('https://twitter.com/', ''));
+            });
+            $('#tweet-' + data.id_str+' a.username').each(function(){
+                $(this).click(function(e){
+                    e.preventDefault();
+                    self.userInfo(($(this).attr('href')).replace('https://twitter.com/', ''));
+                });
+            });
             $('.dropdown-button').dropdown();
             $('.slider').slider({full_width: true,indicators: false});
         } else if ( data.delete !== undefined ) {
@@ -330,6 +340,16 @@
             if(( ( data.object !== undefined && data.object.screen_name !== cDeck.user.screen_name) || (data.source !== undefined && data.source.screen_name !== cDeck.user.screen_name) ) ){
                 finalTweet = this.helper.favoriteContent( data );
                 this.templater.notification( data.id_str, extra, finalTweet );
+                $('#notifications a#username').first().click(function(e){
+                    e.preventDefault();
+                    self.userInfo(($(this).attr('href')).replace('https://twitter.com/', ''));
+                });
+                $('#notifications div.card:first a.username').each(function(){
+                    $(this).click(function(e){
+                        e.preventDefault();
+                        self.userInfo(($(this).attr('href')).replace('https://twitter.com/', ''));
+                    });
+                });
                 if($app.state == "ready" && window.uconfig.notifications == "true" && !windowIsVisible()){
                     var Notify = window.Notify.default;
                     if (!Notify.needsPermission) {
@@ -342,6 +362,50 @@
                 }
             }
         }
+    };
+
+    Renderer.prototype.userInfo = function( handle ){
+        if(handle === undefined){
+            return false;
+        }
+        var modalNumber = spawnModal(),
+            colormode = uconfig.colormode == "1" ? 'grey darken-4 white-text' : '',
+            rpb = '',
+            btn_follow = '<button class="btn waves-effect waves-light blue">Follow</button>',
+            icons = '';
+        if (window.uconfig.roundpb == "true") {
+            rpb = "circle"
+        }
+        $('#modal' + modalNumber + ' .modal-content').html('<div class="valign-wrapper z-depth-2" style="height:250px;background-color: grey"><div class="preloader-wrapper big active"> <div class="spinner-layer spinner-blue"> <div class="circle-clipper left"> <div class="circle"></div> </div> <div class="gap-patch"> <div class="circle"></div> </div> <div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-red"> <div class="circle-clipper left"> <div class="circle"></div> </div> <div class="gap-patch"> <div class="circle"></div> </div> <div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-yellow"> <div class="circle-clipper left"> <div class="circle"></div> </div> <div class="gap-patch"> <div class="circle"></div> </div> <div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-green"> <div class="circle-clipper left"> <div class="circle"></div> </div> <div class="gap-patch"> <div class="circle"></div> </div> <div class="circle-clipper right"> <div class="circle"></div> </div> </div> </div></div>');
+        $('#modal' + modalNumber).css({backgroundColor: 'transparent', boxShadow: 'none'}).removeClass('grey darken-3').openModal({
+            dismissible: true,
+            opacity: .5,
+            complete: function () {
+                $('#modal' + modalNumber).remove()
+            }
+        });
+        cDeck.getUserInfo(handle, function(data) {
+            if(data.failed !== undefined && data.failed == true){
+                Materialize.toast('Couldn\'t get user info: '+data.reason, 2000);
+                $('.lean-overlay').last().trigger('click');
+            }
+            if(data.following == true){
+                btn_follow = '<button class="btn waves-effect waves-light white black-text">Following</button>';
+            }
+            if(data.protected == true){
+                icons = icons + '<i class="material-icons">lock</i>'
+            }
+            if(data.verified == true){
+                icons = icons + '<i class="material-icons">check_circle</i>'
+            }
+            $('#modal' + modalNumber + ' .modal-content').html('<div class="valign-wrapper z-depth-2" style="background: url(\'' + data.profile_banner_url + '\') no-repeat fixed center center;background-size: cover;"><div class="container" style="background-color:rgba(0,0,0,0.5);height:100%;padding: 0 1rem;"><div class="valign"><br><h4 id="modal-header"><img src="' + data.profile_image_url_https + '" alt="Profilbild" class="' + rpb + ' responsive-img">' + data.name + icons + '</h4><p><a target="_blank"id="username" href="https://twitter.com/' + data.screen_name + '">@' + data.screen_name + '</a></p><p>' + twttr.txt.autoLink(data.description, {urlEntities: data.entities.description.urls}) + '</p><div class="divider"></div><br><div class="row"><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '"><div class="col s2 right-border"><p><b>'+data.statuses_count+'</b><br>Tweets</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/following"><div class="col s2 right-border"><p><b>'+data.friends_count+'</b><br>Following</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/followers"><div class="col s2 right-border"><p><b>' + data.followers_count + '</b><br>Follower</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/memberships"><div class="col s2"><p><b>'+data.listed_count+'</b><br>Listed</p></div></a><div class="col s4">'+btn_follow+'</div></div></div></div></div>')
+            $('#modal' + modalNumber + ' a.username').each(function(){
+                $(this).click(function(e){
+                    e.preventDefault();
+                    self.userInfo(($(this).attr('href')).replace('https://twitter.com/', ''));
+                });
+            });
+        })
     };
 
     Renderer.prototype.newTweet = function (type, data) {
