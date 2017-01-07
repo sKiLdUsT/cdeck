@@ -550,7 +550,7 @@
                         contentType: false,
                         success: function(e){
                             if(e.response === true){
-                                $.when(cDeck.postStatus({status: $('#modal' + modalNumber + ' form').find('textarea').val() + e.path})).then($('#modal' + modalNumber).closeModal(), modal.closeModal());
+                                $.when(cDeck.postStatus({status: $('#modal' + modalNumber + ' form').find('textarea').val() + ' ' + e.path})).then($('#modal' + modalNumber).closeModal(), modal.closeModal());
                             }else{
                                 modal.closeModal();
                                 throw new CDeckError('Couldn\'t upload voice message');
