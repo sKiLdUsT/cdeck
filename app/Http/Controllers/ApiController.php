@@ -150,7 +150,7 @@ class ApiController extends Controller
                             session()->put('notifications', $value);
                             break;
                         case "access_level":
-                            return json_encode(["response" => "unauthorized"]);
+                            return response()->json(["response" => "unauthorized"]);
                             break;
                         case "activeID":
                             $uconfig->activeID = $value;
@@ -289,15 +289,29 @@ class ApiController extends Controller
     # Function to check Twitter async upload status
     public function upload_status(Request $request)
     {
+        # Only continue if id is set
         $id = $request->input('id');
-        if($id){
+        if($id)
+        {
             try
             {
                 $status = Twitter::query('media/upload', 'GET', ["command" => "STATUS", "media_id" => $id], true);
-                if($status->processing_info->state == 'succeeded')return response()->json(['response' => true, 'data' => $status]);
-                else if($status->processing_info->state == 'failed')http_response_code(500);return response()->json(['response' => false, 'data' => $status]);
+                if($status->processing_info->state == 'succeeded')
+                {
+                    return response()->json(['response' => true, 'data' => $status]);
+                }
+                else if($status->processing_info->state == 'failed')
+                {
+                    http_response_code(500);
+                    return response()->json(['response' => false, 'data' => $status]);
+                }
+                else return response()->json(['response' => false, 'data' => $status]);
             }catch (\Exception $e)
             {
+                # For some odd reason, Twitter API likes to throw "400 Unknown Error"
+                # when checking for async media processing status
+                # For now it's sufficient to just tell the client everything finished.
+                # Definitely have to look into that again (Maybe when the docs aren't broken anymore)
                 return response()->json(['response' => true]);
                 //return App::abort(500, 'Twitter API failed');
             }

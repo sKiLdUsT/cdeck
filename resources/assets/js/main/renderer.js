@@ -330,12 +330,12 @@
             if(( ( data.object !== undefined && data.object.screen_name !== cDeck.user.screen_name) || (data.source !== undefined && data.source.screen_name !== cDeck.user.screen_name) ) ){
                 finalTweet = this.helper.favoriteContent( data );
                 this.templater.notification( data.id_str, extra, finalTweet );
-                if($app.state == "ready" && window.uconfig.notifications == "true"){
+                if($app.state == "ready" && window.uconfig.notifications == "true" && !windowIsVisible()){
                     var Notify = window.Notify.default;
                     if (!Notify.needsPermission) {
                         var myNotification = new Notify('cDeck', {
-                            body: finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
-                            icon: '/assets/img/logo.png'
+                            body: '@'+finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
+                            icon: finalTweet.source.profile_image_url_https
                         });
                         myNotification.show();
                     }
@@ -550,7 +550,7 @@
                         contentType: false,
                         success: function(e){
                             if(e.response === true){
-                                $.when(cDeck.postStatus($('#modal' + modalNumber + ' form').find('textarea').val() + ' ' + e.path)).then($('#modal' + modalNumber).closeModal(), modal.closeModal());
+                                $.when(cDeck.postStatus({status: $('#modal' + modalNumber + ' form').find('textarea').val() + e.path})).then($('#modal' + modalNumber).closeModal(), modal.closeModal());
                             }else{
                                 modal.closeModal();
                                 throw new CDeckError('Couldn\'t upload voice message');

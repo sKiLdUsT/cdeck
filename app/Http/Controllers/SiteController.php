@@ -30,6 +30,7 @@ class SiteController extends Controller
         App::setlocale(Request()->input('lang', (!is_null(Auth::user()) && isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
 
         # Get Client build info from cache (refreshed every 5 minutes through cron)
+        # Otherwise just set it.
         $this->clients = Cache::remember('clients', 5, function () {
             return json_decode(file_get_contents('https://cdn.skildust.com/dl/cdeck/meta.json'));
         });
