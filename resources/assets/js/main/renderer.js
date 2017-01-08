@@ -82,7 +82,7 @@
                         'sec': data.quoted_status.text
                     };
                 } else {
-                    tweet = twttr.txt.autoLink(type.text, {urlEntities: type.entities.urls});
+                    tweet = twttr.txt.autoLink(type.text, {urlEntities: type.entities.urls}, {targetBlank: true}).replace(/(?:@<(?:[^>]+)>)([^<]+)(?:[^>]+>)/g, '<a target="_blank" class="username" href="https://twitter.com/$1">@$1</a>');
                 }
                 if(typeof cards == 'object'){
                     if( tweet.sec !== undefined ){
@@ -116,7 +116,7 @@
         linkMedia: function ( data ) {
             var medialink,
                 type = self.helper.type(data),
-                tweet = twttr.txt.autoLink(type.text, {urlEntities: type.entities.urls});
+                tweet = twttr.txt.autoLink(type.text, {urlEntities: type.entities.urls}).replace(/(?:@<(?:[^>]+)>)([^<]+)(?:[^>]+>)/g, '<a target="_blank" class="username" href="https://twitter.com/$1">@$1</a>');
             if (data.extended_entities !== undefined && data.extended_entities.media !== undefined) {
                 if(type.extended_entities.media[0].type == 'photo'){
                     if(type.extended_entities.media.length > 1){
@@ -167,7 +167,7 @@
                     tweet = '';
                 }
             }
-            tweet = tweet !== undefined ? tweet : twttr.txt.autoLink(target.text, {urlEntities: target.entities.urls});
+            tweet = tweet !== undefined ? tweet : twttr.txt.autoLink(target.text, {urlEntities: target.entities.urls}).replace(/(?:@<(?:[^>]+)>)([^<]+)(?:[^>]+>)/g, '<a target="_blank" class="username" href="https://twitter.com/$1">@$1</a>');
             return {original: data, tweet: tweet, type: type, source: source, target: target};
         }
     };
@@ -407,7 +407,7 @@
             if(data.verified == true){
                 icons = icons + '<i class="material-icons">check_circle</i>'
             }
-            $('#modal' + modalNumber + ' .modal-content').html('<div class="valign-wrapper z-depth-2" style="background: url(\'' + data.profile_banner_url + '\') no-repeat fixed center center;background-size: cover;"><div class="container" style="background-color:rgba(0,0,0,0.5);height:100%;padding: 0 1rem;"><div class="valign"><br><h4 id="modal-header"><img src="' + data.profile_image_url_https + '" alt="Profilbild" class="' + rpb + ' responsive-img">' + data.name + icons + '</h4><p><a target="_blank"id="username" href="https://twitter.com/' + data.screen_name + '">@' + data.screen_name + '</a></p><p>' + twttr.txt.autoLink(data.description, {urlEntities: data.entities.description.urls}) + '</p><div class="divider"></div><br><div class="row"><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '"><div class="col s2 right-border"><p><b>'+data.statuses_count+'</b><br>Tweets</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/following"><div class="col s2 right-border"><p><b>'+data.friends_count+'</b><br>Following</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/followers"><div class="col s2 right-border"><p><b>' + data.followers_count + '</b><br>Follower</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/memberships"><div class="col s2"><p><b>'+data.listed_count+'</b><br>Listed</p></div></a><div class="col s4">'+btn_follow+'</div></div></div></div></div>')
+            $('#modal' + modalNumber + ' .modal-content').html('<div class="valign-wrapper z-depth-2" style="background: url(\'' + data.profile_banner_url + '\') no-repeat fixed center center;background-size: cover;"><div class="container" style="background-color:rgba(0,0,0,0.5);height:100%;padding: 0 1rem;"><div class="valign"><br><h4 id="modal-header"><img src="' + data.profile_image_url_https + '" alt="Profilbild" class="' + rpb + ' responsive-img">' + data.name + icons + '</h4><p><a target="_blank"id="username" href="https://twitter.com/' + data.screen_name + '">@' + data.screen_name + '</a></p><p>' + twttr.txt.autoLink(data.description, {urlEntities: data.entities.description.urls}).replace(/(?:@<(?:[^>]+)>)([^<]+)(?:[^>]+>)/g, '<a target="_blank" class="username" href="https://twitter.com/$1">@$1</a>') + '</p><div class="divider"></div><br><div class="row"><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '"><div class="col s2 right-border"><p><b>'+data.statuses_count+'</b><br>Tweets</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/following"><div class="col s2 right-border"><p><b>'+data.friends_count+'</b><br>Following</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/followers"><div class="col s2 right-border"><p><b>' + data.followers_count + '</b><br>Follower</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/memberships"><div class="col s2"><p><b>'+data.listed_count+'</b><br>Listed</p></div></a><div class="col s4">'+btn_follow+'</div></div></div></div></div>')
             $('#modal' + modalNumber + ' a.username').each(function(){
                 $(this).click(function(e){
                     e.preventDefault();
