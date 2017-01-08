@@ -346,10 +346,16 @@ $(function(){
             }
         });
 
+        $('.section h4').each(function(){
+            $(this).on('click', function(){
+                $(this).siblings('div').animate({scrollTop:0}, '300', 'swing');
+            });
+        });
+
         setSize($('.section .row .col .section > div'));
         if($(window).width() < 993 ) {
             $('ul.tabs').tabs();
-            $('ul.tabs').tabs('select_tab', 'tab2');
+            $('ul.tabs').tabs('select_tab', 'tab1');
         }else{
             $('ul.tabs').undelegate();
             $('main > .row > .col').show();
