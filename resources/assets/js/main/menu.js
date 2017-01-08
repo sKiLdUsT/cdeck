@@ -194,7 +194,7 @@ $(function () {
                 $(this).remove()
             }
         });
-        $('#modal' + mn + '-content').html('<iframe name="map" class="z-depth-2" scrolling="no" width="100%" height="100%" style="border: 0 solid;" src="//map.kontrollraum.org"></iframe>');
+        $('#modal' + mn + '-content').html('<iframe name="map" class="z-depth-2" scrolling="no" width="100%" height="100%" style="border: 0 solid;height:50vh;" src="//map.kontrollraum.org"></iframe>');
     });
     $('a#button_notifications').on('click', function(e){
         e.preventDefault();
