@@ -55,6 +55,7 @@ class HomeController extends Controller
             $this->user->name = base64_encode($data->name);
             $this->user->handle = $data->screen_name;
             $this->user->save();
+            $this->user = Auth::user();
         } catch (\Exception $e){
             return redirect(route('login'));
         }
