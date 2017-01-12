@@ -207,6 +207,7 @@ img {
 .card-content .chip {
   position: absolute;
   right: 0;
+  margin-top: -1rem;
 }
 
 i.material-icons, .side-nav a{
@@ -231,4 +232,19 @@ img.responsive-img {
 
 .right-border {
   border-right: #e0e0e0 1px solid;
+}
+
+h4 span.new.badge {
+  position: inherit;
+  right: unset;
+}
+
+.card-content p {
+  border-top: 1px solid rgba(160, 160, 160, 0.2);
+  padding-top: 1rem;
+}
+
+.card-content p.noborder {
+  border: unset;
+  padding: unset;
 }

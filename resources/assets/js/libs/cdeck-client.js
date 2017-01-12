@@ -321,6 +321,16 @@
         return this;
     };
 
+    Cdeck.prototype.getDMs = function () {
+        this.socket.emit('getDMs', {api_token: this.user.api_token}, function( response ){
+            // Emit event with data.
+            // Instructions on how to use the data used to be here.
+            self.callback( 'client_recievedData', response );
+        });
+        self = this;
+        return this;
+    };
+
     // Function to delete tweet
     Cdeck.prototype.removeTweet = function( id ){
         this.socket.emit( 'remove', {api_token: this.user.api_token, id: id}, function( response ){

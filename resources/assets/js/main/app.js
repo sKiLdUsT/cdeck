@@ -7,7 +7,8 @@ window.$app = {
     lang_url: '/api/lang?lang=',
     user_url: '/api/twitter/getToken',
     upstream_url: '/api/upstream',
-    activeID: 0
+    activeID: 0,
+    chats: {}
 };
 
 var renderer = new CdeckRenderer(),
@@ -94,6 +95,7 @@ function cDeckInit ( action, data ){
             break;
         case 'client_ready':
             $app.state = 'ready';
+            //cDeck.getDMs();
             break;
         case 'client_tweet_sent':
             if (typeof $voiceblob != 'undefined'){
@@ -349,6 +351,13 @@ $(function(){
         $('.section h4').each(function(){
             $(this).on('click', function(){
                 $(this).siblings('div').animate({scrollTop:0}, '300', 'swing');
+            });
+        });
+        $('.section div.pad').each(function(){
+            $(this).on('scroll', function(){
+                if($(this).scrollTop() < $(this).children('div.card:first').outerHeight(true)){
+                    $(this).siblings('h4').find('span.new.badge').remove();
+                }
             });
         });
 
