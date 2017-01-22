@@ -158,6 +158,9 @@ class ApiController extends Controller
                         case "roundpb":
                             $uconfig->roundpb = $value;
                             break;
+                        case "debugmode":
+                            $uconfig->debugmode = $value;
+                            break;
                     }
                 }
                 $user->uconfig = json_encode($uconfig);
@@ -168,7 +171,8 @@ class ApiController extends Controller
                     "notifications" => session()->get('notifications') ?: false,
                     "access_level" => $uconfig->access_level,
                     "activeID" => isset($uconfig->activeID) ? $uconfig->activeID : 0,
-                    "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true
+                    "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true,
+                    "debugmode" => isset($uconfig->debugmode) ? $uconfig->debugmode : false
                 ]]);
             }
             return response()->json([
@@ -176,7 +180,8 @@ class ApiController extends Controller
                 "notifications" => session()->get('notifications') ?: false,
                 "access_level" => $uconfig->access_level,
                 "activeID" => isset($uconfig->activeID) ? $uconfig->activeID : 0,
-                "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true
+                "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true,
+                "debugmode" => isset($uconfig->debugmode) ? $uconfig->debugmode : false
             ]);
         }
         return response()->json(['response' => false]);

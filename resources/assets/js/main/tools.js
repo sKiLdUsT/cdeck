@@ -133,10 +133,12 @@ function changeUconfig(params, callback){
             a = data;
             if(data.response === true){
                 window.uconfig = data.data;
+                log.debug('Client: uconfig changed');
                 if(typeof callback == 'function'){
                     callback(data.response);
                 }
             } else {
+                log.error('Client: uconfig change failed, rejected by server');
                 throw new CDeckError('Changing uconfig failed')
             }
         },
@@ -183,3 +185,18 @@ function hexToRgbA(hex, alpha){
     }
     throw new Error('Bad Hex');
 }
+
+window.log = {
+    debug: function(string){
+        console.log('%c[DEBUG]'+'%c '+string,'background:blue;color:white','background:unset,color:unset')
+    },
+    info: function(string){
+        console.info('%c[INFO]'+'%c  '+string,'background: green;color: white','background:unset,color:unset')
+    },
+    warn: function(string){
+        console.warn('%c[WARN]'+'%c  '+string,'background: orange;color: white','background:unset,color:unset')
+    },
+    error: function(string){
+        console.error('%c[ERROR]'+'%c '+string,'background: red;color: white','background:unset,color:unset')
+    },
+};

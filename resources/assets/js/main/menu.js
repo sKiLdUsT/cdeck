@@ -1,5 +1,6 @@
 $(function () {
     $('a#button_voice').on('click', function(e){
+        log.debug('UI: "#button_voice" clicked');
         e.preventDefault();
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
         URL = window.URL || window.webkitURL;
@@ -27,7 +28,6 @@ $(function () {
                 }
             }, onAudio , function(e) {
                 alert('Error getting audio');
-                console.log(e);
             }
         );
 
@@ -153,6 +153,7 @@ $(function () {
         })
     });
     $('a#button_nightmode').on('click', function(e){
+        log.debug('UI: "#button_nightmode" clicked');
         e.preventDefault();
         var sel = $('.grey');
         var tweets = $('.blue-grey');
@@ -182,6 +183,7 @@ $(function () {
         }
     });
     $('a#button_map').on('click', function(e){
+        log.debug('UI: "#button_map" clicked');
         e.preventDefault();
         var mn = spawnModal();
         $('#modal' + mn + '-header').text('Kontrollraum Twitter-Map');
@@ -197,35 +199,36 @@ $(function () {
         $('#modal' + mn + '-content').html('<iframe name="map" class="z-depth-2" scrolling="no" width="100%" height="100%" style="border: 0 solid;height:50vh;" src="//map.kontrollraum.org"></iframe>');
     });
     $('a#button_notifications').on('click', function(e){
+        log.debug('UI: "#button_notifications" clicked');
         e.preventDefault();
         var Notify = window.Notify.default;
         if(window.uconfig.notifications == "false"){
-            if(Notify.needsPermission && Notify.isSupported()){
+            if(Notify.needsPermission){
                 Notify.requestPermission(onPermissionGranted, onPermissionDenied);
-            } else if(Notify.isSupported()) {
+            } else {
                 changeUconfig({notifications: true}, function(result){
                     if(result === true){
+                        log.info('Client: Notifications enabled');
                         Materialize.toast(lang.menu.noti_enabled, 5000)
                     }
                 });
-            } else {
-                Materialize.toast('Unsupported');
-                console.warn('cDeck: Notifications unsupported');
             }
             function onPermissionGranted() {
                 changeUconfig({notifications: true}, function(result){
                     if(result === true){
+                        log.info('Client: Notifications enabled');
                         Materialize.toast(lang.menu.noti_enabled, 5000)
                     }
                 });
             }
             function onPermissionDenied() {
-                console.warn('cDeck: Notification permission denied');
+                log.warn('Client: Notification permission denied');
                 Materialize.toast('Permission denied');
             }
         }else{
             changeUconfig({notifications: false}, function(result){
                 if(result === true){
+                    log.info('Client: Notifications disabled');
                     Materialize.toast(lang.menu.noti_disabled, 5000)
                 }
             });
@@ -233,14 +236,16 @@ $(function () {
         }
     });
     $('a#button_settings').on('click', function(e){
+        log.debug('UI: "#button_settings" clicked');
         e.preventDefault();
         var mn = spawnModal(),
             colormode = uconfig.colormode == "1" ? 'grey darken-2 white-text' : '',
             setting = {
-                roundpb: uconfig.roundpb == "true" ? 'checked="checked"' : ''
+                roundpb: uconfig.roundpb == "true" ? 'checked="checked"' : '',
+                debugmode: uconfig.debugmode == "true" ? 'checked="checked"' : ''
             };
         $('#modal' + mn + '-header').text(lang.menu.settings);
-        $('#modal' + mn + '-content').html('<ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui">UI</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><form id="settings"><p><input type="checkbox" class="filled-in" id="round-pb" '+ setting.roundpb +' /> <label for="round-pb">Round Profile Pictures</label></p><p><div class="file-field input-field"> <div class="btn"> <span>Change local background</span> <input type="file" id="settings-bg"> </div> <div class="file-path-wrapper hidden"><input class="file-path validate" type="text"></div></div></p></form></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016-2017 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/imprint">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/privacy">'+lang.privacy.this+'</a></p></div>');
+        $('#modal' + mn + '-content').html('<ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui">UI</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><form id="settings"><p><input type="checkbox" class="filled-in" id="round-pb" '+ setting.roundpb +' /> <label for="round-pb">Round Profile Pictures</label></p><p><input type="checkbox" class="filled-in" id="debug-mode" disabled="disabled" '+ setting.debugmode +' /> <label for="debug-mode">Debug Mode</label></p><p><div class="file-field input-field"> <div class="btn"> <span>Change local background</span> <input type="file" id="settings-bg"> </div> <div class="file-path-wrapper hidden"><input class="file-path validate" type="text"></div></div></p></form></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016-2017 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/imprint">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/privacy">'+lang.privacy.this+'</a></p></div>');
         $('#modal' + mn + '-content').children('div.container').css({margin: '2em auto'});
         $('#modal'+mn).openModal({
             dismissible: true,
@@ -260,6 +265,21 @@ $(function () {
                             if(result === true){
                                 $(this).attr('checked', 'checked');
                                 $('img.pb').addClass('circle')
+                            }
+                        });
+                    }
+                });
+                $('#modal'+ mn + '-content form').children('#debug-mode').on('change', function(){
+                    if($(this).attr('checked') == 'checked'){
+                        changeUconfig({debugmode: false}, function(result){
+                            if(result === true){
+                                log.info('Client: Debug Mode disabled')
+                            }
+                        });
+                    } else {
+                        changeUconfig({debugmode: true}, function(result){
+                            if(result === true){
+                                log.info('Client: Debug Mode enabled')
                             }
                         });
                     }
@@ -300,12 +320,13 @@ $(function () {
                 }
             };
             reader.onerror = function (error) {
-                console.log('Error: ', error);
+                log.error(error);
             };
         });
 
     });
     $('a#button_language').on('click', function(e){
+        log.debug('UI: "#button_language" clicked');
         e.preventDefault();
         var mn = spawnModal();
         $('#modal' + mn + '-header').text(lang.menu.lang);
@@ -344,6 +365,7 @@ $(function () {
     });
 
     $('a.changeTl').on('click', function () {
+        log.debug('UI: ".changeTl" clicked');
         if($(this).attr('data-id') != $app.activeID){
             cDeck.close();
             $('.card.tweet').remove();
@@ -366,6 +388,7 @@ $(function () {
 
     });
     $('a#button_remacc').on('click', function(e){
+        log.debug('UI: "#button_remacc" clicked');
         e.preventDefault();
         var mn = spawnModal();
         var accounts = $('a.changeTl').clone().removeClass('changeTl').addClass('btn-large red').css({margin: '0 5px'});
@@ -385,6 +408,7 @@ $(function () {
     });
     $('.dropdown-button').dropdown({constrain_width: false, belowOrigin: true});
     $('#search_activate').on('click', function (e){
+        log.debug('UI: search bar clicked');
         if(e !== undefined){
             e.preventDefault();
         }
@@ -394,6 +418,7 @@ $(function () {
         $(search.parent()).find('input').focus();
     });
     $($('#search_activate').parent()).find('input').blur(function(){
+        log.debug('UI: outside search bar clicked');
         ($($('#search_activate').parent()).children('form').fadeOut(350, function () {$('#search_activate').show()}));
     });
     $('.collapsible').collapsible();

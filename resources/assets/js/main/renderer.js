@@ -41,6 +41,7 @@
                 })
             }
             if($('#tweet-'+data.id).length >= 1) {
+                log.error('Renderer: Tweet already present');
                 throw new Error;
             }
         },
@@ -75,7 +76,6 @@
                 type = self.helper.type(data);
                 tweet = type.text;
                 cards = self.helper.linkCards(type.entities.urls, tweet);
-                console.log(cards);
                 if (data.quoted_status !== undefined) {
                     tweet = {
                         'main': tweet.replace(/(?:https?|http):\/\/[\n\S]+/g, ''),
@@ -108,8 +108,7 @@
                     tweet = twemoji.parse(tweet);
                 }
             } catch (e) {
-                console.warn("Warning: "+e);
-
+                log.warn('Renderer: '+e)
             }
             return {tweet: tweet, marray: marray !== undefined ? marray : '', fav: fav};
         },
@@ -224,7 +223,7 @@
             try {
                 html = '<div class="divider"></div><div class="card '+colormode+' tweet" id="tweet-' + id + '" data-tweet-id="' + id + '" data-mentions="' + object.marray.toString() + '" style="display: none">' + object.medialink + '<div class="card-content"><a target="_blank" href="https://twitter.com/'+object.original.user.screen_name+'/status/'+id+'" data-time="'+object.original.created_at+'" class="chip time waves">' + moment(object.original.created_at).fromNow() + '</a><span class="card-title left-align"><img src="' + object.original.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img pb">  ' + twemoji.parse(object.original.user.name) + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.original.user.screen_name + '"> @' + object.original.user.screen_name + '</a></span>' + content + '</div> <div class="card-action"> <a target="_blank"id="reply" data-in-response="' + id + '" href="#"><i class="material-icons">reply</i></a></a><a target="_blank"id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + id + '" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + id + '" class="dropdown-content"><li><a target="_blank"id="rt" href="#">Retweet</a></li><li><a target="_blank" id="rt_quote" href="#">Quote Tweet</a></li></ul><a target="_blank" id="like" href="#"><i class="material-icons">' + object.fav + '</i></a>'+remove+'</div></div>';
             } catch (e) {
-                console.warn("Warning: "+e);
+                log.warn('Renderer: '+e);
                 html = '<div class="divider"></div><div class="card '+colormode+' tweet" id="tweet-' + id + '" data-tweet-id="' + id + '" data-mentions="' + object.marray.toString() + '" style="display: none">' + object.medialink + '<div class="card-content"><a target="_blank" href="https://twitter.com/'+object.original.user.screen_name+'/status/'+id+'" data-time="'+object.original.created_at+'" class="chip time waves">' + moment(object.original.created_at).fromNow() + '</a><span class="card-title left-align"><img src="' + object.original.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img pb">  ' + object.original.user.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.original.user.screen_name + '"> @' + object.original.user.screen_name + '</a></span>' + content + '</div> <div class="card-action"> <a target="_blank"id="reply" data-in-response="' + id + '" href="#"><i class="material-icons">reply</i></a></a><a target="_blank"id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + id + '" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + id + '" class="dropdown-content"><li><a target="_blank"id="rt" href="#">Retweet</a></li><li><a target="_blank" id="rt_quote" href="#">Quote Tweet</a></li></ul><a target="_blank" id="like" href="#"><i class="material-icons">' + object.fav + '</i></a>'+remove+'</div></div>';
             }
             if($('#timeline').children('.card.tweet').length > 99){
@@ -239,10 +238,8 @@
                         $(html).prependTo($('#timeline')).show();
                         $('#timeline').scrollTop($('#timeline').scrollTop() + $('#tweet-' + id).outerHeight(true) + 1 );
                         if($('#timeline').siblings('h4').find('span.new.badge').length != 0){
-                            console.log(1);
                             $('#timeline').siblings('h4').find('span.new.badge').text(parseInt($('#timeline').siblings('h4').find('span.new.badge').text(), 10) + 1)
                         } else {
-                            console.log(2);
                             $('<span class="new badge">1</span>').appendTo($('#timeline').siblings('h4'));
                         }
                     } else {
@@ -279,7 +276,7 @@
                 try {
                     html = '<div class="divider"></div><div class="card '+colormode+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">person_add</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br> </div> </div>';
                 } catch (e) {
-                    console.warn("Warning: "+e);
+                    log.warn('Renderer: '+e);
                     html = '<div class="divider"></div><div class="card '+colormode+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">person_add</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + object.source.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br> </div> </div>';
                 }
             } else {
@@ -298,7 +295,7 @@
                         html = '<div class="divider"></div><div class="card '+colormode+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">'+type+'</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="3" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span>' + content + '</div></blockquote> </div> </div>';
                     }
                 } catch (e) {
-                    console.warn("Warning: "+e);
+                    log.warn('Renderer: '+e);
                     if (object.type == 'mention'){
                         html = '<div class="divider"></div><div class="card '+colormode+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">reply</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + object.source.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote>' + content + '</blockquote> </div> </div>';
                     } else {
@@ -339,6 +336,7 @@
 
     // Function to display a Tweet
     Renderer.prototype.display = function ( data, socket, extra ) {
+        var Notify = window.Notify.default;
         if(extra === undefined){
             extra = {action: 'prepend'}
         }
@@ -408,8 +406,8 @@
                     });
                 });
                 if($app.state == "ready" && window.uconfig.notifications == "true" && !windowIsVisible()){
-                    var Notify = window.Notify.default;
-                    if (!Notify.needsPermission) {
+                    log.debug('Renderer: Spawning notification');
+                    if (!Notify.needsPermission){
                         var myNotification = new Notify('cDeck', {
                             body: '@'+finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
                             icon: finalTweet.source.profile_image_url_https
@@ -423,6 +421,7 @@
 
     Renderer.prototype.userInfo = function( handle ){
         if(handle === undefined){
+            log.debug('Api: Failed to get user info: No handle given');
             return false;
         }
         var modalNumber = spawnModal(),
@@ -490,6 +489,7 @@
                         "screen_name": "api"
                     };
                 } else {
+                    log.warn('Renderer: Getting user info failed: '+data.reason);
                     Materialize.toast('Couldn\'t get user info: '+data.reason, 2000);
                     return $('.lean-overlay').last().trigger('click');
                 }
@@ -654,7 +654,6 @@
                                                         $('#modal' + modalNumber2 + '-content').text(lang.external.one_moment);
                                                          $.when(cDeck.postStatus(tweet)).then($('#modal' + modalNumber).closeModal(), modal.closeModal(),  window.$tweetFile = []);
                                                     } else {
-                                                        console.log(e);
                                                     }
                                                 },
                                                 error: function(e){

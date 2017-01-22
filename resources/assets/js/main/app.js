@@ -25,10 +25,12 @@ function cDeckInit ( action, data ){
                 Materialize.toast(lang.external.login, 2000);
                 $('#timeline').empty();
                 $('#notifications').empty();
-                sizeSet = 0
+                sizeSet = 0;
+                log.info('Upstream: successfully registered')
             }
             break;
         case 'client_recievedData':
+            log.debug('Upstream: Recieved data');
             console.log(data);
             var selector = $('#timeline, #notifications').children('.preloader-wrapper');
             if(selector.length > 0){
@@ -39,10 +41,12 @@ function cDeckInit ( action, data ){
                 sizeSet = 1
             }
             if(data.length > 1){
+                log.debug('Renderer: Rendering without animations');
                 data.forEach(function (item) {
                     renderer.display(item, cDeck, {animate: false});
                 });
             } else {
+                log.debug('Renderer: Rendering with animations');
                 data.forEach(function (item) {
                     renderer.display(item, cDeck);
                 });
@@ -50,6 +54,7 @@ function cDeckInit ( action, data ){
 
             break;
         case 'client_reconnect':
+            log.info('Upstream: Connection reestablished');
             if (errorModal === '') {
                 errorModal = spawnModal();
                 var modal = $('#modal' + errorModal);
@@ -76,6 +81,7 @@ function cDeckInit ( action, data ){
             }
             break;
         case 'client_reconn_error':
+            log.warn('Upstream: Connection lost');
             if (rShow !== 1) {
                 Materialize.toast(lang.external.connection_failed, 5000);
                 $.ajax({
@@ -94,11 +100,14 @@ function cDeckInit ( action, data ){
             }
             break;
         case 'client_ready':
+            log.debug('Client: App state changed: ready');
             $app.state = 'ready';
             //cDeck.getDMs();
             break;
         case 'client_tweet_sent':
+            log.debug('Upstream: Tweet sent');
             if (typeof $voiceblob != 'undefined'){
+                log.debug('Was voice message');
                 window.$voiceblob = undefined
             }
             $('.bottom-sheet').closeModal();
@@ -106,6 +115,7 @@ function cDeckInit ( action, data ){
             Materialize.toast('Tweet sent', 2000);
             break;
         case 'client_tweet_error':
+            log.debug('Upstream: Tweet failed. '+data);
             if (typeof $voiceblob != 'undefined'){
                 window.$voiceblob = undefined
             }
@@ -114,16 +124,20 @@ function cDeckInit ( action, data ){
             Materialize.toast('Failed to sent tweet: '+data, 2000);
             break;
         case 'client_retweet_sent':
+            log.debug('Upstream: Retweet sent. ID was '+data);
             Materialize.toast('Retweeted.', 2000);
             $('#tweet-' + data + ' #retweet').html('<i class="material-icons">repeat</i>');
             break;
         case 'client_tweet_error':
+            log.debug('Upstream: Tweet failed.');
             $('.lean-overlay').trigger('click');
             break;
         case 'client_like_sent':
+            log.debug('Upstream: Like sent. ID was '+data);
             $('#tweet-' + data + ' #like').html('<i class="material-icons">favorite</i>');
             break;
         case 'client_removedTweet':
+            log.debug('Client: Removed a tweet');
             Materialize.toast('Tweet deleted', 2000);
             break;
     }
@@ -139,6 +153,7 @@ $(function(){
     $.get( $app.tconfig_url, function ( data ) {
         // Only set when not previously defined.
         if( data !== null && window.tconfig === undefined ) {
+            log.debug('Client: Recieved tconfig');
             window.tconfig = data;
             // Only throw if not previously defined
         } else if( window.tconfig === undefined ){
@@ -165,6 +180,7 @@ $(function(){
                     success: function ( data ) {
                     // Only set if not previously defined
                     if( data !== null && window.lang === undefined ) {
+                        log.debug('Client: Recieved translation');
                         window.lang = data;
                     } else if( window.lang === undefined ){
                         throw new CDeckError( 'Couldn\'t get lang file' );
@@ -182,6 +198,7 @@ $(function(){
                     success: function ( data ) {
                         // Only set if not previously defined
                         if( data !== null && window.lang === undefined ) {
+                            log.debug('Client: Recieved translation');
                             window.lang = data;
                         } else if( window.lang === undefined ){
                             throw new CDeckError( 'Couldn\'t get lang file' );
@@ -197,18 +214,6 @@ $(function(){
         }
 
     }, 'json' );
-
-    // Use AJAX navigation when button with specific class is clicked
-    $( 'a.ajax-link' ).click(function( e ) {
-        ajaxNav($(this));
-    });
-
-    // Popout link when button with specific class is clicked
-    $( 'a.popout' ).click(function( e ){
-        e.preventDefault();
-        var MyWindow = window.open($(this).attr('href'),'MyWindow','width=600,height=300');
-        return false;
-    });
 
     // Show info when cookies are disabled
     if (!navigator.cookieEnabled) {
@@ -235,6 +240,7 @@ $(function(){
         setInterval(function(){
             $('.modal').each(function(){
                 if(!$(this).is(':visible')){
+                    log.debug('GC: Cleaned Modal');
                     $(this).remove();
                 }
             })
@@ -255,6 +261,7 @@ $(function(){
             cDeck.close();
         });
         $('#newTweet').on('click', function () {
+            log.debug('UI: #newTweet clicked');
             renderer.newTweet();
         });
 
@@ -268,14 +275,15 @@ $(function(){
             e.stopPropagation();
         })
             .on('dragover dragenter', function() {
+                log.debug('UI: drag started');
                 $('#dragdrop').fadeIn();
             })
             .on('dragleave dragend drop', function() {
+                log.debug('UI: drag stopped');
                 $('#dragdrop').fadeOut();
             })
             .on('drop', function(e) {
-                console.log('File dropped');
-                console.log(e.originalEvent.dataTransfer.files);
+                log.debug('UI: dropped');
                 if(window.$tweetFile.length < 4 && e.originalEvent.dataTransfer.files.length <= 4){
                     var files = e.originalEvent.dataTransfer.files;
                     for (var i = 0; i < files.length; i++) {
@@ -330,6 +338,7 @@ $(function(){
                 }
             });
         $('body').pasteImageReader(function(results){
+            log.debug('UI: pasted from clipboard');
             if(!$('.modal').is(':visible'))renderer.newTweet();
             if(window.$tweetFile.length < 4 && window.$tweetFile.find(function(object){return (object.type === 'video' || object.type === 'gif')}) === undefined){
                 window.$tweetFile.forEach(function(object){
@@ -350,12 +359,14 @@ $(function(){
 
         $('.section h4').each(function(){
             $(this).on('click', function(){
+                log.debug('UI: ".section h4" clicked');
                 $(this).siblings('div').animate({scrollTop:0}, '300', 'swing');
             });
         });
         $('.section div.pad').each(function(){
             $(this).on('scroll', function(){
                 if($(this).scrollTop() < $(this).children('div.card:first').outerHeight(true)){
+                    log.debug('UI: scrolled to top, removing chip');
                     $(this).siblings('h4').find('span.new.badge').remove();
                 }
             });
@@ -391,9 +402,11 @@ $(function(){
             $('.chip.time').each(function(){
                 $(this).html(moment($(this).attr('data-time')).fromNow())
             });
+            log.debug('UI: Updated chip time');
         }, 30000)
     }
     $(window).on('load', function(){
         $('.loader').fadeOut(300);
+        log.debug('UI: All ressources loaded. Removing loader')
     });
 });
