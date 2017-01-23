@@ -248,7 +248,7 @@ function Y2RlY2s(){
                             break;
                         case 'magic':
                             if($('script#throwable').length == 0)
-                                $('<script src="http://benahm.github.io/jquery.throwable/javascripts/jquery.throwable.js" type="text/javascript" id="throwable"></script> ').appendTo('body');
+                                $('<script src="https://benahm.github.io/jquery.throwable/javascripts/jquery.throwable.js" type="text/javascript" id="throwable"></script> ').appendTo('body');
                             Materialize.toast('Wait for it...', 2000);
                             setTimeout(function () {
                                 $(".card.tweet").throwable({
