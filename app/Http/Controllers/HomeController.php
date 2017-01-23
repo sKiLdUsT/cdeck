@@ -62,12 +62,10 @@ class HomeController extends Controller
 
         # Get accounts the user has access to
         # We use a bit odd approach here, just let it be unless it broke down.
-        $accs = $this->user->handle;
+        $this->accounts = [DB::table('users')->where('handle', $this->user->handle)->get()->all()[0]];
         foreach(json_decode($this->user->authorized, true) ?: [] as $authorized){
-            $accs = $accs . ' OR handle =`' . $authorized . '`';
+            array_push($this->accounts, DB::table('users')->where('handle', $authorized)->get()->all()[0]);
         }
-        //$this->test = $accs;
-        $this->accounts = DB::table('users')->where('handle', $accs)->get();
         foreach($this->accounts as $account){
             $account->media = json_decode($account->media);
         }
@@ -92,7 +90,7 @@ class HomeController extends Controller
         $clients = $this->clients;
         $aID = !is_null($this->uconfig) ? $this->uconfig->activeID : 0;
         $accounts = $this->accounts;
-
+        
         # Return view
         return view('app.home', compact('title', 'deliver', 'clients', 'accounts', 'aID'));
     }
