@@ -21,7 +21,7 @@ class CreateTables extends Migration
             $table->longText('uconfig');
             $table->text('analytics')->nullable();
             $table->string('api_token')->nullable();
-            $table->integer('authorized')->nullable();
+            $table->text('authorized')->nullable();
             $table->text('token');
             $table->text('media');
             $table->rememberToken();
