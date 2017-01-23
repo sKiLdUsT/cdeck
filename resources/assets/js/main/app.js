@@ -145,7 +145,11 @@ function cDeckInit ( action, data ){
 }
 $(function(){
     // Set local user background, if set
-    if (typeof(Storage) !== "undefined" && localStorage.getItem("background")) $('body').css('background-image', 'url('+localStorage.getItem("background")+')');
+    try {
+        if (typeof(Storage) !== "undefined" && localStorage.getItem("background")) $('body').css('background-image', 'url('+localStorage.getItem("background")+')');
+    } catch(e) {
+        log.warn('UI: '+e);
+    }
 
     // Get Twitter-config.
     // cDeck calls the Twitter-API every 24h for this.
@@ -217,10 +221,9 @@ $(function(){
 
     // Show info when cookies are disabled
     if (!navigator.cookieEnabled) {
-        $('div.section').hide();
-        $('#nocookies').show();
-    } else {
-        $('div.section').show();
+        $($('noscript').html()).prependTo('body').show();
+        $('.splash').fadeOut();
+        return;
     }
 
     // Run health check function

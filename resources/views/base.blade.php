@@ -7,14 +7,21 @@
 </head>
 <body class="grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
 <body class="grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
-<div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;" class="loader valign-wrapper">
+<div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;" class="loader valign-wrapper splash">
     <video autoplay loop src="/assets/img/pulse.webm"></video>
 </div>
 <noscript>
-    <div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;" class="loader valign-wrapper">
+    <style>
+        @keyframes pulsing {
+            0% {background-color: #000}
+            50% {background-color: #424242}
+            100% {background-color: #000}
+        }
+    </style>
+    <div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;animation: pulsing 5s ease-in-out infinite;" class="loader valign-wrapper">
         <div class="container white-text">
             <h1>Hi there!</h1><br>
-            <h3>Unfortunately you need JavaScript activated and functioning to use this service. That's a bummer :-(</h3>
+            <h3>Unfortunately you need JavaScript & Cookies activated and functioning to use this service. That's a bummer :-(</h3>
         </div>
     </div>
 </noscript>
