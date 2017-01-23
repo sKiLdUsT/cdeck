@@ -212,3 +212,118 @@ function getCookieValue(a) {
     var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
     return b ? b.pop() : '';
 }
+
+function Y2RlY2s(){
+    log.debug('Client: Hidden Mode triggered');
+    log.warn('Console: "So you found the hidden mode, congrats! Now find the appropriate commands..."');
+    try {
+        var colormode = uconfig.colormode == "1" ? 'grey darken-3 white-text' : '';
+    } catch(e) {
+        log.warn('UI: '+e);
+        var colormode = '';
+    }
+    var modalNumber = spawnModal();
+    var modal = $('#modal' + modalNumber);
+    var command;
+    modal.addClass('bottom-sheet');
+    modal.openModal({
+        dismissible: true, ready: function () {
+            $('#modal' + modalNumber + '-content').html('<input id="command" style="width:25%">');
+            $('input#command').focus().on('keyup', function(e) {
+                if (e.keyCode == 13) {
+                    log.debug('UI: Command sent');
+                    command = $(this).val().toLowerCase();
+                    modal.closeModal();
+                    modal.remove();
+                    switch(command){
+                        case 'kunt.wmv':
+                        case 'cunt':
+                            YTPlayer('RNGagK4PD7k');
+                            break;
+                        case 'magnetprobe':
+                            YTPlayer('t7xSj9ixnOg');
+                            break;
+                        case 'penis':
+                            YTPlayer('ORdhcgy7F9M');
+                            break;
+                        case 'magic':
+                            if($('script#throwable').length == 0)
+                                $('<script src="http://benahm.github.io/jquery.throwable/javascripts/jquery.throwable.js" type="text/javascript" id="throwable"></script> ').appendTo('body');
+                            Materialize.toast('Wait for it...', 2000);
+                            setTimeout(function () {
+                                $(".card.tweet").throwable({
+                                    gravity:{x:0,y:2}
+                                });
+                            }, 3000);
+                            break;
+                        case 'jackblackdancelikeabutterfly':
+                            YTPlayer('jjdl2Yp6rxk');
+                            break;
+                        case 'ludger winter':
+                            document.styleSheets[0].disabled = true;
+                            alert('Hoch entwickeltes Webdesign aktiviert');
+                            break;
+                        default:
+                            log.debug('Client: Invalid command provided');
+                            Materialize.toast('Nice try.', 2000);
+                            $({deg: 0}).animate({deg: 360}, {
+                                duration: 2000,
+                                easing: 'easeInOutQuad',
+                                step: function(now) {
+                                    // in the step-callback (that is fired each step of the animation),
+                                    // you can use the `now` paramter which contains the current
+                                    // animation-position (`0` up to `angle`)
+                                    $('.card').each(function () {
+                                        $(this).css({
+                                            transform: 'rotate(' + now + 'deg)'
+                                        });
+                                    })
+                                }
+                            });
+                    }
+                }
+            });
+        }
+    });
+}
+
+function YTPlayer(id){
+    $('<div class="background-container" style="top:0;left:0;position:absolute;z-index:-100;width:100vw;height:100vh;"><div id="player"></div></div>').appendTo('body');
+    function makePlayer () {
+        player = new YT.Player('player', {
+            height: '100%',
+            width: '100%',
+            videoId: id,
+            playerVars: {
+                autoplay: 1,
+                controls: 0,
+                showinfo: 0
+            },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+    function onPlayerReady(event) {
+        event.target.playVideo();
+    }
+    function onPlayerStateChange(event) {
+        if (event.data === 0) {
+            $('.background-container').fadeOut(300, function () {
+                $(this).remove()
+            })
+        }
+    }
+    if($('script#ytapi').length == 0){
+        var player;
+        window.onYouTubeIframeAPIReady = makePlayer;
+        $('<script id="ytapi" src="https://www.youtube.com/iframe_api"></script>').appendTo('body');
+    } else {
+        var player;
+        makePlayer();
+    }
+    setTimeout(function () {
+        Materialize.toast('Source: <a target="_blank" href="https://youtube.com/watch?v='+id+'"> https://youtube.com/watch?v='+id+'<a/>', 3000);
+    }, 5000)
+}
