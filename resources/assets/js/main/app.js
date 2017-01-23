@@ -226,6 +226,31 @@ $(function(){
         return;
     }
 
+    setTimeout(function(){
+        // Check if cookie notice was displayed
+        if(getCookieValue('cookie_notice') !== 'true'){
+            try {
+                var colormode = uconfig.colormode == "1" ? 'grey darken-3 white-text' : '';
+            } catch(e) {
+                log.warn('UI: '+e);
+                var colormode = '';
+            }
+            var modalNumber = spawnModal();
+            var modal = $('#modal' + modalNumber);
+            modal.addClass('bottom-sheet');
+            modal.openModal({
+                dismissible: false, ready: function () {
+                    $('#modal' + modalNumber + '-content').html('<p>'+lang.external.cookies+'</p>');
+                    $('<div class="modal-footer '+colormode+'"><a class="modal-action modal-close waves-effect btn-flat '+colormode+'">Ok!</a></div>').appendTo(modal).on('click', function() {
+                        modal.closeModal();
+                        document.cookie = "cookie_notice=true";
+                        modal.remove();
+                    });
+                }
+            });
+        }
+    }, 2000);
+
     // Run health check function
     healthCheck('/api/ping');
 

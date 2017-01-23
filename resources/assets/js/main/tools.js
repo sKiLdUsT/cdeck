@@ -9,7 +9,12 @@ var modalCount = 0;
 
 function spawnModal() {
     modalCount++;
-    var colormode = uconfig.colormode == "1" ? 'grey darken-3 white-text' : '';
+    try {
+        var colormode = uconfig.colormode == "1" ? 'grey darken-3 white-text' : '';
+    } catch(e) {
+        log.warn('UI: '+e);
+        var colormode = '';
+    }
     var modal = '<div id="modal' + modalCount + '" class="modal '+colormode+'">\
         <div class="wrapper">\
         <div class="modal-content center-align">\
@@ -188,7 +193,7 @@ function hexToRgbA(hex, alpha){
 
 window.log = {
     debug: function(string){
-        if(uconfig.debugmode)
+        if(uconfig !== undefined && uconfig.debugmode)
             console.log('%c[DEBUG]'+'%c '+string,'background:blue;color:white','background:unset,color:unset')
     },
     info: function(string){
@@ -201,3 +206,9 @@ window.log = {
         console.error('%c[ERROR]'+'%c '+string,'background: red;color: white','background:unset,color:unset')
     },
 };
+
+// Taken from http://stackoverflow.com/a/25490531
+function getCookieValue(a) {
+    var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
+    return b ? b.pop() : '';
+}

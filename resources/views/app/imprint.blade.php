@@ -1,6 +1,6 @@
 @extends('base')
 @section('content')
-    <div class="container center white">
+    <div class="container center white black-text">
         <br>
         <h3>@lang('disclaimer.imprint')</h3><br>
         <b>@lang('disclaimer.t1')</b><br>
