@@ -254,7 +254,7 @@ form p {
 }
 
 .card.minimal {
-  div {
+  > div {
     padding: 0.5rem;
   }
   .card-image {

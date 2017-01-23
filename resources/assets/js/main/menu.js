@@ -241,9 +241,9 @@ $(function () {
         var mn = spawnModal(),
             colormode = uconfig.colormode == "1" ? 'grey darken-2 white-text' : '',
             setting = {
-                roundpb: uconfig.roundpb == "true" ? 'checked="checked"' : '',
-                debugmode: uconfig.debugmode == "true" ? 'checked="checked"' : '',
-                minimal: uconfig.minimal == "true" ? 'checked="checked"' : ''
+                roundpb: uconfig.roundpb ? 'checked="checked"' : '',
+                debugmode: uconfig.debugmode ? 'checked="checked"' : '',
+                minimal: uconfig.minimal ? 'checked="checked"' : ''
             };
         $('#modal' + mn + '-header').text(lang.menu.settings);
         $('#modal' + mn + '-content').html('<form id="settings"><ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui" id="ui">UI</a></li><li class="tab col s4"><a href="#settings_client">Client</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><p><input type="checkbox" class="filled-in" id="round-pb" '+ setting.roundpb +' /> <label for="round-pb">Round Profile Pictures</label></p><p><input type="checkbox" class="filled-in" id="minimal" '+ setting.minimal +' /> <label for="minimal">Minimal Tweet Cards</label></p><p><div class="file-field input-field"> <div class="btn"> <span>Change local background</span> <input type="file" id="settings-bg"> </div> <div class="file-path-wrapper hidden"><input class="file-path validate" type="text"></div></div></p></div><div id="settings_client" class="container"><p><input type="checkbox" class="filled-in" id="debug-mode" '+ setting.debugmode +' /> <label for="debug-mode">Debug Mode</label></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016-2017 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/imprint">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/privacy">'+lang.privacy.this+'</a></p></div></form>');
