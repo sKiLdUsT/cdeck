@@ -242,48 +242,18 @@ $(function () {
             colormode = uconfig.colormode == "1" ? 'grey darken-2 white-text' : '',
             setting = {
                 roundpb: uconfig.roundpb == "true" ? 'checked="checked"' : '',
-                debugmode: uconfig.debugmode == "true" ? 'checked="checked"' : ''
+                debugmode: uconfig.debugmode == "true" ? 'checked="checked"' : '',
+                minimal: uconfig.minimal == "true" ? 'checked="checked"' : ''
             };
         $('#modal' + mn + '-header').text(lang.menu.settings);
-        $('#modal' + mn + '-content').html('<ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui">UI</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><form id="settings"><p><input type="checkbox" class="filled-in" id="round-pb" '+ setting.roundpb +' /> <label for="round-pb">Round Profile Pictures</label></p><p><input type="checkbox" class="filled-in" id="debug-mode" disabled="disabled" '+ setting.debugmode +' /> <label for="debug-mode">Debug Mode</label></p><p><div class="file-field input-field"> <div class="btn"> <span>Change local background</span> <input type="file" id="settings-bg"> </div> <div class="file-path-wrapper hidden"><input class="file-path validate" type="text"></div></div></p></form></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016-2017 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/imprint">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/privacy">'+lang.privacy.this+'</a></p></div>');
+        $('#modal' + mn + '-content').html('<form id="settings"><ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui" id="ui">UI</a></li><li class="tab col s4"><a href="#settings_client">Client</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><p><input type="checkbox" class="filled-in" id="round-pb" '+ setting.roundpb +' /> <label for="round-pb">Round Profile Pictures</label></p><p><input type="checkbox" class="filled-in" id="minimal" '+ setting.minimal +' /> <label for="minimal">Minimal Tweet Cards</label></p><p><div class="file-field input-field"> <div class="btn"> <span>Change local background</span> <input type="file" id="settings-bg"> </div> <div class="file-path-wrapper hidden"><input class="file-path validate" type="text"></div></div></p></div><div id="settings_client" class="container"><p><input type="checkbox" class="filled-in" id="debug-mode" '+ setting.debugmode +' /> <label for="debug-mode">Debug Mode</label></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016-2017 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/imprint">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/privacy">'+lang.privacy.this+'</a></p></div></form>');
         $('#modal' + mn + '-content').children('div.container').css({margin: '2em auto'});
         $('#modal'+mn).openModal({
             dismissible: true,
             opacity: .5,
             ready:function(){
-                $('#modal'+ mn + '-content').children('ul.tabs').tabs();
-                $('#modal'+ mn + '-content form').children('#round-pb').on('change', function(){
-                    if($(this).attr('checked') == 'checked'){
-                        changeUconfig({roundpb: false}, function(result){
-                            if(result === true){
-                                $(this).removeAttr('checked');
-                                $('img.pb').removeClass('circle')
-                            }
-                        });
-                    } else {
-                        changeUconfig({roundpb: true}, function(result){
-                            if(result === true){
-                                $(this).attr('checked', 'checked');
-                                $('img.pb').addClass('circle')
-                            }
-                        });
-                    }
-                });
-                $('#modal'+ mn + '-content form').children('#debug-mode').on('change', function(){
-                    if($(this).attr('checked') == 'checked'){
-                        changeUconfig({debugmode: false}, function(result){
-                            if(result === true){
-                                log.info('Client: Debug Mode disabled')
-                            }
-                        });
-                    } else {
-                        changeUconfig({debugmode: true}, function(result){
-                            if(result === true){
-                                log.info('Client: Debug Mode enabled')
-                            }
-                        });
-                    }
-                });
+                var form = $('#modal'+ mn + '-content form');
+                form.children('ul.tabs').tabs();
             },
             complete: function () {
                 $('#modal'+mn).remove()
@@ -291,9 +261,9 @@ $(function () {
         });
         $('#settings input[type="checkbox"]').on('click', function (event) {
             var id = $(this).attr('id').replace('-',''),
-                value = $(this).is(':checked'),
+                value = !!$(this).is(':checked'),
                 object = {};
-            object.id = value;
+            object[id] = value;
             changeUconfig(object, function(result){
                 if(result === true){
                     switch(id){
@@ -303,6 +273,23 @@ $(function () {
                             } else {
                                 $('img.responsive-img').removeClass('circle')
                             }
+                            break;
+                        case 'debugmode':
+                            if(value){
+                                log.info('Client: Debug Mode enabled')
+                            } else {
+                                log.info('Client: Debug Mode disabled')
+                            }
+                            break;
+                        case 'minimal':
+                            if(value){
+                                $(this).attr('checked', 'checked');
+                                $('.card.tweet').addClass('minimal')
+                            } else {
+                                $(this).removeAttr('checked');
+                                $('.card.tweet').removeClass('minimal')
+                            }
+                            break;
                     }
                 }
             });

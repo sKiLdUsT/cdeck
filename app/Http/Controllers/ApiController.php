@@ -156,10 +156,13 @@ class ApiController extends Controller
                             $uconfig->activeID = $value;
                             break;
                         case "roundpb":
-                            $uconfig->roundpb = $value;
+                            $uconfig->roundpb = $value === 'true'? true: false;;
                             break;
                         case "debugmode":
-                            $uconfig->debugmode = $value;
+                            $uconfig->debugmode = $value === 'true'? true: false;;
+                            break;
+                        case "minimal":
+                            $uconfig->minimal = $value === 'true'? true: false;;
                             break;
                     }
                 }
@@ -172,7 +175,8 @@ class ApiController extends Controller
                     "access_level" => $uconfig->access_level,
                     "activeID" => isset($uconfig->activeID) ? $uconfig->activeID : 0,
                     "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true,
-                    "debugmode" => isset($uconfig->debugmode) ? $uconfig->debugmode : false
+                    "debugmode" => isset($uconfig->debugmode) ? $uconfig->debugmode : false,
+                    "minimal" => isset($uconfig->minimal) ? $uconfig->minimal: false
                 ]]);
             }
             return response()->json([
@@ -181,7 +185,8 @@ class ApiController extends Controller
                 "access_level" => $uconfig->access_level,
                 "activeID" => isset($uconfig->activeID) ? $uconfig->activeID : 0,
                 "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true,
-                "debugmode" => isset($uconfig->debugmode) ? $uconfig->debugmode : false
+                "debugmode" => isset($uconfig->debugmode) ? $uconfig->debugmode : false,
+                "minimal" => isset($uconfig->minimal) ? $uconfig->minimal : false
             ]);
         }
         return response()->json(['response' => false]);

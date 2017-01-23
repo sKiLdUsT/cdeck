@@ -248,3 +248,20 @@ h4 span.new.badge {
   border: unset;
   padding: unset;
 }
+
+form p {
+  text-align: unset!important;
+}
+
+.card.minimal {
+  div {
+    padding: 0.5rem;
+  }
+  .card-image {
+    height: 75px;
+  }
+  .card-title {
+    line-height: 1.5;
+    font-size: 20px;
+  }
+}

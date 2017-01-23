@@ -188,7 +188,8 @@ function hexToRgbA(hex, alpha){
 
 window.log = {
     debug: function(string){
-        console.log('%c[DEBUG]'+'%c '+string,'background:blue;color:white','background:unset,color:unset')
+        if(uconfig.debugmode)
+            console.log('%c[DEBUG]'+'%c '+string,'background:blue;color:white','background:unset,color:unset')
     },
     info: function(string){
         console.info('%c[INFO]'+'%c  '+string,'background: green;color: white','background:unset,color:unset')
