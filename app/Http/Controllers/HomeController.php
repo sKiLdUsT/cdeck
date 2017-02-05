@@ -90,7 +90,7 @@ class HomeController extends Controller
         $clients = $this->clients;
         $aID = !is_null($this->uconfig) ? $this->uconfig->activeID : 0;
         $accounts = $this->accounts;
-        
+
         # Return view
         return view('app.home', compact('title', 'deliver', 'clients', 'accounts', 'aID'));
     }

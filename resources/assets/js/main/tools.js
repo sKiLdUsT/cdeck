@@ -204,7 +204,7 @@ window.log = {
     },
     error: function(string){
         console.error('%c[ERROR]'+'%c '+string,'background: red;color: white','background:unset,color:unset')
-    },
+    }
 };
 
 // Taken from http://stackoverflow.com/a/25490531
@@ -251,8 +251,12 @@ function Y2RlY2s(){
                                 $('<script src="https://benahm.github.io/jquery.throwable/javascripts/jquery.throwable.js" type="text/javascript" id="throwable"></script> ').appendTo('body');
                             Materialize.toast('Wait for it...', 2000);
                             setTimeout(function () {
-                                $(".card.tweet").throwable({
-                                    gravity:{x:0,y:2}
+                                $('body').css('overflow', 'hidden');
+                                $("#timeline > .card.tweet").slice(0, 5).throwable({
+                                    gravity:{x:0,y:2},
+                                    bounce: 0.5,
+                                    collisionDetection: false,
+                                    autostart:true
                                 });
                             }, 3000);
                             break;

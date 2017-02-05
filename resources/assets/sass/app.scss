@@ -29,7 +29,24 @@ body {
     margin-top: -2em;
   }
   main {
-    padding: 2rem;
+    width: calc(100vw - 4rem)!important;
+    height: calc(100vh - 4rem)!important;
+    padding-top: 2rem;
+    left: 2rem;
+    right: 2rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    .row {
+      position: absolute;
+      height: calc(100vh - 3rem)!important;
+      width: unset!important;
+      padding-bottom: 2rem;
+      display: -webkit-flex;
+      -webkit-flex-flow: row;
+      .col {
+        width: 325px!important;
+      }
+    }
   }
 }
 
@@ -264,4 +281,12 @@ form p {
     line-height: 1.5;
     font-size: 20px;
   }
+}
+
+div.info {
+  position: fixed;
+  height: 100vh;
+  width: 350px;
+  z-index: 99999999;
+  right: -350px;
 }

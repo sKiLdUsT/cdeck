@@ -15,6 +15,7 @@ require('laravel-elixir-vue-2');
 elixir.config.sourcemaps = false;
 elixir.config.cssOutput = 'assets/css';
 elixir.config.jsOutput = 'assets/js';
+elixir.config.js.uglify.options.compress.unused = false;
 
 elixir(mix => {
     mix.sass(['app.scss', 'prism.scss'], 'public/assets/css');

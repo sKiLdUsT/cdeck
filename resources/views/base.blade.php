@@ -30,6 +30,11 @@
         <h4>Drop file to send</h4>
     </div>
 </div>
+<div class="lean-overlay" style="display:none">
+    <div class="blue-grey darken-4" id="info">
+
+    </div>
+</div>
 <div class="navbar-fixed">
     <nav role="navigation" class="red darken-4">
         <div class="nav-wrapper">
