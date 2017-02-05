@@ -201,11 +201,11 @@ $(function () {
     $('a#button_notifications').on('click', function(e){
         log.debug('UI: "#button_notifications" clicked');
         e.preventDefault();
-        var Notify = window.Notify.default;
         if(window.uconfig.notifications == "false"){
-            if(Notify.needsPermission){
-                Notify.requestPermission(onPermissionGranted, onPermissionDenied);
-            } else {
+            if (!("Notification" in window)) {
+                alert("This browser does not support desktop notification");
+            }
+            else if (Notification.permission === "granted") {
                 changeUconfig({notifications: true}, function(result){
                     if(result === true){
                         log.info('Client: Notifications enabled');
@@ -213,17 +213,21 @@ $(function () {
                     }
                 });
             }
-            function onPermissionGranted() {
-                changeUconfig({notifications: true}, function(result){
-                    if(result === true){
-                        log.info('Client: Notifications enabled');
-                        Materialize.toast(lang.menu.noti_enabled, 5000)
+            else if (Notification.permission !== 'denied') {
+                Notification.requestPermission(function (permission) {
+                    if (permission === "granted") {
+                        changeUconfig({notifications: true}, function(result){
+                            if(result === true){
+                                log.info('Client: Notifications enabled');
+                                Materialize.toast(lang.menu.noti_enabled, 5000)
+                            }
+                        });
                     }
                 });
             }
-            function onPermissionDenied() {
-                log.warn('Client: Notification permission denied');
-                Materialize.toast('Permission denied');
+            else if (Notification.permission === 'denied') {
+                log.info('Client: Notifications denied');
+                Materialize.toast('Permission denied by user', 5000)
             }
         }else{
             changeUconfig({notifications: false}, function(result){

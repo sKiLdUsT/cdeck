@@ -342,7 +342,6 @@
 
     // Function to display a Tweet
     Renderer.prototype.display = function ( data, socket, extra ) {
-        var Notify = window.Notify.default;
         if(extra === undefined){
             extra = {action: 'prepend'}
         }
@@ -413,13 +412,32 @@
                 });
                 if($app.state == "ready" && window.uconfig.notifications == "true" && !windowIsVisible()){
                     log.debug('Renderer: Spawning notification');
-                    if (!Notify.needsPermission){
-                        var myNotification = new Notify('cDeck', {
+                    if (!("Notification" in window)) {
+                        alert("This browser does not support desktop notification");
+                    }
+                    else if (Notification.permission === "granted") {
+                        var notification = new Notification('cDeck', {
                             body: '@'+finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
                             icon: finalTweet.source.profile_image_url_https
-                        });
-                        myNotification.show();
+                        })
                     }
+                    else if (Notification.permission !== 'denied') {
+                        Notification.requestPermission(function (permission) {
+                            if (permission === "granted") {
+                                changeUconfig({notifications: true}, function(result){
+                                    if(result === true){
+                                        log.info('Client: Notifications enabled');
+                                        Materialize.toast(lang.menu.noti_enabled, 5000)
+                                    }
+                                });
+                                var notification = new Notification('cDeck', {
+                                    body: '@'+finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
+                                    icon: finalTweet.source.profile_image_url_https
+                                })
+                            }
+                        });
+                    }
+
                 }
             }
         }
