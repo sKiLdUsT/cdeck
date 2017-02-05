@@ -1,7 +1,7 @@
 @extends('base')
 
 @section('content')
-    <main class= conatiner">
+    <main class="conatiner home">
         <div class="row">
             <div class="col s12 hide-on-large-only" style="height: auto">
                 <ul class="tabs">
