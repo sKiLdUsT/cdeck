@@ -57,7 +57,7 @@ class HomeController extends Controller
             $this->user->save();
             $this->user = Auth::user();
         } catch (\Exception $e){
-            return redirect(route('login'));
+            return 1;
         }
 
         # Get accounts the user has access to
@@ -72,12 +72,21 @@ class HomeController extends Controller
         # Set language, either from user setting or from browser settings transmitted
         # Otherwise use english. See .env for more details.
         App::setlocale(Request()->input('lang', (isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
-        return true;
+        return 0;
     }
 
     public function index(Request $request)
     {
-        $this->beforeRun() ?: App::abort(500);
+        switch ($this->beforeRun()) {
+            case 0:
+                break;
+            case 1:
+                return redirect(route('login'));
+                break;
+            default:
+                return App::abort(500);
+                break;
+        }
         # Check if the user's access token is set.
         # Sometime it gets unset, for whatever reason. Don't ask me!
         if (!$request->session()->has('access_token')) {
