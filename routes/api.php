@@ -16,8 +16,7 @@ use Illuminate\Http\Request;
 Route::get('/assets', 'ApiController@assets')->middleware('api');
 Route::any('/uconfig', 'ApiController@uconfig')->middleware('api');
 Route::get('/lang', 'ApiController@lang')->middleware('api');
-Route::any('/ping', 'ApiController@ping')->middleware('api');
-
+Route::any('/ping', ['as' => 'ping', 'uses' => 'ApiController@ping'])->middleware('api');
 Route::group(['prefix' => 'twitter', 'middleware' => 'api'], function ()
 {
     Route::get('getToken', 'ApiController@getToken');

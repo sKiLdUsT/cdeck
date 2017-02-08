@@ -25,17 +25,9 @@ body {
   nav .nav-wrapper i {
     height: unset;
   }
-  body > .section{
-    margin-top: -2em;
-  }
-  main {
-
-  }
-
   main.home {
     width: calc(100vw - 4rem)!important;
     height: calc(100vh - 4rem)!important;
-    padding-top: 2rem;
     left: 2rem;
     right: 2rem;
     overflow-x: auto;

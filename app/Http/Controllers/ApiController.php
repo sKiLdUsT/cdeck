@@ -53,7 +53,8 @@ class ApiController extends Controller
                     'oauth_token' => $token->oauth_token,
                     'oauth_token_secret' => $token->oauth_token_secret,
                     'screen_name' => $requestAccount->handle,
-                    'api_token' => $api_token
+                    'api_token' => $api_token,
+                    'level' => json_decode($requestAccount->uconfig)->access_level
                 ));
             }
             return(response()->json($finalAccount));

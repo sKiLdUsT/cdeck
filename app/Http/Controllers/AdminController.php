@@ -8,11 +8,13 @@ use Auth;
 use Twitter;
 use Cache;
 use Vluzrmos\LanguageDetector\Facades\LanguageDetector;
+use Tracker;
 
 class AdminController extends Controller
 {
     private $user;
     private $uconfig;
+    private $clients;
 
     public function beforeRun()
     {
@@ -30,11 +32,10 @@ class AdminController extends Controller
 
         # Check, if user is eligible to access this area
         # Reminder: 0 = regular user, 1 = blog access, 2 = admin
-        if($this->uconfig->access_level < 2)
+        if($this->uconfig->access_level !== 2)
         {
             # Return user to home page
-            redirect(route('index'));
-            die();
+            return 1;
         }
 
         # Check, if user tokens are still fresh.
@@ -56,19 +57,105 @@ class AdminController extends Controller
         }
         catch (\Exception $e)
         {
-            redirect(route('login'));
-            die();
+            return 2;
         }
 
         # Set language, either from user setting or from browser settings transmitted
         # Otherwise use english. See .env for more details.
         App::setlocale(Request()->input('lang', (isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
-        return true;
+        return 0;
     }
 
     public function index(Request $request){
-        $this->beforeRun() ?: App::abort(500);
 
+        switch ($this->beforeRun()) {
+            case 0:
+                break;
+            case 1:
+                return redirect(route('index'));
+                break;
+            case 2:
+                return redirect(route('login'));
+                break;
+            default:
+                return App::abort(500);
+                break;
+        }
 
+        # Site-specific vars for view
+        $title = 'Home - ';
+        $deliver = $request->input('deliver', 'null');
+        $clients = $this->clients;
+
+        # Return view
+        return view('app.admin', compact('title', 'deliver', 'clients'));
+    }
+
+    public function get(Request $request){
+
+        switch ($this->beforeRun()) {
+            case 0:
+                break;
+            case 1:
+                return redirect(route('index'));
+                break;
+            case 2:
+                return redirect(route('login'));
+                break;
+            default:
+                return App::abort(500);
+                break;
+        }
+
+        $rawPageViews = Tracker::pageViews(60 * 24 * 30);
+        $pageViews = ['date' => [], 'total' => []];
+        foreach ($rawPageViews as $date)
+        {
+            array_push($pageViews["date"], $date->date);
+            array_push($pageViews["total"], $date->total);
+        }
+
+        $sessions = Tracker::sessions(60 * 24 * 30);
+        $rawBrowsers = [];
+        $browsers = ['type' => [], 'total' => []];
+        $rawCountries = [];
+        $countries = ['name' => [], 'total' => []];
+        foreach ($sessions as $session)
+        {
+            if(!isset($rawBrowsers[$session->agent->browser . ' - ' . $session->agent->browser_version]))
+            {
+                $rawBrowsers[$session->agent->browser . ' - ' . $session->agent->browser_version] = 0;
+            }
+            $rawBrowsers[$session->agent->browser . ' - ' . $session->agent->browser_version]++;
+
+            if(!is_null($session->geoIp))
+            {
+                if(!isset($rawCountries[$session->geoIp->country_name]))
+                {
+                    $rawCountries[$session->geoIp->country_name] = 0;
+                }
+                $rawCountries[$session->geoIp->country_name]++;
+            }
+        }
+
+        foreach ($rawBrowsers as $data => $value)
+        {
+            array_push($browsers['type'], $data);
+            array_push($browsers['total'], $value);
+        }
+        foreach ($rawCountries as $data => $value)
+        {
+            array_push($countries['name'], $data);
+            array_push($countries['total'], $value);
+        }
+
+        if($request->wantsJson()){
+            return json_encode([
+                "pageViews" => $pageViews,
+                "browsers" => $browsers,
+                "countries" => $countries
+            ]);
+        }
+        return App::abort(405);
     }
 }

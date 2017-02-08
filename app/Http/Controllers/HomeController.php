@@ -57,6 +57,7 @@ class HomeController extends Controller
             $this->user->save();
             $this->user = Auth::user();
         } catch (\Exception $e){
+            dd($e);
             return 1;
         }
 
@@ -77,20 +78,22 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
+        # Check if the user's access token is set.
+        # Sometime it gets unset, for whatever reason. Don't ask me!
+        if (!$request->session()->has('access_token')) {
+            $request->session()->put('access_token', json_decode($this->user->token, true));
+        }
+
         switch ($this->beforeRun()) {
             case 0:
                 break;
             case 1:
+                return;
                 return redirect(route('login'));
                 break;
             default:
                 return App::abort(500);
                 break;
-        }
-        # Check if the user's access token is set.
-        # Sometime it gets unset, for whatever reason. Don't ask me!
-        if (!$request->session()->has('access_token')) {
-            $request->session()->put('access_token', json_decode($this->user->token, true));
         }
 
         # Site-specific vars for view
