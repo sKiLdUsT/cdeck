@@ -81,7 +81,7 @@ class HomeController extends Controller
         # Check if the user's access token is set.
         # Sometime it gets unset, for whatever reason. Don't ask me!
         if (!$request->session()->has('access_token')) {
-            $request->session()->put('access_token', json_decode($this->user->token, true));
+            $request->session()->put('access_token', json_decode(Auth::user()->token, true));
         }
 
         switch ($this->beforeRun()) {
