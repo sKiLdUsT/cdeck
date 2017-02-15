@@ -83,7 +83,7 @@ class AdminController extends Controller
         }
 
         # Site-specific vars for view
-        $title = 'Home - ';
+        $title = 'Admin - ';
         $deliver = $request->input('deliver', 'null');
         $clients = $this->clients;
 
