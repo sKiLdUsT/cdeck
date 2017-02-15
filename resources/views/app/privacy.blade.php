@@ -1,6 +1,6 @@
 @extends('base')
 @section('content')
-    <div class="container center white">
+    <div class="container center white black-text">
         <br>
         <h3>@lang('privacy.this')</h3>
         <div class="divider"></div><br>
