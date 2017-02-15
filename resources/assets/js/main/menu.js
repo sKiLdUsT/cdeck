@@ -1,5 +1,5 @@
 $(function () {
-    $('a#button_voice').on('click', function(e){
+    /*$('a#button_voice').on('click', function(e){
         log.debug('UI: "#button_voice" clicked');
         e.preventDefault();
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
@@ -151,7 +151,7 @@ $(function () {
                 }, 1000);
             }
         })
-    });
+    });*/
     $('a#button_nightmode').on('click', function(e){
         log.debug('UI: "#button_nightmode" clicked');
         e.preventDefault();

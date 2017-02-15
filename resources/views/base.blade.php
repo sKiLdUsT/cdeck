@@ -63,9 +63,9 @@
                     </li>
                     <ul id="apps" class="dropdown-content centered grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
                         <div class="row" style="margin-top: 20px">
-                            <div class="col s4">
+                            <div class="col s4 disabled">
                                 <li>
-                                    <a class="truncate tooltipped orange-text"data-tooltip="@lang('menu.voice')" id="button_voice"><i class="large material-icons" style="font-size:4rem;">keyboard_voice</i><span class="new badge red" data-badge-caption="Alpha"></span></a>
+                                    <a class="truncate tooltipped grey-text"data-tooltip="@lang('menu.voice')" id="button_voice"><i class="large material-icons" style="font-size:4rem;">keyboard_voice</i><span class="new badge red" data-badge-caption="Disabled"></span></a>
                                 </li>
                             </div>
                             <div class="col s4">

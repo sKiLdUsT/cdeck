@@ -225,6 +225,9 @@ class ApiController extends Controller
     # Function to create a cDeck Voice Message
     public function voiceNew(Request $request)
     {
+        # Disabled until rework is done
+        return response()->json(['response' => false]);
+        
         if(Auth::user()){
             $voice = new App\Voice;
             $user = Auth::user();
