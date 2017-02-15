@@ -12,7 +12,8 @@
         "skildust/gitlog": "^1.0",
         "cdeck/bbcodeparser": "^2.2.3",
         "pragmarx/tracker": "^3.1",
-        "geoip2/geoip2": "^2.4"
+        "geoip2/geoip2": "^2.4",
+        "fideloper/proxy": "^3.2"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

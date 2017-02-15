@@ -179,7 +179,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         Vluzrmos\LanguageDetector\Providers\LanguageDetectorServiceProvider::class,
         'Thujohn\Twitter\TwitterServiceProvider',
-        'PragmaRX\Tracker\Vendor\Laravel\ServiceProvider'
+        'PragmaRX\Tracker\Vendor\Laravel\ServiceProvider',
+        'Fideloper\Proxy\TrustedProxyServiceProvider'
 
     ],
 
