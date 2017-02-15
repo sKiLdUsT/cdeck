@@ -24,9 +24,9 @@ return [
      * how many proxies that client's request has
      * subsequently passed through.
      */
-    'proxies' => [
-        '192.168.122.1',
-    ],
+    #'proxies' => [
+    #    '192.168.122.1',
+    #],
 
     /*
      * Or, to trust all proxies that connect
@@ -38,7 +38,7 @@ return [
      * Or, to trust ALL proxies, including those that
      * are in a chain of fowarding, uncomment this:
     */
-    # 'proxies' => '**',
+     'proxies' => '**',
 
     /*
      * Default Header Names
