@@ -27,10 +27,11 @@ Route::get('/admin/get', ['as' => 'admin.get', 'uses' => 'AdminController@get'])
 
 # Blog Routes
 
-Route::group(['prefix' => 'blog'], function ()
+# Disabled until rework
+/*Route::group(['prefix' => 'blog'], function ()
 {
     Route::get('/{page?}', 'BlogController@index');
     Route::get('post/{id}', 'BlogController@post');
     Route::get('new', 'BlogController@new');
     Route::get('users', 'BlogController@users');
-});
+});*/
