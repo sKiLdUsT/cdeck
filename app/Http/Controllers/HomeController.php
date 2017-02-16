@@ -50,8 +50,8 @@ class HomeController extends Controller
         try {
             $data = Twitter::query('account/verify_credentials', 'GET');
             $this->user->media = json_encode([
-                'avatar' => $data->profile_image_url_https,
-                'banner' => $data->profile_banner_url]);
+                'avatar' => isset($data->profile_image_url_https) ? $data->profile_image_url_https : '',
+                'banner' => isset($data->profile_banner_url) ? $data->profile_banner_url : '']);
             $this->user->name = base64_encode($data->name);
             $this->user->handle = $data->screen_name;
             $this->user->save();
