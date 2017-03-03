@@ -36,6 +36,7 @@
             </div>
         </div>
 @unless(isset($deliver) AND $deliver == 'raw')
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
             <script type="text/javascript" src="{{elixir('assets/js/app.voice.js')}}"></script>
     </body>
 </html>

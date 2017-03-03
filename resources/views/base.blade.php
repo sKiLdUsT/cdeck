@@ -6,17 +6,35 @@
     @include('include.head')
 </head>
 <body class="grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
-<div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: rgba(0, 0, 0, 0.75);" class="loader valign-wrapper">
-    <img src="/assets/img/pulse.gif">
+<body class="grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
+<div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;" class="loader valign-wrapper splash">
+    <video autoplay loop src="/assets/img/pulse.webm"></video>
 </div>
 <noscript>
-    <div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;" class="loader valign-wrapper">
-        <div class="container">
+    <style>
+        @keyframes pulsing {
+            0% {background-color: #000}
+            50% {background-color: #424242}
+            100% {background-color: #000}
+        }
+    </style>
+    <div style="z-index: 9999; width: 100%; height: 100%; position: fixed; background-color: #000;animation: pulsing 5s ease-in-out infinite;" class="loader valign-wrapper">
+        <div class="container white-text">
             <h1>Hi there!</h1><br>
-            <h3>Unfortunately you need JavaScript activated and functioning to use this service. That's a bummer :-(</h3>
+            <h3>Unfortunately you need JavaScript & Cookies activated and functioning to use this service. That's a bummer :-(</h3>
         </div>
     </div>
 </noscript>
+<div id="dragdrop" class="valign-wrapper" style="display: none">
+    <div class="valign">
+        <h4>Drop file to send</h4>
+    </div>
+</div>
+<div class="lean-overlay" style="display:none">
+    <div class="blue-grey darken-4" id="info">
+
+    </div>
+</div>
 <div class="navbar-fixed">
     <nav role="navigation" class="red darken-4">
         <div class="nav-wrapper">
@@ -45,9 +63,9 @@
                     </li>
                     <ul id="apps" class="dropdown-content centered grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
                         <div class="row" style="margin-top: 20px">
-                            <div class="col s4">
+                            <div class="col s4 disabled">
                                 <li>
-                                    <a class="truncate tooltipped orange-text"data-tooltip="@lang('menu.voice')" id="button_voice"><i class="large material-icons" style="font-size:4rem;">keyboard_voice</i><span class="new badge red" data-badge-caption="Alpha"></span></a>
+                                    <a class="truncate tooltipped grey-text"data-tooltip="@lang('menu.voice')" id="button_voice"><i class="large material-icons" style="font-size:4rem;">keyboard_voice</i><span class="new badge red" data-badge-caption="Disabled"></span></a>
                                 </li>
                             </div>
                             <div class="col s4">
@@ -81,9 +99,9 @@
                     </ul>
                     <li><a href="#" class="tooltipped" data-tooltip="@lang('menu.messages')"><i class="material-icons">chat_bubble_outline</i></a></li>
                     <li><a class="dropdown-button" href="#" data-activates="accounts">
-                            @if(Auth::user() && isset($accounts) && $accounts[0]->avatar)
-                                <img src="{{str_replace("_normal", "", $accounts[isset($aid) ? $aid : 0]->avatar)}}" alt="@lang('message.pb')"
-                                     class="circle responsive-img valign pb" id="pb">
+                            @if(Auth::user() && isset($accounts) && $accounts[0]->media->avatar)
+                                <img src="{{str_replace("_normal", "", $accounts[isset($aid) ? $aid : 0]->media->avatar)}}" alt="@lang('message.pb')"
+                                     class="@if(json_decode(Auth::user()->uconfig)->roundpb == "true") circle @endif responsive-img valign pb" id="pb">
                             @else
                                 <i class="material-icons">account_circle</i>
                             @endif
@@ -91,11 +109,11 @@
                         <ul id="accounts" class="dropdown-content grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}" style="margin-top:64px;">
                             <?php $count = 0; ?>
                             @if(isset($accounts))
-                                @foreach($accounts as $account)
-                                    <li><a data-id="{{$count++}}" class="changeTl"><img src="{{str_replace("_normal", "", $account->avatar)}}"
-                                                                                                  alt="@lang('message.pb')"
-                                                                                                  class="circle responsive-img pb">{{$account->name}}
-                                        </a></li>
+                                    @foreach($accounts as $account)
+                                        <li><a data-id="{{$count++}}" class="changeTl"><img src="{{str_replace("_normal", "", $account->media->avatar)}}"
+                                                                                            alt="@lang('message.pb')"
+                                                                                            class="@if(json_decode(Auth::user()->uconfig)->roundpb == "true") circle @endif responsive-img pb">{{base64_decode($account->name)}}
+                                            </a></li>
                                     @endforeach
                             @endif
                             <li class="divider"></li>
@@ -108,9 +126,9 @@
                 @unless(!isset($blogmode))
                     <li class="center-align">
                     <li><a href="@if(!Auth::user()) /login @else /blog/settings @endif">
-                            @if(Auth::user() && isset($accounts) && $accounts[0]->avatar)
-                                <img src="{{$accounts[0]->avatar}}" alt="@lang('message.pb')"
-                                     class="circle responsive-img valign" id="pb">
+                            @if(Auth::user() && isset($accounts) && $accounts[0]->media->avatar)
+                                <img src="{{$accounts[0]->media->avatar}}" alt="@lang('message.pb')"
+                                     class="@if(json_decode(Auth::user()->uconfig)->roundpb == "true") circle @endif responsive-img valign" id="pb">
                             @else
                                 <i class="material-icons">account_circle</i>
                             @endif
@@ -123,9 +141,9 @@
                    style="margin-left: 18px;"><i class="material-icons">menu</i></a>
                 <ul id="slide-out" class="side-nav grey {{ $colormode == 0 ? 'lighten-2 black-text' : 'darken-3 white-text'}}">
                     <li><div class="userView">
-                            @if(Auth::user() && isset($accounts) && $accounts[0]->avatar)
-                                <img class="background" src="{{$accounts[0]->banner}}" style="max-height: 200px;margin-left: -50%;">
-                                <img class="circle" src=" {{str_replace("_normal", "", $accounts[0]->avatar)}}">
+                            @if(Auth::user() && isset($accounts) && $accounts[0]->media->avatar)
+                                <img class="background" src="{{$accounts[0]->media->banner}}" style="max-height: 200px;margin-left: -50%;">
+                                <img class="circle" src=" {{str_replace("_normal", "", $accounts[0]->media->avatar)}}">
                                 <span class="name white-text">{{$accounts[0]->name}}</span>
                             @else
                                 <i class="material-icons">account_circle</i>

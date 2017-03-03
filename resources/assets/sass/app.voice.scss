@@ -1,11 +1,9 @@
-@import "node_modules/materialize-css/sass/materialize";
+@import "materialize/materialize";
 
 body {
   background: no-repeat fixed center center;
   background-size: cover;
   height: 100vh;
-  min-height: 374px;
-  min-width: 490px;
   .section {
     height: 100%;
     display: flex;
@@ -15,6 +13,7 @@ body {
       width: 100%;
       .user {
         min-height: 170px;
+        display: none;
         div {
           display: inline-block;
         }
@@ -31,5 +30,11 @@ body {
         padding: 0 !important;
       }
     }
+  }
+}
+
+@media only screen and (min-width: 490px) {
+  div.user{
+    display: inherit!important;
   }
 }

@@ -1,5 +1,6 @@
 $(function () {
-    $('a#button_voice').on('click', function(e){
+    /*$('a#button_voice').on('click', function(e){
+        log.debug('UI: "#button_voice" clicked');
         e.preventDefault();
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
         URL = window.URL || window.webkitURL;
@@ -27,7 +28,6 @@ $(function () {
                 }
             }, onAudio , function(e) {
                 alert('Error getting audio');
-                console.log(e);
             }
         );
 
@@ -151,8 +151,9 @@ $(function () {
                 }, 1000);
             }
         })
-    });
+    });*/
     $('a#button_nightmode').on('click', function(e){
+        log.debug('UI: "#button_nightmode" clicked');
         e.preventDefault();
         var sel = $('.grey');
         var tweets = $('.blue-grey');
@@ -182,6 +183,7 @@ $(function () {
         }
     });
     $('a#button_map').on('click', function(e){
+        log.debug('UI: "#button_map" clicked');
         e.preventDefault();
         var mn = spawnModal();
         $('#modal' + mn + '-header').text('Kontrollraum Twitter-Map');
@@ -194,34 +196,43 @@ $(function () {
                 $(this).remove()
             }
         });
-        $('#modal' + mn + '-content').html('<iframe name="map" class="z-depth-2" scrolling="no" width="100%" height="100%" style="border: 0 solid;" src="//map.kontrollraum.org"></iframe>');
+        $('#modal' + mn + '-content').html('<iframe name="map" class="z-depth-2" scrolling="no" width="100%" height="100%" style="border: 0 solid;height:50vh;" src="//map.kontrollraum.org"></iframe>');
     });
     $('a#button_notifications').on('click', function(e){
+        log.debug('UI: "#button_notifications" clicked');
         e.preventDefault();
-        if(notify.isSupported !== true){
-            throw new CDeckError('Browser not supported');
-        }
-        if(uconfig.notifications == "false"){
-            if(notify.permissionLevel() != notify.PERMISSION_GRANTED){
-                if(notify.permissionLevel() == notify.PERMISSION_DENIED){
-                    Materialize.toast('Verweigert! Bitte erlaube cDeck in deinen Browser-Einstellungen, diese Funktion zu nutzen.', 5000);
-                    throw new CDeckError('No Permission to access notifications. Result was: '+notify.permissionLevel())
-                }
-                notify.requestPermission(function(response){
-                    if(response != notify.PERMISSION_GRANTED){
-                        Materialize.toast('Verweigert! Bitte erlaube cDeck in deinen Browser-Einstellungen, diese Funktion zu nutzen.', 5000);
-                        throw new CDeckError('No Permission to access notifications. Result was: '+notify.permissionLevel())
-                    }
-                })
+        if(window.uconfig.notifications == "false"){
+            if (!("Notification" in window)) {
+                alert("This browser does not support desktop notification");
             }
-            changeUconfig({notifications: true}, function(result){
-                if(result === true){
-                    Materialize.toast(lang.menu.noti_enabled, 5000)
-                }
-            });
+            else if (Notification.permission === "granted") {
+                changeUconfig({notifications: true}, function(result){
+                    if(result === true){
+                        log.info('Client: Notifications enabled');
+                        Materialize.toast(lang.menu.noti_enabled, 5000)
+                    }
+                });
+            }
+            else if (Notification.permission !== 'denied') {
+                Notification.requestPermission(function (permission) {
+                    if (permission === "granted") {
+                        changeUconfig({notifications: true}, function(result){
+                            if(result === true){
+                                log.info('Client: Notifications enabled');
+                                Materialize.toast(lang.menu.noti_enabled, 5000)
+                            }
+                        });
+                    }
+                });
+            }
+            else if (Notification.permission === 'denied') {
+                log.info('Client: Notifications denied');
+                Materialize.toast('Permission denied by user', 5000)
+            }
         }else{
             changeUconfig({notifications: false}, function(result){
                 if(result === true){
+                    log.info('Client: Notifications disabled');
                     Materialize.toast(lang.menu.noti_disabled, 5000)
                 }
             });
@@ -229,44 +240,84 @@ $(function () {
         }
     });
     $('a#button_settings').on('click', function(e){
+        log.debug('UI: "#button_settings" clicked');
         e.preventDefault();
         var mn = spawnModal(),
-            colormode = uconfig.colormode == "1" ? 'grey darken-2 white-text' : '';
+            colormode = uconfig.colormode == "1" ? 'grey darken-2 white-text' : '',
+            setting = {
+                roundpb: uconfig.roundpb ? 'checked="checked"' : '',
+                debugmode: uconfig.debugmode ? 'checked="checked"' : '',
+                minimal: uconfig.minimal ? 'checked="checked"' : ''
+            };
         $('#modal' + mn + '-header').text(lang.menu.settings);
-        $('#modal' + mn + '-content').html('<ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui">UI</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><form><p><input type="checkbox" class="filled-in" id="round-pb" checked="checked" disabled="disabled" value="1" /> <label for="round-pb">Round Profile Pictures</label></p></form></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/impressum">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/datenschutz">'+lang.privacy.this+'</a></p></div>');
+        $('#modal' + mn + '-content').html('<form id="settings"><ul class="tabs '+colormode+'"><li class="tab col s4"><a class="active" href="#settings_ui" id="ui">UI</a></li><li class="tab col s4"><a href="#settings_client">Client</a></li><li class="tab col s4"><a href="#settings_about">About</a></li></ul><div id="settings_ui" class="container"><p><input type="checkbox" class="filled-in" id="round-pb" '+ setting.roundpb +' /> <label for="round-pb">Round Profile Pictures</label></p><p><input type="checkbox" class="filled-in" id="minimal" '+ setting.minimal +' /> <label for="minimal">Minimal Tweet Cards</label></p><p><div class="file-field input-field"> <div class="btn"> <span>Change local background</span> <input type="file" id="settings-bg"> </div> <div class="file-path-wrapper hidden"><input class="file-path validate" type="text"></div></div></p></div><div id="settings_client" class="container"><p><input type="checkbox" class="filled-in" id="debug-mode" '+ setting.debugmode +' /> <label for="debug-mode">Debug Mode</label></p></div><div id="settings_about" class="container" style="display: none"><h3>cDeck Web Client</h3><p>Client Build: '+$app.version+'</p><p><a target="_blank" href="//github.com/cDeckTeam/cdeck-client.js">cDeck API Client</a> Version: '+cDeck.version+'</p><p>©2016-2017 cDeck Team / <a target="_blank" href="//kontrollraum.org">Kontrollraum.org</a></p><div class="divider"></div><p><a target="_blank" href="/imprint">'+lang.disclaimer.imprint+'</a></p><p><a target="_blank" href="/privacy">'+lang.privacy.this+'</a></p></div></form>');
         $('#modal' + mn + '-content').children('div.container').css({margin: '2em auto'});
         $('#modal'+mn).openModal({
             dismissible: true,
             opacity: .5,
             ready:function(){
-                $('#modal'+ mn + '-content').children('ul.tabs').tabs();
-                $('#modal'+ mn + '-content form').children('#round-pb').on('change', function(){
-                    if($(this).attr('checked') == 'checked'){
-                        changeUconfig({roundpb: false}, function(result){
-                            if(result === true){
-                                $(this).removeAttr('checked');
-                                $('img.pb').removeClass('circle')
-                            }
-                        });
-                    } else {
-                        changeUconfig({roundpb: true}, function(result){
-                            if(result === true){
-                                $(this).attr('checked', 'checked');
-                                $('img.pb').addClass('circle')
-                            }
-                        });
-                    }
-                });
+                var form = $('#modal'+ mn + '-content form');
+                form.children('ul.tabs').tabs();
             },
             complete: function () {
                 $('#modal'+mn).remove()
             }
         });
-        $('#modal' + mn + ' form').on('submit', function (event) {
-            event.preventDefault();
+        $('#settings input[type="checkbox"]').on('click', function (event) {
+            var id = $(this).attr('id').replace('-',''),
+                value = !!$(this).is(':checked'),
+                object = {};
+            object[id] = value;
+            changeUconfig(object, function(result){
+                if(result === true){
+                    switch(id){
+                        case 'roundpb':
+                            if(value){
+                                $('img.responsive-img').addClass('circle')
+                            } else {
+                                $('img.responsive-img').removeClass('circle')
+                            }
+                            break;
+                        case 'debugmode':
+                            if(value){
+                                log.info('Client: Debug Mode enabled')
+                            } else {
+                                log.info('Client: Debug Mode disabled')
+                            }
+                            break;
+                        case 'minimal':
+                            if(value){
+                                $(this).attr('checked', 'checked');
+                                $('.card.tweet').addClass('minimal')
+                            } else {
+                                $(this).removeAttr('checked');
+                                $('.card.tweet').removeClass('minimal')
+                            }
+                            break;
+                    }
+                }
+            });
         });
+        $('#settings-bg').on('change', function (event) {
+            event.preventDefault();
+            var reader = new FileReader();
+            reader.readAsDataURL($(this)[0].files[0]);
+            reader.onload = function () {
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem("background", reader.result);
+                    $('body').css('background-image', 'url('+reader.result+')')
+                } else {
+                    throw new CDeckError('Missing localStorage support')
+                }
+            };
+            reader.onerror = function (error) {
+                log.error(error);
+            };
+        });
+
     });
     $('a#button_language').on('click', function(e){
+        log.debug('UI: "#button_language" clicked');
         e.preventDefault();
         var mn = spawnModal();
         $('#modal' + mn + '-header').text(lang.menu.lang);
@@ -305,6 +356,7 @@ $(function () {
     });
 
     $('a.changeTl').on('click', function () {
+        log.debug('UI: ".changeTl" clicked');
         if($(this).attr('data-id') != $app.activeID){
             cDeck.close();
             $('.card.tweet').remove();
@@ -327,6 +379,7 @@ $(function () {
 
     });
     $('a#button_remacc').on('click', function(e){
+        log.debug('UI: "#button_remacc" clicked');
         e.preventDefault();
         var mn = spawnModal();
         var accounts = $('a.changeTl').clone().removeClass('changeTl').addClass('btn-large red').css({margin: '0 5px'});
@@ -346,6 +399,7 @@ $(function () {
     });
     $('.dropdown-button').dropdown({constrain_width: false, belowOrigin: true});
     $('#search_activate').on('click', function (e){
+        log.debug('UI: search bar clicked');
         if(e !== undefined){
             e.preventDefault();
         }
@@ -354,9 +408,15 @@ $(function () {
         $(search.parent()).children('form').fadeIn();
         $(search.parent()).find('input').focus();
     });
-    $($('#search_activate').parent()).find('input').blur(function(){
-        ($($('#search_activate').parent()).children('form').fadeOut());
-        setTimeout(function(){$('#search_activate').show()}, 350);
-    });
+    $($('#search_activate').parent()).find('input')
+        .on('blur', function(){
+            log.debug('UI: outside search bar clicked');
+            $(this).val('');
+            ($($('#search_activate').parent()).children('form').fadeOut(350, function () {$('#search_activate').show()}));
+        })
+        .on('keyup', function(){
+            if($(this).val() == 'Y2RlY2s' && $('.modal').length == 0)
+                Y2RlY2s();
+        });
     $('.collapsible').collapsible();
 });

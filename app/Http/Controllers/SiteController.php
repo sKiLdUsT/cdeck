@@ -3,110 +3,111 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests;
-use Session;
 use App;
+use Cache;
+use Auth;
 use Vluzrmos\LanguageDetector\Facades\LanguageDetector;
-use Illuminate\Support\Facades\Storage;
 
 class SiteController extends Controller
 {
-    private $cdndl;
-    public function __construct()
+    /*
+     |--------------------------------------------------------------------------
+     | Site Controller
+     |--------------------------------------------------------------------------
+     |
+     | This controller handles common requests that don't need authentication.
+     |
+     */
+
+    public $clients;
+
+    public function beforeRun()
     {
-        \App::setlocale(Request()->input('lang', (\Auth::user() && isset(json_decode(\Auth::user()->uconfig)->lang)) ? json_decode(\Auth::user()->uconfig)->lang : LanguageDetector::detect()));
-        $this->cdndl = 'https://cdn.skildust.com/dl/cdeck/meta.json';
+        # Set Controller-wide vars (to save time and code)
+
+        # Set language, either from user setting or from browser settings transmitted
+        # Otherwise use english. See .env for more details.
+        App::setlocale(Request()->input('lang', (!is_null(Auth::user()) && isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
+
+        # Get Client build info from cache (refreshed every 5 minutes through cron)
+        # Otherwise just set it.
+        $this->clients = Cache::remember('clients', 5, function () {
+            return json_decode(file_get_contents('https://cdn.skildust.com/dl/cdeck/meta.json'));
+        });
+        return true;
     }
+
+    # Login View
     public function login(Request $request){
-        if (env('APP_BETA') == 'true') {
-            if (!$request->session()->has('beta_key')) {
-                return redirect()->route('beta');
-            }
-        }
+        # Fist check if user is already logged in and if so
+        # Redirect him back to home page
+        if(!is_null(Auth::user()))return redirect()->route('index');
+
+        $this->beforeRun() ?: App::abort(500);
+
+        # Site-specific vars for view
         $title = 'Login - ';
         $deliver = $request->input('deliver', 'null');
         $hideNavbar = true;
-        $clients = json_decode(file_get_contents($this->cdndl));
+        $clients = $this->clients;
+
+        # Return view
         return view('auth.login', compact('title', 'deliver', 'hideNavbar', 'clients'));
     }
-    public function beta(Request $request){
-        if (env('APP_BETA') == 'beta') {
-            if ($request->session()->has('beta_key')) {
-                return redirect()->route('index');
-            }
-            $title = 'Beta Token - ';
-            $deliver = $request->input('deliver', 'null');
-            $hideNavbar = true;
-            $clients = json_decode(file_get_contents($this->cdndl));
-            return view('auth.beta', compact('title', 'deliver', 'hideNavbar', 'clients'));
-        }
-        return redirect()->route('index');
-    }
-    public function memo(){
-        $title = 'Memo - ';
-        $request = Request();
-        $deliver = $request->input('deliver', 'null');
-        $hideNavbar = true;
-        return ("Kommt noch.");
-    }
-    public function register(){
-        $title = 'Register - ';
-        $request = Request();
-        $deliver = $request->input('deliver', 'null');
-        $hideNavbar = true;
-        $clients = json_decode(file_get_contents($this->cdndl));
-        return view('auth.register', compact('title', 'deliver', 'hideNavbar', 'clients'));
-    }
-    public function impressum(){
-        $title = 'Impressum - ';
-        $request = Request();
-        $deliver = $request->input('deliver', 'null');
-        $hideNavbar = true;
-        $clients = json_decode(file_get_contents($this->cdndl));
-        return view('app.impressum', compact('title', 'deliver', 'hideNavbar', 'clients'));
-    }
-    public function datenschutz(){
-        $title = 'Datenschutz - ';
-        $request = Request();
-        $deliver = $request->input('deliver', 'null');
-        $hideNavbar = true;
-        $clients = json_decode(file_get_contents($this->cdndl));
-        return view('app.datenschutz', compact('title', 'deliver', 'hideNavbar', 'clients'));
-    }
-    public function changelog(){
-        $title = 'Changelog - ';
-        $request = Request();
-        $deliver = $request->input('deliver', 'null');
-        $hideNavbar = true;
-        $clients = json_decode(file_get_contents($this->cdndl));
-        $log = (new \Skildust\Gitlog\Gitlog)->get();
-        return view('app.changelog', compact('title', 'deliver', 'hideNavbar', 'clients', 'log'));
-    }
-    public function showVoice($id){
-        $voice = App\Voice::where('id', $id)->first();
-        if($voice == null)
-        {
-            App::abort(404);
-        }
-        $user = App\User::where('id', $voice->uid)->first();
-        if($user == null)
-        {
-            App::abort(500);
-        }
+    # Imprint View
+    public function imprint(Request $request){
+        $this->beforeRun() ?: App::abort(500);
 
+        # Site-specific vars for view
+        $title = 'Imprint - ';
+        $deliver = $request->input('deliver', 'null');
+        $hideNavbar = true;
+        $clients = $this->clients;
+
+        # Return view
+        return view('app.imprint', compact('title', 'deliver', 'hideNavbar', 'clients'));
+    }
+    # Privacy View
+    public function privacy(Request $request){
+        $this->beforeRun() ?: App::abort(500);
+
+        # Site-specific vars for view
+        $title = 'Privacy - ';
+        $deliver = $request->input('deliver', 'null');
+        $hideNavbar = true;
+        $clients = $this->clients;
+
+        # Return view
+        return view('app.privacy', compact('title', 'deliver', 'hideNavbar', 'clients'));
+    }
+
+    # cDeck Voice Message View
+    public function showVoice(Request $request, $id){
+        $this->beforeRun() ?: App::abort(500);
+        # Get Voice Message details
+        $vm = App\Voice::where('id', $id)->first();
+        if(is_null($vm)) App::abort(404);
+
+        # Get user details
+        $user = App\User::where('id', $vm->uid)->first();
+        if(is_null($user)) App::abort(500);
+
+        # Construct new user object for view
         $user = (object) [
-            "name" => $user->name,
+            "name" => base64_decode($user->name),
             "handle" => $user->handle,
             "avatar" => json_decode($user->media)->avatar,
             "banner" => json_decode($user->media)->banner
         ];
 
+        # Site-specific vars for view
         $title = $user->name.'\'s Voice Message - ';
-        $request = Request();
         $deliver = $request->input('deliver', 'null');
-        $url = $voice->path;
-        $time = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $voice->created_at)->formatLocalized('%A, %d %B %Y %R %Z');
+        $url = $vm->path;
+        $time = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $vm->created_at)->formatLocalized('%A, %d %B %Y %R %Z');
+        $voice = true;
 
+        # Return view
         return view('voice', compact('title', 'deliver', 'voice', 'user', 'url', 'time'));
     }
 }

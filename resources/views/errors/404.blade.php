@@ -1,7 +1,7 @@
 <?php App::setlocale(Request()->input('lang', (Auth::user() && isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : \Vluzrmos\LanguageDetector\Facades\LanguageDetector::detect())); ?>
 @extends('base')
 @section('content')
-<div class="container valign-wrapper">
+<div class="container valign-wrapper" style="height:calc(100vh - 64px)">
     <div class="valign">
         <div class="row col s12">
             <div class="row">

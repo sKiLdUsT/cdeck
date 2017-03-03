@@ -43,7 +43,6 @@ if(window.location.pathname.match(/^.*(\/blog)/)){
                     data: $('#modal' + modalNumber + ' form').serialize(),
                     dataType: 'json',
                     success: function(e){
-                        console.log(e);
                         if(e.response === true){
                             $('#modal' + modalNumber2).closeModal();
                             $('#modal' + modalNumber + '-content').empty().html('<b>'+lang.blog.posted+'</b><br><a href="/blog/post/'+e.id+'" class="button btn btn-medium grey">'+lang.blog.show+'</a>');

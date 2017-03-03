@@ -20,4 +20,6 @@ return [
     "retweet" => "hat dich retweeted",
     "quote" => "hat dich zitiert",
     "like" => "gefällt dein Tweet",
+    "follow" => "folgt dir jetzt",
+    "cookies" => "Diese Seite benutzt Cookies. Bei weiterer Benutzung stimmen sie automatisch unseren Nutzungsbedingungen (<a href='/tos'>hier</a>) und Datenschutz-Bestimmungen (<a href='/privacy'>hier</a>) zu."
 ];

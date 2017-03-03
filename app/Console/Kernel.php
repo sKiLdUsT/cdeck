@@ -4,9 +4,6 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Twitter;
-use DB;
-use Cache;
 
 class Kernel extends ConsoleKernel
 {
@@ -16,7 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\Inspire::class,
+        //
     ];
 
     /**
@@ -27,6 +24,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->call(function () {
+            $clients = json_decode(file_get_contents('https://cdn.skildust.com/dl/cdeck/meta.json'));
+            Cache::put('clients', $clients, 5);
+        })->everyFiveMinutes();
         $schedule->call(function () {
             $config = Twitter::get('help/configuration');
             Cache::put('twitter_config', $config, 1440);
@@ -46,5 +47,15 @@ class Kernel extends ConsoleKernel
                 } catch (\Exception $e) {}
             }
         })->everyFiveMinutes();
+    }
+
+    /**
+     * Register the Closure based commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        require base_path('routes/console.php');
     }
 }

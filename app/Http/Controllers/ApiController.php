@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Vluzrmos\LanguageDetector\Facades\LanguageDetector;
 use Auth;
-use App\Http\Requests;
 use URL;
 use Twitter;
 use Cache;
@@ -15,11 +14,28 @@ use App;
 
 class ApiController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | API Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles API requests.
+    |
+    */
+
     public function __construct()
     {
         App::setlocale(Request()->input('lang', (Auth::user() && isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
     }
-    public function getToken(){
+
+    /*
+        GET
+     */
+
+    # Function to request Twitter Token stuff.
+    # Also delivers the API token.
+    public function getToken()
+    {
         $user = Auth::user();
         if($user){
             $finalAccount = [];
@@ -37,38 +53,92 @@ class ApiController extends Controller
                     'oauth_token' => $token->oauth_token,
                     'oauth_token_secret' => $token->oauth_token_secret,
                     'screen_name' => $requestAccount->handle,
-                    'api_token' => $api_token
+                    'api_token' => $api_token,
+                    'level' => json_decode($requestAccount->uconfig)->access_level
                 ));
             }
-            return(json_encode($finalAccount));
+            return(response()->json($finalAccount));
         }else{
-            return(json_encode(array('error' => 'unauthorized')));
+            return response()->json(['error' => 'unauthorized']);
         }
     }
-    public function getSession(){
-        return(json_encode(session()->all()));
-        //$user = Auth::user();
-        //return($user);
+
+    # Function to fetch latest server assets
+    public function assets()
+    {
+        return response()->json(array("css" => URL::to(elixir('assets/css/app.css')), "js" => URL::to(elixir('assets/js/app.js'))));
     }
-    public function assets(){
-        return json_encode(array("css" => URL::to(elixir('assets/css/app.css')), "js" => URL::to(elixir('assets/js/app.js'))));
+
+    # Function to fetch Twitter config
+    public function tconfig()
+    {
+        return response()->json(Cache::get('twitter_config'));
     }
-    public function tconfig(){
-        return json_encode(Cache::get('twitter_config'));
+
+    # Function to get cDeck translation stuff
+    public function lang()
+    {
+        return response()->json([
+            "external" => trans('external'),
+            "menu" => trans('menu'),
+            "message" => trans('message'),
+            "blog" => trans('blog'),
+            "disclaimer" => trans('disclaimer'),
+            "privacy" => trans('privacy')
+        ]);
     }
-    public function setTconfig(){
+
+    # Function to ping Server.
+    # Request via POST will later hide analytics payload
+    # Why hiding? To prevent AdBlock & Co. to block it
+    # ToDo: Explain the usage of analytic data better.
+    public function ping(Request $request)
+    {
+        switch($request->method()){
+            case 'GET':
+                return response()->json(['response' => true]);
+                break;
+            case 'POST':
+                return response()->json(['response' => true]);
+                break;
+        }
+        return App::abort(500);
+    }
+
+    # Debug function to get session details
+    public function getSession()
+    {
+        # Only return when in debug mode
+        if(!\Config::get('app.debug'))return(json_encode(array('error' => 'Debug functions deactivated')));
+        return response()->json(session()->all());
+    }
+
+    /*
+        POST
+     */
+
+    # Debug function to set tconfig manually
+    public function setTconfig()
+    {
+        # Only return when in debug mode
+        if(!\Config::get('app.debug'))return(json_encode(array('error' => 'Debug functions deactivated')));
         $config = Twitter::get('help/configuration');
         Cache::put('twitter_config', $config, 1440);
-        return json_encode(array("response" => true));
+        return response()->json(["response" => true]);
     }
-    public function uconfig()
+
+    # Function to get/set User Config (depending on request type)
+    public function uconfig(Request $request)
     {
         $user = Auth::user();
-        $settings = Request()->input();
+        $settings = $request->input();
         if($user)
         {
             $uconfig = json_decode($user->uconfig);
-            if(Request()->method() == 'POST')
+            # I decided to go with this approach, because it is slightly
+            # safer than letting the user set every value they want.
+            # Still maybe not the best solution. ~sKiLdUsT
+            if($request->method() == 'POST')
             {
                 foreach($settings as $setting => $value)
                 {
@@ -81,68 +151,65 @@ class ApiController extends Controller
                             session()->put('notifications', $value);
                             break;
                         case "access_level":
-                            return json_encode(["response" => "unauthorized"]);
+                            return response()->json(["response" => "unauthorized"]);
                             break;
                         case "activeID":
                             $uconfig->activeID = $value;
                             break;
                         case "roundpb":
-                            $uconfig->roundpb = $value;
+                            $uconfig->roundpb = $value === 'true'? true: false;;
+                            break;
+                        case "debugmode":
+                            $uconfig->debugmode = $value === 'true'? true: false;;
+                            break;
+                        case "minimal":
+                            $uconfig->minimal = $value === 'true'? true: false;;
                             break;
                     }
                 }
                 $user->uconfig = json_encode($uconfig);
                 $user->save();
                 $uconfig = json_decode($user->uconfig);
-                return json_encode(["response" => true, "data" => [
+                return response()->json(["response" => true, "data" => [
                     "colormode" => $uconfig->colormode,
-                    "notifications" => session()->get('notifications'),
-                    "access_level" => $uconfig->access_level
+                    "notifications" => session()->get('notifications') ?: false,
+                    "access_level" => $uconfig->access_level,
+                    "activeID" => isset($uconfig->activeID) ? $uconfig->activeID : 0,
+                    "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true,
+                    "debugmode" => isset($uconfig->debugmode) ? $uconfig->debugmode : false,
+                    "minimal" => isset($uconfig->minimal) ? $uconfig->minimal: false
                 ]]);
             }
-            return json_encode([
+            return response()->json([
                 "colormode" => $uconfig->colormode,
-                "notifications" => session()->get('notifications'),
+                "notifications" => session()->get('notifications') ?: false,
                 "access_level" => $uconfig->access_level,
                 "activeID" => isset($uconfig->activeID) ? $uconfig->activeID : 0,
-                "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true
+                "roundpb" => isset($uconfig->roundpb) ? $uconfig->roundpb : true,
+                "debugmode" => isset($uconfig->debugmode) ? $uconfig->debugmode : false,
+                "minimal" => isset($uconfig->minimal) ? $uconfig->minimal : false
             ]);
         }
-        return json_encode(["response" => false]);
+        return response()->json(['response' => false]);
     }
-    public function lang(){
-        return json_encode([
-            "external" => trans('external'),
-            "menu" => trans('menu'),
-            "message" => trans('message'),
-            "blog" => trans('blog'),
-            "disclaimer" => trans('disclaimer'),
-            "privacy" => trans('privacy')
-        ]);
-    }
-    public function ping(){
-        switch(Request()->method()){
-            case 'GET':
-                return "{response: true}";
-                break;
-            case 'POST':
-                return "{response: true}";
-                break;
-        }
-    }
-    public function blogPreview()
+
+    # Function to render a blog post preview
+    # Could be done client-side, but this'll do for now.
+    public function blogPreview(Request $request)
     {
         $parser = new \Golonka\BBCode\BBCodeParser;
-        $post = Request()->input();
+        $post = $request->input();
         $title = $post["title"];
         $content = $parser->parse($post["content"]);
         $deliver = 'raw';
         return view('blog.preview', compact('title', 'content', 'deliver'));
     }
-    public function blogNew()
+
+    # Function to create a new blog post
+    public function blogNew(Request $request)
     {
         $parser = new \Golonka\BBCode\BBCodeParser;
-        $post = Request()->input();
+        $post = $request->input();
         $blog = new App\Blog;
 
         $blog->uid = Auth::user()->id;
@@ -150,16 +217,21 @@ class ApiController extends Controller
         $blog->title = $post["title"];
         $blog->content = $parser->parse($post["content"]);
         if($blog->save()){
-            return (json_encode(["response" => true, "id" => $blog->id]));
+            return response()->json(["response" => true, "id" => $blog->id]);
         }
-        return "{response: false}";
+        return response()->json(['response' => false]);
     }
-    public function voiceNew()
+
+    # Function to create a cDeck Voice Message
+    public function voiceNew(Request $request)
     {
+        # Disabled until rework is done
+        return response()->json(['response' => false]);
+        
         if(Auth::user()){
             $voice = new App\Voice;
             $user = Auth::user();
-            $data = base64_decode(str_replace('data:audio/mpeg;base64,', '', Request()->input('data')));
+            $data = base64_decode(str_replace('data:audio/mpeg;base64,', '', $request->input('data')));
             $id = str_random(9);
             Storage::disk('voices')->put($user->id.'/'.$id.'.mp3', $data);
 
@@ -168,11 +240,96 @@ class ApiController extends Controller
             $voice->path = '/cdn/voices/'.$user->id.'/'.$id.'.mp3';
             $voice->save();
 
-            return json_encode([
+            return response()->json([
                 "response" => true,
                 "path" => url('voice/'.$id)
             ]);
         }
-        return "{response: false}";
+        return response()->json(['response' => false]);
+    }
+
+    # Function to upload videos/images to Twitter
+    public function upload(Request $request)
+    {
+        # From http://www.go4expert.com/articles/splitting-file-parts-php-t29885/
+        function fsplit($file){
+            $buffer = 1048576;
+            $file_handle = fopen($file,'r');
+            $file_size = filesize($file);
+            $parts = $file_size / $buffer;
+
+            $file_parts = [];
+
+            for($i=0;$i<$parts;$i++){
+                $file_part = fread($file_handle, $buffer);
+                array_push($file_parts, $file_part);
+            }
+            fclose($file_handle);
+            return $file_parts;
+        }
+
+        if(Auth::user()) {
+            if ($request->hasFile('data') && $request->file('data')->isValid())
+            {
+                try
+                {
+                    $file = fsplit($request->file('data')->path());
+                    $params = ["command" => "INIT", "total_bytes" => filesize($request->file('data')->path()), "media_type" => $request->input('type')];
+                    if($request->input('type') == 'video/mp4')$params["media_category" ] = 'tweet_video';
+                    $mID = Twitter::query('media/upload', 'POST', $params, true);
+                    $mID = $mID->media_id;
+                    foreach ($file as $index => $chunk)
+                    {
+                        Twitter::query('media/upload', 'POST', ["command" => "APPEND", "media_id" => $mID, "segment_index" => $index, "media" => $chunk], true);
+                    }
+                    $final = Twitter::query('media/upload', 'POST', ["command" => "FINALIZE", "media_id" => $mID], true);
+                    if (isset($final->processing_info) && $final->processing_info->state == 'pending')
+                    {
+                        return response()->json(['response' => true, 'is_pending' => true, "data" => $final]);
+                    } else
+                    {
+                        return response()->json(['response' => true, 'is_pending' => false, "data" => $final]);
+                    }
+                } catch (\Exception $e)
+                {
+                    return response()->json(['response' => false]);
+                }
+            }
+            return response()->json(['response' => false]);
+        }
+        return response()->json(['response' => false]);
+    }
+
+    # Function to check Twitter async upload status
+    public function upload_status(Request $request)
+    {
+        # Only continue if id is set
+        $id = $request->input('id');
+        if($id)
+        {
+            try
+            {
+                $status = Twitter::query('media/upload', 'GET', ["command" => "STATUS", "media_id" => $id], true);
+                if($status->processing_info->state == 'succeeded')
+                {
+                    return response()->json(['response' => true, 'data' => $status]);
+                }
+                else if($status->processing_info->state == 'failed')
+                {
+                    http_response_code(500);
+                    return response()->json(['response' => false, 'data' => $status]);
+                }
+                else return response()->json(['response' => false, 'data' => $status]);
+            }catch (\Exception $e)
+            {
+                # For some odd reason, Twitter API likes to throw "400 Unknown Error"
+                # when checking for async media processing status
+                # For now it's sufficient to just tell the client everything finished.
+                # Definitely have to look into that again (Maybe when the docs aren't broken anymore)
+                return response()->json(['response' => true]);
+                //return App::abort(500, 'Twitter API failed');
+            }
+        }
+        return App::abort(400, 'Bad Request');
     }
 }

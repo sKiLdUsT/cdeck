@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use DB;
-use Auth;
-use App;
 use Vluzrmos\LanguageDetector\Facades\LanguageDetector;
-use App\Http\Requests;
+use App;
+use Cache;
+use Auth;
+use DB;
 
 class BlogController extends Controller
 {
@@ -17,29 +17,36 @@ class BlogController extends Controller
     private $hideNavbar;
     private $clients;
 
-    public function __construct()
+    private function beforeRun()
     {
-        App::setlocale(Request()->input('lang', (Auth::user() && isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
-        $this->user = Auth::user() ?: null;
+        # Set Controller-wide vars (to save time and code)
+
+        # First get the user
+        $this->user = Auth::user();
+
+        # Get Client build info from cache (refreshed every 5 minutes through cron)
+        $this->clients = Cache::remember('clients', 5, function () {
+            return json_decode(file_get_contents('https://cdn.skildust.com/dl/cdeck/meta.json')) ?: (object) [];
+        });
+
+        # Get blog table
         $this->table = DB::table('blog');
+
+        # Set general view options
         $this->deliver = Request()->input('deliver', 'null');
         $this->hideNavbar = true;
-        $this->clients = json_decode(file_get_contents('https://cdn.skildust.com/dl/cdeck/meta.json'));
-        switch(App::getlocale())
-        {
-            case "de":
-                setlocale(LC_TIME, 'de_DE.utf-8');
-                break;
-            case "en":
-                setlocale(LC_TIME, 'en_US.utf-8');
-                break;
-            case "fr":
-                setlocale(LC_TIME, "fr_FR.utf-8");
-                break;
-        }
+
+        # Set language, either from user setting or from browser settings transmitted
+        # Otherwise use english. See .env for more details.
+        App::setlocale(Request()->input('lang', (isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
+        return true;
     }
-    public function index($page = 1)
+
+    public function index(Request $request, $page = 1)
     {
+        $this->beforeRun() ?: App::abort(500);
+
+        # Pagination logic. DONT TOUCH UNLESS IT BROKE DOWN
         if($page <= 0){$page=1;}
         $page = intval($page);
         $page--;
@@ -60,18 +67,22 @@ class BlogController extends Controller
             $ccount = 1;
         }
 
+        # View-specific vars
         $title = 'Home - Blog - ';
         $deliver = $this->deliver;
         $hideNavbar = $this->hideNavbar;
         $clients = $this->clients;
         $blogmode = true;
 
+        # Get Content from table
         $content = $this->table->whereBetween('id', [$ccount, $pcount])->get();
         $userinfo = [];
         $page = [
             "all" => intval(ceil($count / 10)),
             "current" => intval($page + 1)
         ];
+
+        # Parse raw DB Data and construct user info
         foreach($content as $post)
         {
             if(!isset($userinfo[$post->uid]))
@@ -89,39 +100,10 @@ class BlogController extends Controller
             $accounts = json_decode(Auth::user()->accounts, false);
             $level = isset(json_decode(Auth::user()->uconfig)->access_level) ? json_decode(Auth::user()->uconfig)->access_level : 0;
         }
-        if($content == null)
-        {
-            return view('blog.index', compact('title', 'deliver', 'hideNavbar', 'clients', 'blogmode', 'accounts', 'level'))->with('error', trans('blog.no_content'));
-        }
+
+        if($content == null) return view('blog.index', compact('title', 'deliver', 'hideNavbar', 'clients', 'blogmode', 'accounts', 'level'))->with('error', trans('blog.no_content'));
+
         return view('blog.index', compact('title', 'deliver', 'hideNavbar', 'clients', 'content', 'blogmode', 'userinfo', 'page', 'accounts', 'level'));
-    }
-    public function post($id)
-    {
-        $post = $this->table->where('id', $id)->get();
-        if($post == null)
-        {
-            App::abort(404);
-        }
-        $post = $post[0];
-        $user = DB::table('users')->where('id', $post->uid)->get()[0];
-        $userinfo = [
-            "name" => $user->name,
-            "handle" => $user->handle,
-            "pb" => json_decode($user->media)->avatar
-        ];
 
-        $title = $post->title.' - Blog - ';
-        $deliver = $this->deliver;
-        $hideNavbar = $this->hideNavbar;
-        $clients = $this->clients;
-        $blogmode = true;
-        $onepost = true;
-
-        if(Auth::user()){
-            $accounts = json_decode(Auth::user()->accounts, false);
-            $level = isset(json_decode(Auth::user()->uconfig)->access_level) ? json_decode(Auth::user()->uconfig)->access_level : 0;
-        }
-
-        return view('blog.post', compact('title', 'deliver', 'hideNavbar', 'clients', 'post', 'blogmode', 'onepost', 'userinfo', 'accounts', 'level'));
     }
 }

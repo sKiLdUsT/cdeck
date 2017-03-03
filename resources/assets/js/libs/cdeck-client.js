@@ -3,7 +3,7 @@
     Name: cDeck JS Client
     Author: cDeck Team
     Description: Example Client for using the cDeck Websocket API written in Javascript
-    Version: 0.6
+    Version: 0.7
     Dependencies:   * jQuery (https://jquery.com/download/)
                     * Socket.io (http://socket.io/download/)
     License: BSD 3-Clause License (see LICENSE.md or http://bit.ly/2crw8Hj)
@@ -35,7 +35,7 @@
             upstream_url: '/api/upstream',
             user_url: '/api/twitter/getTokens'
         };
-        this.version = '0.6';
+        this.version = '0.7';
         // Set config if given
         if( typeof config == 'object' ){
             // Loop through keys
@@ -207,11 +207,10 @@
             self.callback( 'client_reconnect' );
             register( udata );
         });
-        this.socket.on( 'timeline', function (data, response) {
+        this.socket.on( 'timeline', function (data) {
             // Emit event with data.
             // Instructions on how to use the data used to be here.
             self.callback( 'client_recievedData', data );
-            response( true );
         });
         this.socket.on( 'connect_error', function () {
             // Emit event.
@@ -243,17 +242,14 @@
         // Only executes if socket is present.
         // Otherwise throws an error.
         if ( this.socket ) {
-            this.socket.emit( 'postStatus', {
-                tweet: data,
-                api_token: this.user.api_token
-                }, function ( response ) {
-                    if ( response.result === true ) {
-                        // Instructions on how to handle this event used to be here.
-                        self.callback( 'client_tweet_sent' );
-                    } else {
-                        self.callback( 'client_tweet_error' );
-                        throw new CDeckError( 'Tweet failed: ' + response.twitter.message );
-                    }
+            this.socket.emit( 'postStatus', {tweet: data, api_token: this.user.api_token}, function ( response ) {
+                if ( response.result === true ) {
+                    // Instructions on how to handle this event used to be here.
+                    self.callback( 'client_tweet_sent' );
+                } else {
+                    self.callback( 'client_tweet_error', response.twitter.message );
+                    throw new CDeckError( 'Tweet failed: ' + response.twitter.message );
+                }
             });
         } else {
             throw new CDeckError( 'No socket present' );
@@ -323,6 +319,45 @@
         });
         self = this;
         return this;
+    };
+
+    Cdeck.prototype.getDMs = function () {
+        this.socket.emit('getDMs', {api_token: this.user.api_token}, function( response ){
+            // Emit event with data.
+            // Instructions on how to use the data used to be here.
+            self.callback( 'client_recievedData', response );
+        });
+        self = this;
+        return this;
+    };
+
+    // Function to delete tweet
+    Cdeck.prototype.removeTweet = function( id ){
+        this.socket.emit( 'remove', {api_token: this.user.api_token, id: id}, function( response ){
+            if(response.result == true){
+                // Emit event.
+                self.callback( 'client_removedTweet', response );
+            } else {
+                throw new CDeckError( 'Delete failed: ' + response.twitter.message );
+            }
+        });
+    };
+
+    Cdeck.prototype.getUserInfo = function( handle, callback ){
+        this.socket.emit( 'getUser', {api_token: this.user.api_token, handle: handle}, function( response ){
+            if(response.result == true){
+                // Emit event.
+                self.callback( 'client_gotUserInfo', response );
+                // Also call custom callback, if given
+                if(callback !== undefined && typeof callback == 'function'){
+                    callback(response.data)
+                }
+            } else {
+                self.callback( 'client_getUserInfoFailed', response );
+                callback({failed: true, reason: response.twitter.message});
+                throw new CDeckError( 'Getting user info failed: ' + response.twitter.message );
+            }
+        });
     };
 
     // Function to close the socket

@@ -20,4 +20,6 @@ return [
     "retweet" => "retweeted your tweet",
     "quote" => "quoted your tweet",
     "like" => "liked your tweet",
+    "follow" => "followed you",
+    "cookies" => "This site uses cookies. If you continue to use this site, you automatically agree to our TOS (<a href='/tos'>here</a>) and privacy policy (<a href='/privacy'>here</a>)"
 ];

@@ -1,4 +1,7 @@
-var elixir = require('laravel-elixir');
+const elixir = require('laravel-elixir');
+
+require('laravel-elixir-vue-2');
+
 /*
  |--------------------------------------------------------------------------
  | Elixir Asset Management
@@ -9,39 +12,41 @@ var elixir = require('laravel-elixir');
  | file for our application, as well as publishing vendor resources.
  |
  */
+elixir.config.sourcemaps = false;
+elixir.config.cssOutput = 'assets/css';
+elixir.config.jsOutput = 'assets/js';
+elixir.config.js.uglify.options.compress.unused = false;
 
-elixir(function(mix) {
+elixir(mix => {
     mix.sass(['app.scss', 'prism.scss'], 'public/assets/css');
     mix.sass('app.voice.scss', 'public/assets/css');
-    //mix.copy('node_modules/materialize-css/js', 'resources/assets/js/materialize');
-    //mix.copy('node_modules/materialize-css/materialize/date_picker/*.js', 'resources/assets/materialize/materialize');
     mix.copy('node_modules/html5-desktop-notifications/desktop-notify.js', 'resources/assets/js/libs');
-    //mix.scriptsIn('resources/assets/materialize/materialize', 'resources/assets/materialize/materialize.js');
-
     mix.scripts([
-        'libs/socket-io.js',
-        'libs/jquery.js',
-        'libs/materialize.js',
-        'libs/materialbox.js',
-        'libs/desktop-notify.js',
-        'libs/prism.js',
-        'libs/WebAudioRecorder.js',
-        'libs/shortcut.js',
-        'libs/twitter-text.js',
-        'libs/wavesurfer.js',
-        'libs/twemoji.js',
-        'libs/moment.js',
-        'libs/moment-timezone.js',
-        'libs/cdeck-client.js',
-        'main/renderer.js',
-        'main/tools.js',
-        'main/app.js',
-        'main/blog.js',
-        'main/menu.js',
-        'main/shortcuts.js',
-        'main/debug.js'
+    'libs/socket-io.js',
+    'libs/jquery.js',
+    'libs/paste-image-reader.js',
+    'libs/materialize.js',
+    'libs/materialbox.js',
+    'libs/prism.js',
+    'libs/WebAudioRecorder.js',
+    'libs/shortcut.js',
+    'libs/twitter-text.js',
+    'libs/wavesurfer.js',
+    'libs/twemoji.js',
+    'libs/moment.js',
+    'libs/moment-timezone.js',
+    'libs/cdeck-client.js',
+    'libs/chart.js',
+    'main/renderer.js',
+    'main/tools.js',
+    'main/app.js',
+    'main/blog.js',
+    'main/admin.js',
+    'main/menu.js',
+    'main/shortcuts.js',
+    'main/debug.js'
     ], 'public/assets/js/app.js')
-        .scripts([
+    .scripts([
         'libs/jquery.js',
         'libs/materialize.js',
         'libs/materialbox.js',
@@ -54,5 +59,5 @@ elixir(function(mix) {
     ], 'public/assets/js/app.voice.js');
 
     mix.version(['assets/css/app.css', 'assets/js/app.js', 'assets/css/app.voice.css', 'assets/js/app.voice.js']);
-    mix.copy('node_modules/materialize-css/fonts', 'public/build/assets/fonts')
+    mix.copy('node_modules/materialize-css/fonts', 'public/build/assets/fonts');
 });

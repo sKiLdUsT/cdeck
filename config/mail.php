@@ -55,7 +55,10 @@ return [
     |
     */
 
-    'from' => ['address' => 'no-reply@cdeck.net', 'name' => 'cDeck'],
+    'from' => [
+        'address' => 'hello@example.com',
+        'name' => 'Example',
+    ],
 
     /*
     |--------------------------------------------------------------------------
