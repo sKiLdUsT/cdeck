@@ -35,6 +35,38 @@ function afterLoad(){
     $('.loader').fadeOut(300);
     log.debug('UI: All ressources loaded. Removing loader');
 
+    // Show info when cookies are disabled
+    if (!navigator.cookieEnabled) {
+        $($('noscript').html()).prependTo('body').show();
+        $('.splash').fadeOut();
+        return;
+    }
+
+    // Check if cookie notice was displayed
+    if(getCookieValue('cookie_notice') !== 'true'){
+        try {
+            var colormode = uconfig.colormode == "1" ? 'grey darken-3 white-text' : '';
+        } catch(e) {
+            log.warn('UI: '+e);
+            var colormode = '';
+        }
+        var modalNumber = spawnModal();
+        var modal = $('#modal' + modalNumber);
+        modal.addClass('bottom-sheet');
+        modal.openModal({
+            dismissible: false, ready: function () {
+                $('#modal' + modalNumber + '-content').html('<p>'+lang.external.cookies+'</p>');
+                $('<div class="modal-footer '+colormode+'"><a class="modal-action modal-close waves-effect btn-flat '+colormode+'">Ok!</a></div>').appendTo(modal).on('click', function() {
+                    modal.closeModal();
+                    var expiration_date = new Date();
+                    expiration_date.setFullYear(expiration_date.getFullYear() + 1);
+                    document.cookie = "cookie_notice=true; path=/; expires=" + expiration_date.toUTCString();
+                    modal.remove();
+                });
+            }
+        });
+    }
+
     // Run health check
     healthCheck('/api/ping');
 
