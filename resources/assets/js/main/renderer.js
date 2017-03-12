@@ -451,7 +451,7 @@
         var modalNumber = spawnModal(),
             colormode = uconfig.colormode == "1" ? 'grey darken-4 white-text' : '',
             rpb = '',
-            btn_follow = '<button class="btn waves-effect waves-light blue">Follow</button>',
+            btn_follow = '<button class="btn waves-effect waves-light blue" id="follow" data-following="false" data-handle="'+handle+'">Follow</button>',
             icons = '';
         if (window.uconfig.roundpb) {
             rpb = "circle"
@@ -519,7 +519,7 @@
                 }
             }
             if(data.following == true){
-                btn_follow = '<button class="btn waves-effect waves-light white black-text">Following</button>';
+                btn_follow = '<button class="btn waves-effect waves-light white black-text" id="follow" data-following="true" data-handle="'+handle+'">Following</button>';
             }
             if(data.protected == true){
                 icons = icons + '<i class="material-icons">lock</i>'
@@ -528,6 +528,35 @@
                 icons = icons + '<i class="material-icons">check_circle</i>'
             }
             $('#modal' + modalNumber + ' .modal-content').html('<div class="valign-wrapper z-depth-2" style="background: url(\'' + data.profile_banner_url + '\') no-repeat center center;background-size: cover;"><div class="container" style="background-color:'+hexToRgbA('#'+data.profile_link_color, 0.5)+';height:100%;padding: 0 1rem;"><div class="valign"><br><h4 id="modal-header"><img src="' + data.profile_image_url_https + '" alt="Profilbild" class="' + rpb + ' responsive-img pb">  ' + data.name + icons + '</h4><p><a target="_blank"id="username" href="https://twitter.com/' + data.screen_name + '"> @' + data.screen_name + '</a></p><p>' + twttr.txt.autoLink(data.description, {urlEntities: data.entities.description.urls}).replace(/(?:@<(?:[^>]+)>)([^<]+)(?:[^>]+>)/g, '<a target="_blank" class="username" href="https://twitter.com/$1">@$1</a>') + '</p><div class="divider"></div><br><div class="row"><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '"><div class="col s2 right-border"><p><b>'+data.statuses_count+'</b><br>Tweets</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/following"><div class="col s2 right-border"><p><b>'+data.friends_count+'</b><br>Following</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/followers"><div class="col s2 right-border"><p><b>' + data.followers_count + '</b><br>Follower</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/memberships"><div class="col s2"><p><b>'+data.listed_count+'</b><br>Listed</p></div></a><div class="col s4">'+btn_follow+'</div></div></div></div></div>')
+            $('#modal' + modalNumber + ' .modal-content button#follow').on('click', function(){
+                var button = $(this), handle = button.attr('data-handle');
+                button.html('Loading...');
+                function afterClick(type, data){
+                    if(typeof data.failed == "undefined"){
+                        switch(type){
+                            case 0:
+                                button.removeClass('blue').addClass('white black-text');
+                                button.attr('data-following', 'true');
+                                button.html('Following');
+                                log.debug('Successfully followed '+handle);
+                                break;
+                            case 1:
+                                button.removeClass('white black-text').addClass('blue');
+                                button.attr('data-following', 'false');
+                                button.html('Follow');
+                                log.debug('Successfully unfollowed '+handle);
+                                break;
+                        }
+                    }
+                }
+                if($(this).attr('data-following') == "true"){
+                    log.debug('Client: Unfollowing '+handle);
+                    cDeck.friendship(1, handle, afterClick)
+                } else {
+                    log.debug('Client: Following '+handle);
+                    cDeck.friendship(0, handle, afterClick)
+                }
+            });
             $('#modal' + modalNumber + ' a.username').each(function(){
                 $(this).click(function(e){
                     e.preventDefault();

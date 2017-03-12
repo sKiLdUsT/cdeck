@@ -3,7 +3,7 @@
     Name: cDeck JS Client
     Author: cDeck Team
     Description: Example Client for using the cDeck Websocket API written in Javascript
-    Version: 0.7
+    Version: 0.8b
     Dependencies:   * jQuery (https://jquery.com/download/)
                     * Socket.io (http://socket.io/download/)
     License: BSD 3-Clause License (see LICENSE.md or http://bit.ly/2crw8Hj)
@@ -35,7 +35,7 @@
             upstream_url: '/api/upstream',
             user_url: '/api/twitter/getTokens'
         };
-        this.version = '0.7';
+        this.version = '0.8b';
         // Set config if given
         if( typeof config == 'object' ){
             // Loop through keys
@@ -343,6 +343,7 @@
         });
     };
 
+    // Function to get user info
     Cdeck.prototype.getUserInfo = function( handle, callback ){
         this.socket.emit( 'getUser', {api_token: this.user.api_token, handle: handle}, function( response ){
             if(response.result == true){
@@ -356,6 +357,24 @@
                 self.callback( 'client_getUserInfoFailed', response );
                 callback({failed: true, reason: response.twitter.message});
                 throw new CDeckError( 'Getting user info failed: ' + response.twitter.message );
+            }
+        });
+    };
+
+    // Funtion to follow/unfollow user
+    Cdeck.prototype.friendship = function( type, handle, callback ){
+        this.socket.emit( 'friendship', {api_token: this.user.api_token, type:type, handle: handle}, function ( response ) {
+            if (response.result == true) {
+                // Emit event.
+                self.callback('client_friendshipChanged', response);
+                // Also call custom callback, if given
+                if (callback !== undefined && typeof callback == 'function') {
+                    callback(type, response.data)
+                }
+            } else {
+                self.callback('client_friendshipFailed', response);
+                callback(type, {failed: true, reason: response.twitter.message});
+                throw new CDeckError('Change follow failed: ' + response.twitter.message);
             }
         });
     };
