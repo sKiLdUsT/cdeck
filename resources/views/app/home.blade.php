@@ -1,6 +1,7 @@
 @extends('base')
 
 @section('content')
+    <meta name="highlights" content="true">
     <main class="conatiner home">
         <div class="row">
             <div class="col s12 hide-on-large-only" style="height: auto">
@@ -131,5 +132,6 @@
             </a>
         </div>
         <audio preload style="display:none" id="notification"><source src="/assets/bing.mp3" type="audio/mpeg"></audio>
+        <form id="donate_form" style="display: none" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="blank"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="PBAECV4VJWCPC"></form>
     </main>
 @endsection

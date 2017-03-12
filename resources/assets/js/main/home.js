@@ -89,6 +89,16 @@ function homePage() {
             $(this).css('width', $($(this).parent()).innerWidth())
         })
     });
+
+    // Show first-time highlights
+    if($('meta[name=highlights]').attr('content') == "true"){
+        setTimeout(showHighlights, 2000);
+        setTimeout(function(){
+            var donate = "$('form#donate_form').trigger('submit')";
+            Materialize.toast('cDeck will always be free. But that\'s expensive. If you can spare the coin and want to help us out, consider donating! <button class="btn waves-effect waves-light blue" onclick="'+donate+'"><img class="left" src="/assets/img/pp.png">Donate</button>', 5000);
+            Materialize.toast('Hint: You can find the donation button in the "About" section of the settings.', 5000);
+        }, 7000);
+    }
 }
 
 // Bind click events
@@ -190,6 +200,23 @@ function bindEvents() {
         } else {
             Materialize.toast('You cannot drop more fies', 3000);
             console.warn('cDeck: Either 4 image or 1 video/gif limit reached. Object: \n' + JSON.stringify(window.$tweetFile));
+        }
+    });
+}
+
+function showHighlights(){
+    var modalNumber = spawnModal();
+
+    $('#modal' + modalNumber + '-header').text('cDeck Version '+$app.version+' Highlights');
+    $('#modal' + modalNumber + '-content').html('<ul id="staggered-test"><li class="" style="transform: translateX(0px); opacity: 0;"><h4><a href="#">List Item</a></h4><p>This is a description</p></li><li class="" style="transform: translateX(0px); opacity: 0;"><h4><a href="#">List Item</a></h4><p>This is a description</p></li></ul>');
+    $('#modal' + modalNumber).css({width: '85%', height: '80%', maxHeight: '80%'}).openModal({
+        dismissible: true,
+        opacity: .5,
+        ready: function () {
+            Materialize.showStaggeredList('#staggered-test');
+        },
+        complete: function () {
+            $('#modal' + modalNumber).remove()
         }
     });
 }
