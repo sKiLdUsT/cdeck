@@ -58,7 +58,37 @@ function homePage() {
             $(this).html(moment($(this).attr('data-time')).fromNow())
         });
         log.debug('UI: Updated chip time');
-    }, 30000)
+    }, 30000);
+
+    // Seems to be important for scaling or some shit, idk anymore
+    // DONT touch!
+    var body, html, height;
+    setSize($('.section .row .col .section > div'));
+    if($(window).width() < 993 ) {
+        $('ul.tabs').tabs();
+        $('ul.tabs').tabs('select_tab', 'tab1');
+    }else{
+        $('ul.tabs').undelegate();
+        $('main > .row > .col').show();
+    }
+    $(window).resize(function() {
+        if( $(this).width() > 993 ) {
+            $('ul.tabs').undelegate();
+            $('main > .row > .col').show();
+        }else{
+            $('.col ~ ul.tabs').show();
+            $('ul.tabs').tabs();
+            $('ul.tabs').tabs('select_tab', 'tab2');
+        }
+        body = document.body;
+        html = document.documentElement;
+        height = Math.max( body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight );
+        setSize($('.section .row .col .section > div'));
+        $('canvas').each(function(index){
+            $(this).css('height', $($(this).parent()).innerHeight());
+            $(this).css('width', $($(this).parent()).innerWidth())
+        })
+    });
 }
 
 // Bind click events
