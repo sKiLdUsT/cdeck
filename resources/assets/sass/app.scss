@@ -166,6 +166,10 @@ main {
   }
 }
 
+.modal-content img {
+  max-height: 20vh;
+}
+
 .materialboxed.active {
   top: 10vh !important;
   left: 50% !important;
