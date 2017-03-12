@@ -7,20 +7,8 @@
 
 var modalCount = 0;
 
-function spawnModal() {
-    modalCount++;
-    try {
-        var colormode = uconfig.colormode == "1" ? 'grey darken-3 white-text' : '';
-    } catch(e) {
-        log.warn('UI: '+e);
-        var colormode = '';
-    }
-    var modal = '<div id="modal' + modalCount + '" class="modal '+colormode+'">\
-        <div class="wrapper">\
-        <div class="modal-content center-align">\
-        <h4 id="modal' + modalCount + '-header"></h4>\
-        <p id="modal' + modalCount + '-content">\
-        <div class="preloader-wrapper big active" style="display:none;" id="preloader' + modalCount + '">\
+function preloader(){
+    return '<div class="preloader-wrapper big active" style="display:none;" id="preloader' + modalCount + '">\
         <div class="spinner-layer spinner-blue">\
         <div class="circle-clipper left">\
         <div class="circle"></div>\
@@ -57,7 +45,23 @@ function spawnModal() {
         <div class="circle"></div>\
         </div>\
         </div>\
-        </div></p>\
+        </div>'
+}
+
+function spawnModal() {
+    modalCount++;
+    try {
+        var colormode = uconfig.colormode == "1" ? 'grey darken-3 white-text' : '';
+    } catch(e) {
+        log.warn('UI: '+e);
+        var colormode = '';
+    }
+    var spinner = preloader(), modal = '<div id="modal' + modalCount + '" class="modal '+colormode+'">\
+        <div class="wrapper">\
+        <div class="modal-content center-align">\
+        <h4 id="modal' + modalCount + '-header"></h4>\
+        <p id="modal' + modalCount + '-content">\
+        '+spinner+'</p>\
         </div>\
         </div>\
         </div>';
