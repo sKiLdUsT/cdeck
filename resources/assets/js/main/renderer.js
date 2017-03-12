@@ -413,7 +413,8 @@
                         var notification = new Notification('cDeck', {
                             body: '@'+finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
                             icon: finalTweet.source.profile_image_url_https
-                        })
+                        });
+                        $('#notification')[0].play();
                     }
                     else if (Notification.permission !== 'denied') {
                         Notification.requestPermission(function (permission) {
@@ -427,7 +428,8 @@
                                 var notification = new Notification('cDeck', {
                                     body: '@'+finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
                                     icon: finalTweet.source.profile_image_url_https
-                                })
+                                });
+                                $('#notification')[0].play();
                             }
                         });
                     }

@@ -130,5 +130,6 @@
                 <i class="large material-icons">mode_edit</i>
             </a>
         </div>
+        <audio preload style="display:none" id="notification"><source src="/assets/bing.mp3" type="audio/mpeg"></audio>
     </main>
 @endsection
