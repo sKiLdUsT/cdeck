@@ -193,7 +193,7 @@ function hexToRgbA(hex, alpha){
 
 window.log = {
     debug: function(string){
-        if(uconfig !== undefined && uconfig.debugmode)
+        if(typeof uconfig != 'undefined' && uconfig.debugmode)
             console.log('%c[DEBUG]'+'%c '+string,'background:blue;color:white','background:unset,color:unset')
     },
     info: function(string){

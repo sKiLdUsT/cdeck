@@ -28,7 +28,6 @@ elixir(mix => {
     'libs/materialize.js',
     'libs/materialbox.js',
     'libs/prism.js',
-    'libs/WebAudioRecorder.js',
     'libs/shortcut.js',
     'libs/twitter-text.js',
     'libs/wavesurfer.js',
@@ -37,14 +36,14 @@ elixir(mix => {
     'libs/moment-timezone.js',
     'libs/cdeck-client.js',
     'libs/chart.js',
-    'main/renderer.js',
     'main/tools.js',
-    'main/app.js',
-    'main/blog.js',
-    'main/admin.js',
+    'main/home.js',
     'main/menu.js',
     'main/shortcuts.js',
-    'main/debug.js'
+    'main/debug.js',
+    'main/renderer.js',
+    'main/cdeckinit.js',
+    'main/main.js'
     ], 'public/assets/js/app.js')
     .scripts([
         'libs/jquery.js',

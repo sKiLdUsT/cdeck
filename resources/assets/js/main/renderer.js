@@ -20,16 +20,16 @@
         this.index = {};
         this.config = {};
         self = this;
-        if( typeof tconfig == 'undefined' ){
+        if( typeof window.tconfig == 'undefined' ){
             $.get('/api/twitter/tconfig', function ( data ) {
                 if (data !== null) {
-                    self.config = data;
+                    self.config = window.tconfig = data;
                 } else {
                     throw new CDeckError('tconfig is null. Contact server administrator.');
                 }
             });
         } else {
-            this.config = tconfig;
+            this.config = window.tconfig;
         }
     };
 
@@ -685,7 +685,7 @@
                                                     $('#modal' + modalNumber).closeModal();
                                                     modal.closeModal();
                                                     Materialize.toast('Upload failed', 2000);
-                                                    console.error(e);
+                                                    log.error(e);
                                                 }
                                             });
                                         }, e.data.processing_info.check_after_secs * 1000);
@@ -702,7 +702,7 @@
                         },
                         error: function(xhr, e){
                             Materialize.toast('Error while uploading media '+(index + 1)+'/'+$tweetFile.length, 2000);
-                            console.error(e);
+                            log.error(e);
                         },
                         xhr: function() {
                             var xhr = new window.XMLHttpRequest();
