@@ -103,7 +103,17 @@ class HomeController extends Controller
         $aID = !is_null($this->uconfig) ? $this->uconfig->activeID : 0;
         $accounts = $this->accounts;
 
+        if(!is_null($this->uconfig) && $this->uconfig->highlights == "true"){
+            $highlights =  "true";
+            $this->uconfig->highlights = "false";
+            $this->user->uconfig = json_encode($this->uconfig);
+            $this->user->save();
+            $this->user = Auth::user();
+        } else {
+            $highlights = "false";
+        }
+
         # Return view
-        return view('app.home', compact('title', 'deliver', 'clients', 'accounts', 'aID'));
+        return view('app.home', compact('title', 'deliver', 'clients', 'accounts', 'aID', 'highlights'));
     }
 }
