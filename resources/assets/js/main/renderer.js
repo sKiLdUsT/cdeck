@@ -447,6 +447,8 @@
                 $(html).appendTo('#dm-msg');
                 $('#dm-msg').animate({scrollTop: $('#dm-msg')[0].scrollHeight}, 1000, 'swing');
                 $('#dm-msg .materialboxed').materialbox();
+                if(!windowIsVisible())
+                    sendNotification();
             } else {
                 if($('.dm-container').length !== 0 && dm.align == 'left'){
                     if($('.dm-user[data-handle="'+dm.user.screen_name+'"] span.new.badge').length == 0){
