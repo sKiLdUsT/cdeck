@@ -401,6 +401,105 @@ function homeMenu() {
             }
         });
     });
+
+    $('#button_dm').on('click', function(e){
+        e.preventDefault();
+        var mn = spawnModal();
+        $('#modal' + mn + '-header').text("Direct Messages");
+        $('#modal' + mn + '-content').html(preloader(true));
+        $('#modal' + mn).css('overflow', 'hidden').openModal({
+            dismissible: true,
+            opacity: .5,
+            complete: function () {
+                $('#modal' + mn).remove()
+            }
+        });
+        if($app.chats[cDeck.user.screen_name] === undefined){
+            cDeck.getDMs(afterLoad);
+        } else {
+            afterLoad();
+        }
+        function afterLoad(){
+            var chats = $app.chats[cDeck.user.screen_name], user = '', content, count = 0;
+            $.each( chats, function(key, value){
+                var pb, name;
+                value.every(function(data){
+                    if(data.align == 'left'){
+                        pb = data.user.profile_image_url_https;
+                        name = data.user.name;
+                        return false;
+                    }
+                    return true;
+                });
+                if(typeof pb == "undefined" || typeof name == "undefined"){
+                    cDeck.getUserInfo(key, function(data){
+                        user = '<div class="card-panel grey darken-2 dm-user" data-handle="'+key+'"><img class="responsive-img circle" src="'+data.profile_image_url_https+'">'+data.name+'</div>' + user;
+                        count++;
+                    });
+                } else {
+                    user = '<div class="card-panel grey darken-2 dm-user" data-handle="'+key+'"><img class="responsive-img circle" src="'+pb+'">'+name+'</div>' + user;
+                    count++
+                }
+            });
+            var inter = setInterval(function(){
+                if(count == Object.keys(chats).length){
+                    clearInterval(inter);
+                    dataReady();
+                }
+            }, 100);
+            $('#modal' + mn + '-header').text("Direct Messages");
+            function dataReady(){
+                $('#modal' + mn + '-content').html('<div class="row dms"><div class="col s4">'+user+'</div><div class="col s8 dm-container" style="display:none"><div class="grey darken-4" id="dm-msg"></div><div class="input-field col s10"><input id="dm_message" type="text" data-length="10"><label for="dm_message">Write a message...</label></div><i class="material-icons small col s2" id="dm_send" style="margin-top:2rem;cursor:pointer">send</i></div></div>');
+                $('.dm-user').on('click', function(){
+                    $('.dm-user.active').removeClass('active');
+                    $(this).addClass('active');
+                    loadChat($(this).attr('data-handle'));
+                    if($(this).children('span.new.badge').length !== 0){
+                        $(this).children('span.new.badge').remove();
+                    }
+                });
+                $('#dm_send').on('click', sendMessage);
+                $('#dm_message').on('keyup', function(e){
+                    e.preventDefault();
+                    if(e.keyCode == 13){
+                        sendMessage(e);
+                    }
+                })
+            }
+            function loadChat(handle){
+                var html = '';
+                chats[handle].forEach(function(data, index){
+                    var object = renderer.helper.linkAll({text: data.message, entities: data.entities, extended_entities: data.entities, user: data.user});
+                    html += '<div class="message"><div class="grey darken-2 '+data.align+'">'+object.tweet + object.medialink+'</div></div>'
+                });
+                $('.dm-container').fadeOut(150, function(){
+                    $('#dm-msg').html(html);
+                    $(this).fadeIn(150);
+                    $('#dm-msg .materialboxed').materialbox();
+                });
+            }
+            var active = false;
+            function sendMessage(e) {
+                e.preventDefault();
+                if (!active) {
+                    active = true;
+                    var message = $('#dm_message').val(),
+                        user = $('.dm-user.active').attr('data-handle');
+                    $('#dm_send').text('hourglass_empty');
+                    $('#dm_message').attr('disabled', '');
+                    cDeck.sendDM({text: message, screen_name: user}, function (response) {
+                        if (response.result == true) {
+                            Materialize.toast('Sent!', 3000);
+                            active = false;
+                            $('#dm_message').removeAttr('disabled').val('');
+                            $('#dm_send').text('send');
+                        }
+                    });
+                }
+            }
+        }
+    });
+
     $('.dropdown-button').dropdown({constrain_width: false, belowOrigin: true});
     $('#search_activate').on('click', function (e) {
         log.debug('UI: search bar clicked');

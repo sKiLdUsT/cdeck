@@ -166,27 +166,33 @@
             return {original: data, tweet: tweet, type: type, source: source, target: target};
         },
         sortDM: function(data){
-            if($app.chats[cDeck.user.handle] === undefined){
-                $app.chats[cDeck.user.handle] = {}
+            if($app.chats[cDeck.user.screen_name] === undefined){
+                $app.chats[cDeck.user.screen_name] = {}
             }
-            if(data.recipient.screen_name == cDeck.user.handle){
-                if($app.chats[cDeck.user.handle][data.sender.screen_name] === undefined){
-                    $app.chats[cDeck.user.handle][data.sender.screen_name] = []
+            if(data.recipient.screen_name == cDeck.user.screen_name){
+                if($app.chats[cDeck.user.screen_name][data.sender.screen_name] === undefined){
+                    $app.chats[cDeck.user.screen_name][data.sender.screen_name] = []
                 }
-                $app.chats[cDeck.user.handle][data.sender.screen_name].push({
+                var object = {
                     align: 'left',
                     user: data.sender,
-                    message: data.text
-                })
-            } else if(data.sender.screen_name == cDeck.user.handle){
-                if($app.chats[cDeck.user.handle][data.recipient.screen_name] === undefined){
-                    $app.chats[cDeck.user.handle][data.recipient.screen_name] = []
+                    message: data.text,
+                    entities: data.entities
+                };
+                $app.chats[cDeck.user.screen_name][data.sender.screen_name].push(object);
+                return object;
+            } else if(data.sender.screen_name == cDeck.user.screen_name){
+                if($app.chats[cDeck.user.screen_name][data.recipient.screen_name] === undefined){
+                    $app.chats[cDeck.user.screen_name][data.recipient.screen_name] = []
                 }
-                $app.chats[cDeck.user.handle][data.recipient.screen_name].push({
+                var object = {
                     align: 'right',
                     user: data.recipient,
-                    message: data.text
-                })
+                    message: data.text,
+                    entities: data.entities
+                };
+                $app.chats[cDeck.user.screen_name][data.recipient.screen_name].push(object);
+                return object;
             }
         }
     };
@@ -343,10 +349,7 @@
             extra.action = 'prepend';
         }
         var finalTweet;
-        if( data.sender !== undefined && data.recipient !== undefined ){
-            this.helper.sortDM(data);
-
-        } else if ( data.text !== undefined ) {
+        if ( data.text !== undefined ) {
             finalTweet = this.helper.linkAll( data );
             this.templater.timeline(data.id_str, extra, finalTweet);
             $('#tweet-' + data.id_str + ' .materialboxed').materialbox();
@@ -428,6 +431,59 @@
                                 var notification = new Notification('cDeck', {
                                     body: '@'+finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
                                     icon: finalTweet.source.profile_image_url_https
+                                });
+                                $('#notification')[0].play();
+                            }
+                        });
+                    }
+
+                }
+            }
+        } else if( data.event = 'dm' && data.direct_message !== undefined){
+            var dm = this.helper.sortDM(data.direct_message);
+            if($('.dm-container').length !== 0 && $('.dm-user[data-handle="'+dm.user.screen_name+'"]').hasClass('active')){
+                var object = renderer.helper.linkAll({text: dm.message, entities: dm.entities, extended_entities: dm.entities, user: dm.user}),
+                    html = '<div class="message"><div class="grey darken-2 '+dm.align+'">'+object.tweet + object.medialink+'</div></div>';
+                $(html).appendTo('#dm-msg');
+                $('#dm-msg').animate({scrollTop: $('#dm-msg')[0].scrollHeight}, 1000, 'swing');
+                $('#dm-msg .materialboxed').materialbox();
+            } else {
+                if($('.dm-container').length !== 0 && dm.align == 'left'){
+                    if($('.dm-user[data-handle="'+dm.user.screen_name+'"] span.new.badge').length == 0){
+                        $('<span class="new badge" style="right:unset">0</span>').appendTo('.dm-user[data-handle="'+dm.user.screen_name+'"]');
+                    }
+                    var badge = $('.dm-user[data-handle="'+dm.user.screen_name+'"] span.new.badge');
+                    badge.text(parseInt(badge.text())+1);
+                    sendNotification();
+                } else if (dm.align == 'left') {
+                    sendNotification();
+                }
+            }
+            function sendNotification(){
+                if($app.state == "ready" && window.uconfig.notifications == "true"){
+                    log.debug('Renderer: Spawning notification');
+                    if (!("Notification" in window)) {
+                        alert("This browser does not support desktop notification");
+                    }
+                    else if (Notification.permission === "granted") {
+                        var notification = new Notification('cDeck', {
+                            body: 'New DM from @'+dm.user.screen_name,
+                            icon: dm.user.profile_image_url_https
+                        });
+                        $('#notification')[0].play();
+                    }
+                    else if (Notification.permission !== 'denied') {
+                        Notification.requestPermission(function (permission) {
+                            if (permission === "granted") {
+                                changeUconfig({notifications: true}, function(result){
+                                    if(result === true){
+                                        log.info('Client: Notifications enabled');
+                                        Materialize.toast(lang.menu.noti_enabled, 5000)
+                                    }
+                                });
+                                var notification = new Notification('cDeck', {
+                                    body: 'New DM from @'+data.user.screen_name,
+                                    icon: dm.user.profile_image_url_https
                                 });
                                 $('#notification')[0].play();
                             }

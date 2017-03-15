@@ -20,6 +20,10 @@
                         <h4><a>Frontend Rework</a></h4>
                         <p>We optimized our frontend code to improve stability and performance.</p>
                     </li>
+                    <li style="transform: translateX(0px); opacity: 0;">
+                        <h4><a>Direct Messages</a></h4>
+                        <p>DMs finally landed! Please note: due to Twitter API Limitations we can only get your 200 most recent chat messages</p>
+                    </li>
                 </ul>
             </p>
         </div>

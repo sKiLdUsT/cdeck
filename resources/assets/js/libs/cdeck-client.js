@@ -321,11 +321,28 @@
         return this;
     };
 
-    Cdeck.prototype.getDMs = function () {
+    // Function to get DMs
+    Cdeck.prototype.getDMs = function ( callback ) {
         this.socket.emit('getDMs', {api_token: this.user.api_token}, function( response ){
             // Emit event with data.
             // Instructions on how to use the data used to be here.
             self.callback( 'client_recievedData', response );
+            // Also call custom callback, if given
+            if(callback !== undefined && typeof callback == 'function'){
+                callback()
+            }
+        });
+        self = this;
+        return this;
+    };
+
+    // Function to send DMs
+    Cdeck.prototype.sendDM = function ( message, callback ) {
+        this.socket.emit('sendDM', {api_token: this.user.api_token, data: message}, function( response ){
+            // Emit event with data.
+            if(callback !== undefined && typeof callback == 'function'){
+                callback(response)
+            }
         });
         self = this;
         return this;

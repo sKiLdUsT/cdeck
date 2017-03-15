@@ -7,8 +7,11 @@
 
 var modalCount = 0;
 
-function preloader(){
-    return '<div class="preloader-wrapper big active" style="display:none;" id="preloader' + modalCount + '">\
+function preloader(show){
+    var display;
+    if(typeof show == 'undefined' || show !== true)
+        display = 'style="display:none;"';
+    return '<div class="preloader-wrapper big active" '+display+' id="preloader' + modalCount + '">\
         <div class="spinner-layer spinner-blue">\
         <div class="circle-clipper left">\
         <div class="circle"></div>\

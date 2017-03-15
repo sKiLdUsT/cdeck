@@ -97,7 +97,7 @@
                             </div>
                         </div>
                     </ul>
-                    <li><a href="#" class="tooltipped" data-tooltip="@lang('menu.messages')"><i class="material-icons">chat_bubble_outline</i></a></li>
+                    <li><a id="button_dm" href="#" class="tooltipped" data-tooltip="@lang('menu.messages')"><i class="material-icons">chat_bubble_outline</i></a></li>
                     <li><a class="dropdown-button" href="#" data-activates="accounts">
                             @if(Auth::user() && isset($accounts) && $accounts[0]->media->avatar)
                                 <img src="{{str_replace("_normal", "", $accounts[isset($aid) ? $aid : 0]->media->avatar)}}" alt="@lang('message.pb')"
