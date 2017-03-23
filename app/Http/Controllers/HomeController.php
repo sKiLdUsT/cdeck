@@ -57,7 +57,6 @@ class HomeController extends Controller
             $this->user->save();
             $this->user = Auth::user();
         } catch (\Exception $e){
-            dd($e);
             return 1;
         }
 
@@ -88,7 +87,6 @@ class HomeController extends Controller
             case 0:
                 break;
             case 1:
-                return;
                 return redirect(route('login'));
                 break;
             default:
