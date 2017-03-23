@@ -87,6 +87,8 @@ class HomeController extends Controller
             case 0:
                 break;
             case 1:
+                Auth::logout();
+                $request->session()->flush();
                 return redirect(route('login'));
                 break;
             default:
