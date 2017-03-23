@@ -10,9 +10,9 @@
         "thujohn/twitter": "^2.2",
         "vluzrmos/language-detector": "^1.0",
         "skildust/gitlog": "^1.0",
-        "pragmarx/tracker": "^3.1",
         "geoip2/geoip2": "^2.4",
-        "fideloper/proxy": "^3.2"
+        "fideloper/proxy": "^3.2",
+        "doctrine/dbal": "^2.5"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

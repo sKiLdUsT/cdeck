@@ -13,15 +13,16 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/assets', 'ApiController@assets')->middleware('api');
-Route::any('/uconfig', 'ApiController@uconfig')->middleware('api');
-Route::get('/lang', 'ApiController@lang')->middleware('api');
-Route::any('/ping', ['as' => 'ping', 'uses' => 'ApiController@ping'])->middleware('api');
+Route::get('/assets', ['as' => 'api.assets', 'uses' => 'ApiController@assets'])->middleware('api');
+Route::any('/uconfig', ['as' => 'api.uconfig', 'uses' => 'ApiController@uconfig'])->middleware('api');
+Route::get('/lang', ['as' => 'api.lang', 'uses' => 'ApiController@lang'])->middleware('api');
+Route::any('/ping', ['as' => 'api.ping', 'uses' => 'ApiController@ping'])->middleware('api');
+
 Route::group(['prefix' => 'twitter', 'middleware' => 'api'], function ()
 {
-    Route::get('getToken', 'ApiController@getToken');
-    Route::get('tconfig', 'ApiController@tconfig');
-    Route::post('upload', 'ApiController@upload');
+    Route::get('getToken', ['as' => 'api.token', 'uses' => 'ApiController@getToken']);
+    Route::get('tconfig', ['as' => 'api.tconfig', 'uses' => 'ApiController@tconfig']);
+    Route::post('upload', ['as' => 'api.upload', 'uses' => 'ApiController@upload']);
     Route::get('upload/status', 'ApiController@upload_status');
 });
 
