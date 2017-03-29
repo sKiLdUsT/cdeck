@@ -474,7 +474,9 @@ function homeMenu() {
                 });
                 $('.dm-container').fadeOut(150, function(){
                     $('#dm-msg').html(html);
-                    $(this).fadeIn(150);
+                    $(this).fadeIn(150, function(){
+                        $('#dm-msg').scrollTop($('#dm-msg')[0].scrollHeight);
+                    });
                     $('#dm-msg .materialboxed').materialbox();
                 });
             }
