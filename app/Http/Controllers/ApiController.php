@@ -353,4 +353,27 @@ class ApiController extends Controller
         }
         return App::abort(400, 'Bad Request');
     }
+
+    # Function to get cDeck To-Go code
+    public function togo(Request $request)
+    {
+        $this->checkAuth($request);
+
+        $user = $this->user;
+
+        if($user)
+        {
+            if(is_null($user->togo)){
+                $user->togo = str_random(6);
+                $user->save();
+            }
+
+            return response()->json([
+                "response" => true,
+                "token" => $user->togo
+            ]);
+        } else {
+            return response()->json(['response' => false]);
+        }
+    }
 }

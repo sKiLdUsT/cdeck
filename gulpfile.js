@@ -34,6 +34,7 @@ elixir(mix => {
     'libs/twemoji.js',
     'libs/moment.js',
     'libs/moment-timezone.js',
+    'libs/qrcode.js',
     'libs/cdeck-client.js',
     'libs/chart.js',
     'main/tools.js',

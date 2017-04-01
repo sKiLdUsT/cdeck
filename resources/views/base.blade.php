@@ -97,6 +97,7 @@
                             </div>
                         </div>
                     </ul>
+                    <li><a id="button_app" href="#" class="tooltipped" data-tooltip="cDeck To-Go"><i class="material-icons">phonelink_ring</i></a></li>
                     <li><a id="button_dm" href="#" class="tooltipped" data-tooltip="@lang('menu.messages')"><i class="material-icons">chat_bubble_outline</i></a></li>
                     <li><a class="dropdown-button" href="#" data-activates="accounts">
                             @if(Auth::user() && isset($accounts) && $accounts[0]->media->avatar)

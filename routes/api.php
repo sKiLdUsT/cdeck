@@ -17,6 +17,7 @@ Route::get('/assets', ['as' => 'api.assets', 'uses' => 'ApiController@assets'])-
 Route::any('/uconfig', ['as' => 'api.uconfig', 'uses' => 'ApiController@uconfig'])->middleware('api');
 Route::get('/lang', ['as' => 'api.lang', 'uses' => 'ApiController@lang'])->middleware('api');
 Route::any('/ping', ['as' => 'api.ping', 'uses' => 'ApiController@ping'])->middleware('api');
+Route::get('/togo', ['as' => 'api.togo', 'uses' => 'ApiController@togo'])->middleware('api');
 
 Route::group(['prefix' => 'twitter', 'middleware' => 'api'], function ()
 {

@@ -502,6 +502,30 @@ function homeMenu() {
         }
     });
 
+    $('#button_app').on('click', function(e) {
+        e.preventDefault();
+        var mn = spawnModal();
+        $('#modal' + mn + '-header').text("cDeck To-Go");
+        $('#modal' + mn + '-content').html(preloader(true));
+        $('#modal' + mn).css('overflow', 'hidden').openModal({
+            dismissible: true,
+            opacity: .5,
+            complete: function () {
+                $('#modal' + mn).remove()
+            }
+        });
+        $.get('/api/togo', function (data) {
+            if(data.response === true){
+                $('#modal' + mn + '-content').html('<p>Scan this QR-Code with a cDeck-compatible app</p><p id="togo_qr"></p><p>Or type in this code:  <pre>'+data.token+'</pre></p>');
+                new QRCode(document.getElementById("togo_qr"), "cDeck_To_Go:"+data.token);
+            } else {
+                $('#modal' + mn).closeModal();
+                Materialize.toast('Something went wrong!', 2000);
+                log.error('API: Getting To-Go Token failed.');
+            }
+        })
+    });
+
     $('.dropdown-button').dropdown({constrain_width: false, belowOrigin: true});
     $('#search_activate').on('click', function (e) {
         log.debug('UI: search bar clicked');
