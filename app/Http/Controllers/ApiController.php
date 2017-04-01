@@ -376,4 +376,22 @@ class ApiController extends Controller
             return response()->json(['response' => false]);
         }
     }
+
+    public function redeem(Request $request){
+        if(!is_null($request->input('token')))
+        {
+            $user = App\User::where(['togo' => $request->input('token')])->first();
+            if($user)
+            {
+                return response()->json([
+                    "response" => true,
+                    "token" => $user->api_token
+                ]);
+            } else {
+                return response()->json(['response' => false]);
+            }
+        } else {
+            return response()->json(['response' => false]);
+        }
+    }
 }

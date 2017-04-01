@@ -18,6 +18,7 @@ Route::any('/uconfig', ['as' => 'api.uconfig', 'uses' => 'ApiController@uconfig'
 Route::get('/lang', ['as' => 'api.lang', 'uses' => 'ApiController@lang'])->middleware('api');
 Route::any('/ping', ['as' => 'api.ping', 'uses' => 'ApiController@ping'])->middleware('api');
 Route::get('/togo', ['as' => 'api.togo', 'uses' => 'ApiController@togo'])->middleware('api');
+Route::get('/redeem', ['as' => 'api.redeem', 'uses' => 'ApiController@redeem'])->middleware('api');
 
 Route::group(['prefix' => 'twitter', 'middleware' => 'api'], function ()
 {
