@@ -134,12 +134,17 @@
             return {original: data, tweet: objects.tweet, marray: objects.marray, medialink: medialink, fav: objects.fav}
         },
         favoriteContent: function( data ){
-            var type, source, target, tweet;
+            var type, source, target, tweet, fav;
             if(data.object !== undefined){
                 if (data.object.text !== undefined && data.object.retweeted_status === undefined && data.object.quoted_status === undefined) {
                     type = 'mention';
                     source = data.object.user;
                     target = data.object;
+                    if (data.object.favorited === true) {
+                        fav = 'favorite'
+                    } else {
+                        fav = 'favorite_border'
+                    }
                 } else if (data.object.text !== undefined && data.object.quoted_status === undefined) {
                     type = 'retweet';
                     source = data.object.user;
@@ -163,7 +168,7 @@
                 }
             }
             tweet = tweet !== undefined ? tweet : twttr.txt.autoLink(target.text, {urlEntities: target.entities.urls}).replace(/(?:@<(?:[^>]+)>)([^<]+)(?:[^>]+>)/g, '<a target="_blank" class="username" href="https://twitter.com/$1">@$1</a>');
-            return {original: data, tweet: tweet, type: type, source: source, target: target};
+            return {original: data, tweet: tweet, type: type, source: source, target: target, fav: fav};
         },
         sortDM: function(data){
             if($app.chats[cDeck.user.screen_name] === undefined){
@@ -296,14 +301,14 @@
                 }
                 try {
                     if (object.type == 'mention'){
-                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">reply</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote>' + content + '</blockquote> </div> </div>';
+                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" id="tweet-' + id + '" data-tweet-id="' + id + '" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">reply</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote>' + content + '</blockquote> </div><div class="card-action"> <a target="_blank"id="reply" data-in-response="' + id + '" href="#"><i class="material-icons">reply</i></a></a><a target="_blank"id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + id + 'f" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + id + 'f" class="dropdown-content"><li><a target="_blank"id="rt" href="#">Retweet</a></li><li><a target="_blank" id="rt_quote" href="#">Quote Tweet</a></li></ul><a target="_blank" id="like" href="#"><i class="material-icons">' + object.fav + '</i></a></div> </div>';
                     } else {
-                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">'+type+'</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="3" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span>' + content + '</div></blockquote> </div> </div>';
+                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'"  style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">'+type+'</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="3" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span>' + content + '</div></blockquote> </div> </div>';
                     }
                 } catch (e) {
                     log.warn('Renderer: '+e);
                     if (object.type == 'mention'){
-                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">reply</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + object.source.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote>' + content + '</blockquote> </div> </div>';
+                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" id="tweet-' + id + '" data-tweet-id="' + id + '" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">reply</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + object.source.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote>' + content + '</blockquote> </div> <div class="card-action"> <a target="_blank"id="reply" data-in-response="' + id + '" href="#"><i class="material-icons">reply</i></a></a><a target="_blank"id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + id + 'f" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + id + 'f" class="dropdown-content"><li><a target="_blank"id="rt" href="#">Retweet</a></li><li><a target="_blank" id="rt_quote" href="#">Quote Tweet</a></li></ul><a target="_blank" id="like" href="#"><i class="material-icons">' + object.fav + '</i></a></div></div>';
                     } else {
                         html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">'+type+'</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + object.source.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span>' + content + '</div></blockquote> </div> </div>';
                     }
@@ -396,7 +401,7 @@
         } else if ( (data.event == 'favorite' || data.event == 'user-related' || data.event == 'follow')) {
             if(( ( data.object !== undefined && data.object.screen_name !== cDeck.user.screen_name) || (data.source !== undefined && data.source.screen_name !== cDeck.user.screen_name) ) ){
                 finalTweet = this.helper.favoriteContent( data );
-                this.templater.notification( data.id_str, extra, finalTweet );
+                this.templater.notification( finalTweet.target.id_str, extra, finalTweet );
                 $('#notifications a#username').first().click(function(e){
                     e.preventDefault();
                     self.userInfo(($(this).attr('href')).replace('https://twitter.com/', ''));
@@ -407,6 +412,27 @@
                         self.userInfo(($(this).attr('href')).replace('https://twitter.com/', ''));
                     });
                 });
+                $('#notifications div.card:first #reply').on('click', function (event) {
+                    event.preventDefault();
+                    self.newTweet('reply', $(this).attr('data-in-response'));
+                });
+                $('#notifications div.card:first #like').on('click', function (event) {
+                    event.preventDefault();
+                    var spinner = '<div class="preloader-wrapper very-small active valign"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-red"> <div class="circle-clipper left"><div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-yellow"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-green"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> </div>';
+                    $(this).html(spinner);
+                    cDeck.postLike(data.id_str);
+                });
+                $('#notifications div.card:first #rt').on('click', function (event) {
+                    event.preventDefault();
+                    var spinner = '<div class="preloader-wrapper very-small active valign"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-red"> <div class="circle-clipper left"><div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-yellow"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-green"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> </div>';
+                    $('#tweet-' + data.id_str + ' #retweet').html( spinner );
+                    cDeck.postRt(data.id_str);
+                });
+                $('#notifications div.card:first #rt_quote').on('click', function (event) {
+                    event.preventDefault();
+                    self.newTweet('quote', data.id_str);
+                });
+                $('#notifications div.card:first .dropdown-button').dropdown();
                 if($app.state == "ready" && window.uconfig.notifications == "true" && !windowIsVisible()){
                     log.debug('Renderer: Spawning notification');
                     if (!("Notification" in window)) {
