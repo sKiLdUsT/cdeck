@@ -38,10 +38,11 @@ class SiteController extends Controller
     }
 
     # Login View
-    public function login(Request $request){
+    public function login(Request $request)
+    {
         # Fist check if user is already logged in and if so
         # Redirect him back to home page
-        if(!is_null(Auth::user()))return redirect()->route('index');
+        if (!is_null(Auth::user())) return redirect()->route('index');
 
         $this->beforeRun() ?: App::abort(500);
 
@@ -54,46 +55,37 @@ class SiteController extends Controller
         # Return view
         return view('auth.login', compact('title', 'deliver', 'hideNavbar', 'clients'));
     }
+
     # Imprint View
-    public function imprint(Request $request){
+    public function imprint(Request $request)
+    {
         $this->beforeRun() ?: App::abort(500);
 
-        # Site-specific vars for view
-        $title = 'Imprint - ';
-        $deliver = $request->input('deliver', 'null');
-        $hideNavbar = true;
-        $clients = $this->clients;
-
-        # Return view
-        return view('app.imprint', compact('title', 'deliver', 'hideNavbar', 'clients'));
+        return redirect("https://kontrollraum.org/info/cdeck");
     }
+
     # Privacy View
-    public function privacy(Request $request){
+    public function privacy(Request $request)
+    {
         $this->beforeRun() ?: App::abort(500);
 
-        # Site-specific vars for view
-        $title = 'Privacy - ';
-        $deliver = $request->input('deliver', 'null');
-        $hideNavbar = true;
-        $clients = $this->clients;
-
-        # Return view
-        return view('app.privacy', compact('title', 'deliver', 'hideNavbar', 'clients'));
+        return redirect("https://kontrollraum.org/info/cdeck");
     }
 
     # cDeck Voice Message View
-    public function showVoice(Request $request, $id){
+    public function showVoice(Request $request, $id)
+    {
         $this->beforeRun() ?: App::abort(500);
         # Get Voice Message details
         $vm = App\Voice::where('id', $id)->first();
-        if(is_null($vm)) App::abort(404);
+        if (is_null($vm)) App::abort(404);
 
         # Get user details
         $user = App\User::where('id', $vm->uid)->first();
-        if(is_null($user)) App::abort(500);
+        if (is_null($user)) App::abort(500);
 
         # Construct new user object for view
-        $user = (object) [
+        $user = (object)[
             "name" => base64_decode($user->name),
             "handle" => $user->handle,
             "avatar" => json_decode($user->media)->avatar,
@@ -101,7 +93,7 @@ class SiteController extends Controller
         ];
 
         # Site-specific vars for view
-        $title = $user->name.'\'s Voice Message - ';
+        $title = $user->name . '\'s Voice Message - ';
         $deliver = $request->input('deliver', 'null');
         $url = $vm->path;
         $time = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $vm->created_at)->formatLocalized('%A, %d %B %Y %R %Z');

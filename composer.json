@@ -10,7 +10,6 @@
         "thujohn/twitter": "^2.2",
         "vluzrmos/language-detector": "^1.0",
         "skildust/gitlog": "^1.0",
-        "cdeck/bbcodeparser": "^2.2.3",
         "pragmarx/tracker": "^3.1",
         "geoip2/geoip2": "^2.4",
         "fideloper/proxy": "^3.2"
@@ -22,12 +21,6 @@
         "symfony/css-selector": "3.1.*",
         "symfony/dom-crawler": "3.1.*"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@git.skildust.com:cDeck/BBCodeParser.git"
-        }
-    ],
     "autoload": {
         "classmap": [
             "database"
