@@ -26,10 +26,10 @@ body {
     height: unset;
   }
   main.home {
-    width: calc(100vw - 4rem)!important;
-    height: calc(100vh - 4rem)!important;
-    left: 2rem;
-    right: 2rem;
+    width: calc(100vw - 2rem)!important;
+    height: calc(100vh - 6rem)!important;
+    left: 1rem;
+    right: 1rem;
     overflow-x: auto;
     overflow-y: hidden;
     .row {
