@@ -1,0 +1,41 @@
+@extends('base')
+@section('content')
+    <div class="container center white black-text">
+        <br>
+        <h3>@lang('privacy.this')</h3>
+        <div class="divider"></div><br>
+        <br><br>
+        @lang('privacy.t1')
+        <br><br>
+        <br>
+        <br>
+<b>@lang('privacy.analytics')</b>
+        <br><br>
+        @lang('privacy.t2')
+        <br><br>
+        <br>
+        <br>
+<b>@lang('privacy.twitter')</b>
+        <br><br>
+        @lang('privacy.t3')
+        <br><br>
+        <br>
+        <br>
+<b>@lang('privacy.als')</b>
+        <br><br>
+        @lang('privacy.t4')
+        <br><br>
+        <br>
+        <br>
+<b>Cookies</b>
+        <br><br>
+        @lang('privacy.t5')
+        <br><br>
+        <br>
+        <br>
+<b>Server-Log-Files</b>
+        <br><br>
+        @lang('privacy.t6')
+    </div>
+    <br>
+@endsection

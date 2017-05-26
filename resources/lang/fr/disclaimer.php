@@ -1,0 +1,13 @@
+<?php
+
+return [
+    "imprint" => "Imprimer",
+    "t1" => " L'information à propos de l'article §5.6 de l'Acte de German Telemedia n'est pas necéssaire car aucun service à condition de rénumrération, et n'y a aucunnes relations avec German Telemedia.",
+    "this" => "Avertissement",
+    "content" => "Responsabilité pour le contenu",
+    "t2" => "En tant que prestataire de services, nous sommes responsables selon §7.1 TMG (Acte de German Telemedia) pour leurs propres contenus sur ces pages en vertu des lois générales. Selon §8 à §10 TMG (Acte de German Telemedia), nous ne sommes pas tenus en tant que prestataire de services pour surveiller les informations transmises ou stockées, ou pour enquêter sur les circonstances qui indiquent une activité illégale. Obligations pour supprimer ou bloquer l'utilisation de l'information en vertu des lois générales restent inchangées. Toutefois, un passif correspondant est possible qu'à partir de la date de la connaissance d'une infraction spécifique. Dès la notification de ces violations, nous allons supprimer le contenu immédiatement.",
+    "links" => "Responsabilité pour les liens",
+    "t3" => "Notre site contient des liens vers des sites externes, sur lesquels nous avons aucun contrôle. Par conséquent, nous ne pouvons accepter aucune responsabilité quant à leur contenu. Le fournisseur ou l'exploitant est toujours responsable du contenu des pages liées. Les sites liés ont été contrôlés au moment de la liaison pour les éventuelles violations du droit. Des contenus illégaux étaient au moment de la liaison. Un contrôle permanent des pages liées est déraisonnable sans indices concrets d'une violation. Dès la notification de violations, nous allons immédiatement supprimer ces liens.",
+    "copyright" => "Droits d'auteur",
+    "t4" => "Le contenu et les travaux sur ces pages créées par les exploitants du site sont soumises au droit d'auteur allemend. La copie, l'édition, la distribution et toute forme d'exploitation en dehors des limites du droit d'auteur nécessite l'autorisation écrite de l'auteur ou du créateur. Les téléchargements et copies ne sont autorisées que pour un usage privé et non commercial. Dans la mesure où le contenu n'a pas été créé par l'opérateur, le droit d'auteur de tiers sont respectés. En particulier le contenu de tiers sont marqués comme tels. Si vous toujours être conscient de la violation du droit d'auteur, nous demandons un indice. Dès la notification de violations, nous allons supprimer le contenu immédiatement."
+];
