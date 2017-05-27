@@ -397,7 +397,9 @@
             $('.dropdown-button').dropdown();
             $('.slider').slider({full_width: true,indicators: false});
         } else if ( data.delete !== undefined ) {
-            $( '#tweet-' + data.delete.status.id_str ).remove();
+          $( '#tweet-' + data.delete.status.id_str ).each(function(){
+              $(this).remove();
+          });
         } else if ( (data.event == 'favorite' || data.event == 'user-related' || data.event == 'follow')) {
             if(( ( data.object !== undefined && data.object.screen_name !== cDeck.user.screen_name) || (data.source !== undefined && data.source.screen_name !== cDeck.user.screen_name) ) ){
                 finalTweet = this.helper.favoriteContent( data );
@@ -420,17 +422,17 @@
                     event.preventDefault();
                     var spinner = '<div class="preloader-wrapper very-small active valign"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-red"> <div class="circle-clipper left"><div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-yellow"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-green"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> </div>';
                     $(this).html(spinner);
-                    cDeck.postLike(data.id_str);
+                    cDeck.postLike(data.object.id_str);
                 });
                 $('#notifications div.card:first #rt').on('click', function (event) {
                     event.preventDefault();
                     var spinner = '<div class="preloader-wrapper very-small active valign"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-red"> <div class="circle-clipper left"><div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-yellow"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-green"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> </div>';
-                    $('#tweet-' + data.id_str + ' #retweet').html( spinner );
-                    cDeck.postRt(data.id_str);
+                    $('#notifications #tweet-' + data.object.id_str + ' #retweet').html( spinner );
+                    cDeck.postRt(data.object.id_str);
                 });
                 $('#notifications div.card:first #rt_quote').on('click', function (event) {
                     event.preventDefault();
-                    self.newTweet('quote', data.id_str);
+                    self.newTweet('quote', data.object.id_str);
                 });
                 $('#notifications div.card:first .dropdown-button').dropdown();
                 if($app.state == "ready" && window.uconfig.notifications == "true" && !windowIsVisible()){
