@@ -12,5 +12,7 @@ return [
     "messages" => "Nachrichten",
     "send" => "Senden",
     "noti_enabled" => "Benachrichtigungen eingeschaltet!",
-    "noti_disabled" => "Benachrichtigungen ausgeschaltet!"
+    "noti_disabled" => "Benachrichtigungen ausgeschaltet!",
+    "imprint" => "Impressum",
+    "privacy" => "Datenschutz"
 ];

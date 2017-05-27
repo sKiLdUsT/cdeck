@@ -11,6 +11,8 @@ return [
     "messages" => "Messages",
     "send" => "Envoyer",
     "noti_enabled" => "Notifications activées!",
-    "noti_disabled" => "Notifications désactivées!"
+    "noti_disabled" => "Notifications désactivées!",
+    "imprint" => "Imprimer",
+    "privacy" => "Politque de confidentialité"
 
 ];

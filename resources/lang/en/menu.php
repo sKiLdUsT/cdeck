@@ -12,5 +12,7 @@ return [
     "messages" => "Messages",
     "send" => "Send",
     "noti_enabled" => "Notifications enabled!",
-    "noti_disabled" => "Notifications disabled!"
+    "noti_disabled" => "Notifications disabled!",
+    "imprint" => "Imprint",
+    "privacy" => "Privacy Policy"
 ];
