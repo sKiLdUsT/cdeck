@@ -179,7 +179,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         Vluzrmos\LanguageDetector\Providers\LanguageDetectorServiceProvider::class,
         'Thujohn\Twitter\TwitterServiceProvider',
-        'PragmaRX\Tracker\Vendor\Laravel\ServiceProvider',
         'Fideloper\Proxy\TrustedProxyServiceProvider'
 
     ],
@@ -229,7 +228,6 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'Tracker' => 'PragmaRX\Tracker\Vendor\Laravel\Facade',
         'Twitter' => 'Thujohn\Twitter\Facades\Twitter'
     ],
 

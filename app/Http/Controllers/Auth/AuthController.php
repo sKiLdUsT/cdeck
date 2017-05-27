@@ -154,8 +154,11 @@ class AuthController extends Controller
                         'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
                         'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246']),
                     'uconfig' => json_encode([
-                        'colormode' => 0,
-                        'access_level' => 0
+                        'colormode' => 1,
+                        'access_level' => 0,
+                        'activeID' => 0,
+                        'roundpb' => 'true',
+                        'highlights' => 'true'
                     ])
                 ]);
             } else {
@@ -183,10 +186,11 @@ class AuthController extends Controller
                 'avatar' => isset($twitterUser->profile_image_url_https) ? $twitterUser->profile_image_url_https : '',
                 'banner' => isset($twitterUser->profile_banner_url) ? $twitterUser->profile_banner_url : 'https://pbs.twimg.com/profile_banners/2244994945/1396995246']),
             'uconfig' => json_encode([
-                'colormode' => 0,
+                'colormode' => 1,
                 'access_level' => 0,
                 'activeID' => 0,
-                'roundpb' => 'true'
+                'roundpb' => 'true',
+                'highlights' => 'true'
             ])
         ]);
     }

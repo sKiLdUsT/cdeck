@@ -58,27 +58,13 @@ class SiteController extends Controller
     public function imprint(Request $request){
         $this->beforeRun() ?: App::abort(500);
 
-        # Site-specific vars for view
-        $title = 'Imprint - ';
-        $deliver = $request->input('deliver', 'null');
-        $hideNavbar = true;
-        $clients = $this->clients;
-
-        # Return view
-        return view('app.imprint', compact('title', 'deliver', 'hideNavbar', 'clients'));
+        return redirect("https://kontrollraum.org/info/cdeck");
     }
     # Privacy View
     public function privacy(Request $request){
         $this->beforeRun() ?: App::abort(500);
 
-        # Site-specific vars for view
-        $title = 'Privacy - ';
-        $deliver = $request->input('deliver', 'null');
-        $hideNavbar = true;
-        $clients = $this->clients;
-
-        # Return view
-        return view('app.privacy', compact('title', 'deliver', 'hideNavbar', 'clients'));
+        return redirect("https://kontrollraum.org/info/cdeck");
     }
 
     # cDeck Voice Message View

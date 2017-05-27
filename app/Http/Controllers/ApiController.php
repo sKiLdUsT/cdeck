@@ -23,9 +23,24 @@ class ApiController extends Controller
     |
     */
 
-    public function __construct()
+    protected $user;
+
+    public function __construct(Request $request)
     {
         App::setlocale(Request()->input('lang', (Auth::user() && isset(json_decode(Auth::user()->uconfig)->lang)) ? json_decode(Auth::user()->uconfig)->lang : LanguageDetector::detect()));
+    }
+
+    public function checkAuth(Request $request){
+        if(Auth::check()){
+            $this->user = Auth::user();
+        } else {
+            if($request->input('api_key')){
+                $user = App\User::where('api_token', $request->input('api_key'))->first();
+                if(!is_null($user)){
+                    $this->user = $user;
+                }
+            }
+        }
     }
 
     /*
@@ -34,9 +49,10 @@ class ApiController extends Controller
 
     # Function to request Twitter Token stuff.
     # Also delivers the API token.
-    public function getToken()
+    public function getToken(Request $request)
     {
-        $user = Auth::user();
+        $this->checkAuth($request);
+        $user = $this->user;
         if($user){
             $finalAccount = [];
             $accounts = array_merge([$user->handle], json_decode($user->authorized, true) ?: []);
@@ -130,7 +146,8 @@ class ApiController extends Controller
     # Function to get/set User Config (depending on request type)
     public function uconfig(Request $request)
     {
-        $user = Auth::user();
+        $this->checkAuth($request);
+        $user = $this->user;
         $settings = $request->input();
         if($user)
         {
@@ -208,12 +225,13 @@ class ApiController extends Controller
     # Function to create a new blog post
     public function blogNew(Request $request)
     {
+        $this->checkAuth($request);
         $parser = new \Golonka\BBCode\BBCodeParser;
         $post = $request->input();
         $blog = new App\Blog;
 
-        $blog->uid = Auth::user()->id;
-        $blog->show = (json_decode(Auth::user()->uconfig)->access_level == 2) ? 1 : 0;
+        $blog->uid = $this->user->id;
+        $blog->show = (json_decode($this->user->uconfig)->access_level == 2) ? 1 : 0;
         $blog->title = $post["title"];
         $blog->content = $parser->parse($post["content"]);
         if($blog->save()){
@@ -225,12 +243,13 @@ class ApiController extends Controller
     # Function to create a cDeck Voice Message
     public function voiceNew(Request $request)
     {
+        $this->checkAuth($request);
         # Disabled until rework is done
         return response()->json(['response' => false]);
         
-        if(Auth::user()){
+        if($this->user){
             $voice = new App\Voice;
-            $user = Auth::user();
+            $user = $this->user;
             $data = base64_decode(str_replace('data:audio/mpeg;base64,', '', $request->input('data')));
             $id = str_random(9);
             Storage::disk('voices')->put($user->id.'/'.$id.'.mp3', $data);
@@ -251,6 +270,7 @@ class ApiController extends Controller
     # Function to upload videos/images to Twitter
     public function upload(Request $request)
     {
+        $this->checkAuth($request);
         # From http://www.go4expert.com/articles/splitting-file-parts-php-t29885/
         function fsplit($file){
             $buffer = 1048576;
@@ -268,7 +288,7 @@ class ApiController extends Controller
             return $file_parts;
         }
 
-        if(Auth::user()) {
+        if($this->user) {
             if ($request->hasFile('data') && $request->file('data')->isValid())
             {
                 try
@@ -303,6 +323,7 @@ class ApiController extends Controller
     # Function to check Twitter async upload status
     public function upload_status(Request $request)
     {
+        $this->checkAuth($request);
         # Only continue if id is set
         $id = $request->input('id');
         if($id)
@@ -331,5 +352,46 @@ class ApiController extends Controller
             }
         }
         return App::abort(400, 'Bad Request');
+    }
+
+    # Function to get cDeck To-Go code
+    public function togo(Request $request)
+    {
+        $this->checkAuth($request);
+
+        $user = $this->user;
+
+        if($user)
+        {
+            if(is_null($user->togo)){
+                $user->togo = str_random(6);
+                $user->save();
+            }
+
+            return response()->json([
+                "response" => true,
+                "token" => $user->togo
+            ]);
+        } else {
+            return response()->json(['response' => false]);
+        }
+    }
+
+    public function redeem(Request $request){
+        if(!is_null($request->input('token')))
+        {
+            $user = App\User::where(['togo' => $request->input('token')])->first();
+            if($user)
+            {
+                return response()->json([
+                    "response" => true,
+                    "token" => $user->api_token
+                ]);
+            } else {
+                return response()->json(['response' => false]);
+            }
+        } else {
+            return response()->json(['response' => false]);
+        }
     }
 }

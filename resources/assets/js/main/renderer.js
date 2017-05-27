@@ -20,16 +20,16 @@
         this.index = {};
         this.config = {};
         self = this;
-        if( typeof tconfig == 'undefined' ){
+        if( typeof window.tconfig == 'undefined' ){
             $.get('/api/twitter/tconfig', function ( data ) {
                 if (data !== null) {
-                    self.config = data;
+                    self.config = window.tconfig = data;
                 } else {
                     throw new CDeckError('tconfig is null. Contact server administrator.');
                 }
             });
         } else {
-            this.config = tconfig;
+            this.config = window.tconfig;
         }
     };
 
@@ -118,15 +118,11 @@
                 tweet = twttr.txt.autoLink(type.text, {urlEntities: type.entities.urls}).replace(/(?:@<(?:[^>]+)>)([^<]+)(?:[^>]+>)/g, '<a target="_blank" class="username" href="https://twitter.com/$1">@$1</a>');
             if (data.extended_entities !== undefined && data.extended_entities.media !== undefined) {
                 if(type.extended_entities.media[0].type == 'photo'){
-                    if(type.extended_entities.media.length > 1){
-                        var a = '<div class"card-image"><div class="slider"><ul class="slides">';
-                        type.extended_entities.media.forEach(function(item){
-                            a = a+'<li><img src="'+item.media_url_https+'" class="materialboxed" data-caption=\'' + tweet.replace(/'/g, "&#039;") + '\'></li>'
-                        });
-                        medialink = a+'</ul></div></div>'
-                    }else {
-                        medialink = '<div class="card-image"><img src="' + type.extended_entities.media[0].media_url_https + '" class="materialboxed" data-caption=\'' + tweet.replace(/'/g, "&#039;") + '\'></div>';
-                    }
+                    var a = '';
+                    type.extended_entities.media.forEach(function(item){
+                        a = a+'<img src="'+item.media_url_https+'" class="materialboxed" data-caption=\'' + tweet.replace(/'/g, "&#039;") + '\'>'
+                    });
+                    medialink = a
                 }
             }
             return medialink !== undefined ? medialink : '';
@@ -138,12 +134,17 @@
             return {original: data, tweet: objects.tweet, marray: objects.marray, medialink: medialink, fav: objects.fav}
         },
         favoriteContent: function( data ){
-            var type, source, target, tweet;
+            var type, source, target, tweet, fav;
             if(data.object !== undefined){
                 if (data.object.text !== undefined && data.object.retweeted_status === undefined && data.object.quoted_status === undefined) {
                     type = 'mention';
                     source = data.object.user;
                     target = data.object;
+                    if (data.object.favorited === true) {
+                        fav = 'favorite'
+                    } else {
+                        fav = 'favorite_border'
+                    }
                 } else if (data.object.text !== undefined && data.object.quoted_status === undefined) {
                     type = 'retweet';
                     source = data.object.user;
@@ -167,30 +168,36 @@
                 }
             }
             tweet = tweet !== undefined ? tweet : twttr.txt.autoLink(target.text, {urlEntities: target.entities.urls}).replace(/(?:@<(?:[^>]+)>)([^<]+)(?:[^>]+>)/g, '<a target="_blank" class="username" href="https://twitter.com/$1">@$1</a>');
-            return {original: data, tweet: tweet, type: type, source: source, target: target};
+            return {original: data, tweet: tweet, type: type, source: source, target: target, fav: fav};
         },
         sortDM: function(data){
-            if($app.chats[cDeck.user.handle] === undefined){
-                $app.chats[cDeck.user.handle] = {}
+            if($app.chats[cDeck.user.screen_name] === undefined){
+                $app.chats[cDeck.user.screen_name] = {}
             }
-            if(data.recipient.screen_name == cDeck.user.handle){
-                if($app.chats[cDeck.user.handle][data.sender.screen_name] === undefined){
-                    $app.chats[cDeck.user.handle][data.sender.screen_name] = []
+            if(data.recipient.screen_name == cDeck.user.screen_name){
+                if($app.chats[cDeck.user.screen_name][data.sender.screen_name] === undefined){
+                    $app.chats[cDeck.user.screen_name][data.sender.screen_name] = []
                 }
-                $app.chats[cDeck.user.handle][data.sender.screen_name].push({
+                var object = {
                     align: 'left',
                     user: data.sender,
-                    message: data.text
-                })
-            } else if(data.sender.screen_name == cDeck.user.handle){
-                if($app.chats[cDeck.user.handle][data.recipient.screen_name] === undefined){
-                    $app.chats[cDeck.user.handle][data.recipient.screen_name] = []
+                    message: data.text,
+                    entities: data.entities
+                };
+                $app.chats[cDeck.user.screen_name][data.sender.screen_name].push(object);
+                return object;
+            } else if(data.sender.screen_name == cDeck.user.screen_name){
+                if($app.chats[cDeck.user.screen_name][data.recipient.screen_name] === undefined){
+                    $app.chats[cDeck.user.screen_name][data.recipient.screen_name] = []
                 }
-                $app.chats[cDeck.user.handle][data.recipient.screen_name].push({
+                var object = {
                     align: 'right',
                     user: data.recipient,
-                    message: data.text
-                })
+                    message: data.text,
+                    entities: data.entities
+                };
+                $app.chats[cDeck.user.screen_name][data.recipient.screen_name].push(object);
+                return object;
             }
         }
     };
@@ -209,25 +216,23 @@
                 minimal = 'minimal';
             }
             if (object.original.retweeted_status === undefined && object.original.quoted_status === undefined) {
-                content = '<p>' + object.tweet + '</p>';
+                content = '<p>' + object.tweet + '</p>'+object.medialink;
                 if(object.original.user.screen_name == cDeck.user.screen_name){
                     remove = '<a target="_blank" id="delete" href="#"><i class="material-icons">delete</i></a>'
                 }
             } else if (object.original.quoted_status === undefined) {
-                content = '<blockquote><div class="card '+colormode+' z-depth-3 tweet" id="tweet-' + object.original.retweeted_status.id_str + '">' + object.medialink + '<div class="card-content"><a target="_blank" href="https://twitter.com/'+object.original.retweeted_status.user.screen_name+'/status/'+object.original.retweeted_status.id_str+'" data-time="'+object.original.retweeted_status.created_at+'" class="chip time waves">' + moment(object.original.retweeted_status.created_at).fromNow() + '</a><span class="card-title left-align"><img src="' + object.original.retweeted_status.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.original.retweeted_status.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.original.retweeted_status.user.screen_name + '"> @' + object.original.retweeted_status.user.screen_name + '</a></span><p>' + object.tweet + '</p> </div></blockquote> ';
-                object.medialink = '';
+                content = '<blockquote><div class="card '+colormode+' z-depth-3 tweet" id="tweet-' + object.original.retweeted_status.id_str + '"><div class="card-content"><a target="_blank" href="https://twitter.com/'+object.original.retweeted_status.user.screen_name+'/status/'+object.original.retweeted_status.id_str+'" data-time="'+object.original.retweeted_status.created_at+'" class="chip time waves">' + moment(object.original.retweeted_status.created_at).fromNow() + '</a><span class="card-title left-align"><img src="' + object.original.retweeted_status.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.original.retweeted_status.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.original.retweeted_status.user.screen_name + '"> @' + object.original.retweeted_status.user.screen_name + '</a></span><p>' + object.tweet + '</p> '+object.medialink+'</div></blockquote> ';
             } else if (object.original.quoted_status !== undefined) {
-                content = '<p>' + object.tweet.main + '</p><blockquote><div class="card '+colormode+' z-depth-3 tweet" id="tweet-' + object.original.quoted_status.id_str + '">' + object.medialink + '<div class="card-content"><a target="_blank" href="https://twitter.com/'+object.original.quoted_status.user.screen_name+'/status/'+object.original.quoted_status.id_str+'" data-time="'+object.original.quoted_status.created_at+'" class="chip time waves">' + moment(object.original.quoted_status.created_at).fromNow() + '</a><span class="card-title left-align"><img src="' + object.original.quoted_status.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img pb">' + object.original.quoted_status.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.original.quoted_status.user.screen_name + '"> @' + object.original.quoted_status.user.screen_name + '</a></span><p>' + object.tweet.sec + '</p></div></blockquote>';
-                object.medialink = '';
+                content = '<p>' + object.tweet.main + '</p><blockquote><div class="card '+colormode+' z-depth-3 tweet" id="tweet-' + object.original.quoted_status.id_str + '"><div class="card-content"><a target="_blank" href="https://twitter.com/'+object.original.quoted_status.user.screen_name+'/status/'+object.original.quoted_status.id_str+'" data-time="'+object.original.quoted_status.created_at+'" class="chip time waves">' + moment(object.original.quoted_status.created_at).fromNow() + '</a><span class="card-title left-align"><img src="' + object.original.quoted_status.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img pb">' + object.original.quoted_status.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.original.quoted_status.user.screen_name + '"> @' + object.original.quoted_status.user.screen_name + '</a></span><p>' + object.tweet.sec + '</p>'+object.medialink+'</div></blockquote>';
                 if(object.original.user.screen_name == cDeck.user.screen_name){
                     remove = '<a target="_blank" id="delete" href="#"><i class="material-icons">delete</i></a>'
                 }
             }
             try {
-                html = '<div class="divider"></div><div class="card '+colormode+' tweet '+minimal+'" id="tweet-' + id + '" data-tweet-id="' + id + '" data-mentions="' + object.marray.toString() + '" style="display: none">' + object.medialink + '<div class="card-content"><a target="_blank" href="https://twitter.com/'+object.original.user.screen_name+'/status/'+id+'" data-time="'+object.original.created_at+'" class="chip time waves">' + moment(object.original.created_at).fromNow() + '</a><span class="card-title left-align"><img src="' + object.original.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img pb">  ' + twemoji.parse(object.original.user.name) + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.original.user.screen_name + '"> @' + object.original.user.screen_name + '</a></span>' + content + '</div> <div class="card-action"> <a target="_blank"id="reply" data-in-response="' + id + '" href="#"><i class="material-icons">reply</i></a></a><a target="_blank"id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + id + '" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + id + '" class="dropdown-content"><li><a target="_blank"id="rt" href="#">Retweet</a></li><li><a target="_blank" id="rt_quote" href="#">Quote Tweet</a></li></ul><a target="_blank" id="like" href="#"><i class="material-icons">' + object.fav + '</i></a>'+remove+'</div></div>';
+                html = '<div class="divider"></div><div class="card '+colormode+' tweet '+minimal+'" id="tweet-' + id + '" data-tweet-id="' + id + '" data-mentions="' + object.marray.toString() + '" style="display: none"><div class="card-content"><a target="_blank" href="https://twitter.com/'+object.original.user.screen_name+'/status/'+id+'" data-time="'+object.original.created_at+'" class="chip time waves">' + moment(object.original.created_at).fromNow() + '</a><span class="card-title left-align"><img src="' + object.original.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img pb">  ' + twemoji.parse(object.original.user.name) + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.original.user.screen_name + '"> @' + object.original.user.screen_name + '</a></span>' + content + '</div> <div class="card-action"> <a target="_blank"id="reply" data-in-response="' + id + '" href="#"><i class="material-icons">reply</i></a></a><a target="_blank"id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + id + '" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + id + '" class="dropdown-content"><li><a target="_blank"id="rt" href="#">Retweet</a></li><li><a target="_blank" id="rt_quote" href="#">Quote Tweet</a></li></ul><a target="_blank" id="like" href="#"><i class="material-icons">' + object.fav + '</i></a>'+remove+'</div></div>';
             } catch (e) {
                 log.warn('Renderer: '+e);
-                html = '<div class="divider"></div><div class="card '+colormode+' tweet '+minimal+'" id="tweet-' + id + '" data-tweet-id="' + id + '" data-mentions="' + object.marray.toString() + '" style="display: none">' + object.medialink + '<div class="card-content"><a target="_blank" href="https://twitter.com/'+object.original.user.screen_name+'/status/'+id+'" data-time="'+object.original.created_at+'" class="chip time waves">' + moment(object.original.created_at).fromNow() + '</a><span class="card-title left-align"><img src="' + object.original.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img pb">  ' + object.original.user.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.original.user.screen_name + '"> @' + object.original.user.screen_name + '</a></span>' + content + '</div> <div class="card-action"> <a target="_blank"id="reply" data-in-response="' + id + '" href="#"><i class="material-icons">reply</i></a></a><a target="_blank"id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + id + '" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + id + '" class="dropdown-content"><li><a target="_blank"id="rt" href="#">Retweet</a></li><li><a target="_blank" id="rt_quote" href="#">Quote Tweet</a></li></ul><a target="_blank" id="like" href="#"><i class="material-icons">' + object.fav + '</i></a>'+remove+'</div></div>';
+                html = '<div class="divider"></div><div class="card '+colormode+' tweet '+minimal+'" id="tweet-' + id + '" data-tweet-id="' + id + '" data-mentions="' + object.marray.toString() + '" style="display: none"><div class="card-content"><a target="_blank" href="https://twitter.com/'+object.original.user.screen_name+'/status/'+id+'" data-time="'+object.original.created_at+'" class="chip time waves">' + moment(object.original.created_at).fromNow() + '</a><span class="card-title left-align"><img src="' + object.original.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img pb">  ' + object.original.user.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.original.user.screen_name + '"> @' + object.original.user.screen_name + '</a></span>' + content + '</div> <div class="card-action"> <a target="_blank"id="reply" data-in-response="' + id + '" href="#"><i class="material-icons">reply</i></a></a><a target="_blank"id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + id + '" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + id + '" class="dropdown-content"><li><a target="_blank"id="rt" href="#">Retweet</a></li><li><a target="_blank" id="rt_quote" href="#">Quote Tweet</a></li></ul><a target="_blank" id="like" href="#"><i class="material-icons">' + object.fav + '</i></a>'+remove+'</div></div>';
             }
             if($('#timeline').children('.card.tweet').length > 99){
                 $('#timeline').children('.card.tweet').last().remove();
@@ -296,14 +301,14 @@
                 }
                 try {
                     if (object.type == 'mention'){
-                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">reply</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote>' + content + '</blockquote> </div> </div>';
+                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" id="tweet-' + id + '" data-tweet-id="' + id + '" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">reply</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote>' + content + '</blockquote> </div><div class="card-action"> <a target="_blank"id="reply" data-in-response="' + id + '" href="#"><i class="material-icons">reply</i></a></a><a target="_blank"id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + id + 'f" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + id + 'f" class="dropdown-content"><li><a target="_blank"id="rt" href="#">Retweet</a></li><li><a target="_blank" id="rt_quote" href="#">Quote Tweet</a></li></ul><a target="_blank" id="like" href="#"><i class="material-icons">' + object.fav + '</i></a></div> </div>';
                     } else {
-                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">'+type+'</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="3" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span>' + content + '</div></blockquote> </div> </div>';
+                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'"  style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">'+type+'</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + twemoji.parse(object.source.name) + '<a target="_blank"id="username" class="3" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span>' + content + '</div></blockquote> </div> </div>';
                     }
                 } catch (e) {
                     log.warn('Renderer: '+e);
                     if (object.type == 'mention'){
-                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">reply</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + object.source.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote>' + content + '</blockquote> </div> </div>';
+                        html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" id="tweet-' + id + '" data-tweet-id="' + id + '" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">reply</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + object.source.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote>' + content + '</blockquote> </div> <div class="card-action"> <a target="_blank"id="reply" data-in-response="' + id + '" href="#"><i class="material-icons">reply</i></a></a><a target="_blank"id="retweet" class="dropdown-button" data-beloworigin="true" data-activates="dropdown-' + id + 'f" href="#"><i class="material-icons">repeat</i></a><ul id="dropdown-' + id + 'f" class="dropdown-content"><li><a target="_blank"id="rt" href="#">Retweet</a></li><li><a target="_blank" id="rt_quote" href="#">Quote Tweet</a></li></ul><a target="_blank" id="like" href="#"><i class="material-icons">' + object.fav + '</i></a></div></div>';
                     } else {
                         html = '<div class="divider"></div><div class="card '+colormode+' '+minimal+'" style="display: none"><div class="card-content"><div style="float: left;"><i class="material-icons">'+type+'</i></div><img src="' + object.source.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">  ' + object.source.name + '<a target="_blank"id="username" class="" href="https://twitter.com/' + object.source.screen_name + '">  @' + object.source.screen_name + '</a> '+lang.external[object.type]+' <br><blockquote><div class="card '+colormode+' z-depth-3 tweet"><div class="card-content"><span class="card-title left-align"><img src="' + object.target.user.profile_image_url_https + '" alt="Profilbild" class="'+rpb+' responsive-img">' + object.target.user.name + '<a target="_blank"id="username" class="grey-text lighten-3" href="https://twitter.com/' + object.target.user.screen_name + '"> @' + object.target.user.screen_name + '</a></span>' + content + '</div></blockquote> </div> </div>';
                     }
@@ -349,10 +354,7 @@
             extra.action = 'prepend';
         }
         var finalTweet;
-        if( data.sender !== undefined && data.recipient !== undefined ){
-            this.helper.sortDM(data);
-
-        } else if ( data.text !== undefined ) {
+        if ( data.text !== undefined ) {
             finalTweet = this.helper.linkAll( data );
             this.templater.timeline(data.id_str, extra, finalTweet);
             $('#tweet-' + data.id_str + ' .materialboxed').materialbox();
@@ -395,11 +397,13 @@
             $('.dropdown-button').dropdown();
             $('.slider').slider({full_width: true,indicators: false});
         } else if ( data.delete !== undefined ) {
-            $( '#tweet-' + data.delete.status.id_str ).remove();
+          $( '#tweet-' + data.delete.status.id_str ).each(function(){
+              $(this).remove();
+          });
         } else if ( (data.event == 'favorite' || data.event == 'user-related' || data.event == 'follow')) {
             if(( ( data.object !== undefined && data.object.screen_name !== cDeck.user.screen_name) || (data.source !== undefined && data.source.screen_name !== cDeck.user.screen_name) ) ){
                 finalTweet = this.helper.favoriteContent( data );
-                this.templater.notification( data.id_str, extra, finalTweet );
+                this.templater.notification( finalTweet.target.id_str, extra, finalTweet );
                 $('#notifications a#username').first().click(function(e){
                     e.preventDefault();
                     self.userInfo(($(this).attr('href')).replace('https://twitter.com/', ''));
@@ -410,6 +414,27 @@
                         self.userInfo(($(this).attr('href')).replace('https://twitter.com/', ''));
                     });
                 });
+                $('#notifications div.card:first #reply').on('click', function (event) {
+                    event.preventDefault();
+                    self.newTweet('reply', $(this).attr('data-in-response'));
+                });
+                $('#notifications div.card:first #like').on('click', function (event) {
+                    event.preventDefault();
+                    var spinner = '<div class="preloader-wrapper very-small active valign"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-red"> <div class="circle-clipper left"><div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-yellow"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-green"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> </div>';
+                    $(this).html(spinner);
+                    cDeck.postLike(data.object.id_str);
+                });
+                $('#notifications div.card:first #rt').on('click', function (event) {
+                    event.preventDefault();
+                    var spinner = '<div class="preloader-wrapper very-small active valign"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-red"> <div class="circle-clipper left"><div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-yellow"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-green"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> </div>';
+                    $('#notifications #tweet-' + data.object.id_str + ' #retweet').html( spinner );
+                    cDeck.postRt(data.object.id_str);
+                });
+                $('#notifications div.card:first #rt_quote').on('click', function (event) {
+                    event.preventDefault();
+                    self.newTweet('quote', data.object.id_str);
+                });
+                $('#notifications div.card:first .dropdown-button').dropdown();
                 if($app.state == "ready" && window.uconfig.notifications == "true" && !windowIsVisible()){
                     log.debug('Renderer: Spawning notification');
                     if (!("Notification" in window)) {
@@ -419,7 +444,8 @@
                         var notification = new Notification('cDeck', {
                             body: '@'+finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
                             icon: finalTweet.source.profile_image_url_https
-                        })
+                        });
+                        $('#notification')[0].play();
                     }
                     else if (Notification.permission !== 'denied') {
                         Notification.requestPermission(function (permission) {
@@ -433,7 +459,63 @@
                                 var notification = new Notification('cDeck', {
                                     body: '@'+finalTweet.source.screen_name + ' '+lang.external[finalTweet.type],
                                     icon: finalTweet.source.profile_image_url_https
-                                })
+                                });
+                                $('#notification')[0].play();
+                            }
+                        });
+                    }
+
+                }
+            }
+        } else if( data.event = 'dm' && data.direct_message !== undefined){
+            var dm = this.helper.sortDM(data.direct_message);
+            if($('.dm-container').length !== 0 && $('.dm-user[data-handle="'+dm.user.screen_name+'"]').hasClass('active')){
+                var object = renderer.helper.linkAll({text: dm.message, entities: dm.entities, extended_entities: dm.entities, user: dm.user}),
+                    html = '<div class="message"><div class="grey darken-2 '+dm.align+'">'+object.tweet + object.medialink+'</div></div>';
+                $(html).appendTo('#dm-msg');
+                $('#dm-msg').animate({scrollTop: $('#dm-msg')[0].scrollHeight}, 1000, 'swing');
+                $('#dm-msg .materialboxed').materialbox();
+                if(!windowIsVisible())
+                    sendNotification();
+            } else {
+                if($('.dm-container').length !== 0 && dm.align == 'left'){
+                    if($('.dm-user[data-handle="'+dm.user.screen_name+'"] span.new.badge').length == 0){
+                        $('<span class="new badge" style="right:unset">0</span>').appendTo('.dm-user[data-handle="'+dm.user.screen_name+'"]');
+                    }
+                    var badge = $('.dm-user[data-handle="'+dm.user.screen_name+'"] span.new.badge');
+                    badge.text(parseInt(badge.text())+1);
+                    sendNotification();
+                } else if (dm.align == 'left') {
+                    sendNotification();
+                }
+            }
+            function sendNotification(){
+                if($app.state == "ready" && window.uconfig.notifications == "true"){
+                    log.debug('Renderer: Spawning notification');
+                    if (!("Notification" in window)) {
+                        alert("This browser does not support desktop notification");
+                    }
+                    else if (Notification.permission === "granted") {
+                        var notification = new Notification('cDeck', {
+                            body: 'New DM from @'+dm.user.screen_name,
+                            icon: dm.user.profile_image_url_https
+                        });
+                        $('#notification')[0].play();
+                    }
+                    else if (Notification.permission !== 'denied') {
+                        Notification.requestPermission(function (permission) {
+                            if (permission === "granted") {
+                                changeUconfig({notifications: true}, function(result){
+                                    if(result === true){
+                                        log.info('Client: Notifications enabled');
+                                        Materialize.toast(lang.menu.noti_enabled, 5000)
+                                    }
+                                });
+                                var notification = new Notification('cDeck', {
+                                    body: 'New DM from @'+data.user.screen_name,
+                                    icon: dm.user.profile_image_url_https
+                                });
+                                $('#notification')[0].play();
                             }
                         });
                     }
@@ -451,7 +533,7 @@
         var modalNumber = spawnModal(),
             colormode = uconfig.colormode == "1" ? 'grey darken-4 white-text' : '',
             rpb = '',
-            btn_follow = '<button class="btn waves-effect waves-light blue">Follow</button>',
+            btn_follow = '<button class="btn waves-effect waves-light blue" id="follow" data-following="false" data-handle="'+handle+'">Follow</button>',
             icons = '';
         if (window.uconfig.roundpb) {
             rpb = "circle"
@@ -519,7 +601,7 @@
                 }
             }
             if(data.following == true){
-                btn_follow = '<button class="btn waves-effect waves-light white black-text">Following</button>';
+                btn_follow = '<button class="btn waves-effect waves-light white black-text" id="follow" data-following="true" data-handle="'+handle+'">Following</button>';
             }
             if(data.protected == true){
                 icons = icons + '<i class="material-icons">lock</i>'
@@ -528,6 +610,35 @@
                 icons = icons + '<i class="material-icons">check_circle</i>'
             }
             $('#modal' + modalNumber + ' .modal-content').html('<div class="valign-wrapper z-depth-2" style="background: url(\'' + data.profile_banner_url + '\') no-repeat center center;background-size: cover;"><div class="container" style="background-color:'+hexToRgbA('#'+data.profile_link_color, 0.5)+';height:100%;padding: 0 1rem;"><div class="valign"><br><h4 id="modal-header"><img src="' + data.profile_image_url_https + '" alt="Profilbild" class="' + rpb + ' responsive-img pb">  ' + data.name + icons + '</h4><p><a target="_blank"id="username" href="https://twitter.com/' + data.screen_name + '"> @' + data.screen_name + '</a></p><p>' + twttr.txt.autoLink(data.description, {urlEntities: data.entities.description.urls}).replace(/(?:@<(?:[^>]+)>)([^<]+)(?:[^>]+>)/g, '<a target="_blank" class="username" href="https://twitter.com/$1">@$1</a>') + '</p><div class="divider"></div><br><div class="row"><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '"><div class="col s2 right-border"><p><b>'+data.statuses_count+'</b><br>Tweets</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/following"><div class="col s2 right-border"><p><b>'+data.friends_count+'</b><br>Following</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/followers"><div class="col s2 right-border"><p><b>' + data.followers_count + '</b><br>Follower</p></div></a><a target="_blank" class="white-text" href="https://twitter.com/' + data.screen_name + '/memberships"><div class="col s2"><p><b>'+data.listed_count+'</b><br>Listed</p></div></a><div class="col s4">'+btn_follow+'</div></div></div></div></div>')
+            $('#modal' + modalNumber + ' .modal-content button#follow').on('click', function(){
+                var button = $(this), handle = button.attr('data-handle');
+                button.html('Loading...');
+                function afterClick(type, data){
+                    if(typeof data.failed == "undefined"){
+                        switch(type){
+                            case 0:
+                                button.removeClass('blue').addClass('white black-text');
+                                button.attr('data-following', 'true');
+                                button.html('Following');
+                                log.debug('Successfully followed '+handle);
+                                break;
+                            case 1:
+                                button.removeClass('white black-text').addClass('blue');
+                                button.attr('data-following', 'false');
+                                button.html('Follow');
+                                log.debug('Successfully unfollowed '+handle);
+                                break;
+                        }
+                    }
+                }
+                if($(this).attr('data-following') == "true"){
+                    log.debug('Client: Unfollowing '+handle);
+                    cDeck.friendship(1, handle, afterClick)
+                } else {
+                    log.debug('Client: Following '+handle);
+                    cDeck.friendship(0, handle, afterClick)
+                }
+            });
             $('#modal' + modalNumber + ' a.username').each(function(){
                 $(this).click(function(e){
                     e.preventDefault();
@@ -685,7 +796,7 @@
                                                     $('#modal' + modalNumber).closeModal();
                                                     modal.closeModal();
                                                     Materialize.toast('Upload failed', 2000);
-                                                    console.error(e);
+                                                    log.error(e);
                                                 }
                                             });
                                         }, e.data.processing_info.check_after_secs * 1000);
@@ -702,7 +813,7 @@
                         },
                         error: function(xhr, e){
                             Materialize.toast('Error while uploading media '+(index + 1)+'/'+$tweetFile.length, 2000);
-                            console.error(e);
+                            log.error(e);
                         },
                         xhr: function() {
                             var xhr = new window.XMLHttpRequest();

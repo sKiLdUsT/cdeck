@@ -57,7 +57,6 @@ class HomeController extends Controller
             $this->user->save();
             $this->user = Auth::user();
         } catch (\Exception $e){
-            dd($e);
             return 1;
         }
 
@@ -88,7 +87,8 @@ class HomeController extends Controller
             case 0:
                 break;
             case 1:
-                return;
+                Auth::logout();
+                $request->session()->flush();
                 return redirect(route('login'));
                 break;
             default:
@@ -103,7 +103,17 @@ class HomeController extends Controller
         $aID = !is_null($this->uconfig) ? $this->uconfig->activeID : 0;
         $accounts = $this->accounts;
 
+        if(!is_null($this->uconfig) && $this->uconfig->highlights == "true"){
+            $highlights =  "true";
+            $this->uconfig->highlights = "false";
+            $this->user->uconfig = json_encode($this->uconfig);
+            $this->user->save();
+            $this->user = Auth::user();
+        } else {
+            $highlights = "false";
+        }
+
         # Return view
-        return view('app.home', compact('title', 'deliver', 'clients', 'accounts', 'aID'));
+        return view('app.home', compact('title', 'deliver', 'clients', 'accounts', 'aID', 'highlights'));
     }
 }
