@@ -35,7 +35,7 @@
             upstream_url: '/api/upstream',
             user_url: '/api/twitter/getTokens'
         };
-        this.version = '0.8b';
+        this.version = '0.8';
         // Set config if given
         if( typeof config == 'object' ){
             // Loop through keys

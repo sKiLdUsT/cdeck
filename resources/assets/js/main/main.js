@@ -1,7 +1,7 @@
 // App Global variable
 window.$app = {
     state: 'loading',
-    version: '0.8b',
+    version: '0.8',
     tconfig_url: '/api/twitter/tconfig',
     uconfig_url: '/api/uconfig',
     lang_url: '/api/lang?lang=',
